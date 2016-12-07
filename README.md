@@ -17,7 +17,6 @@ For this, you should add the following to your application/route.js:
 
 ```js
 // application/route.js or routes/application.js
-
 import Ember from 'ember';
 
 export default Ember.Route.extend({
@@ -55,7 +54,7 @@ export default IndexedDbConfigurationService.extend({
 ```
 
 Please consult the Dexie Documentation on [details about configuring your database](https://github.com/dfahlander/Dexie.js/wiki/Version.stores()). 
-Basically, you should always have a '&id' column as a primary index, and add further indecies that you want to query by. You can also add multi-indecies for more complex querying.
+Basically, you should always have an `&id` column as a primary index, and add further indices that you want to query by. You can also add multi-indices for more complex querying.
 
 Each version can also have an upgrade function in addition (or instead of) a stores property. This can be used to do data migrations. See the Dexie Documentation for details about [data migrations and upgrades](https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()).
 
@@ -96,7 +95,7 @@ Things to note here:
 2. Always clean up your json. You can use the provided `this._cleanObject(item)` for this, which will clean up prototype & meta properties/functions.
 3. IndexedDB doesn't work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database. You can use the provided `this._toZeroOne(val)` for this.
 
-You should have one property per item you want to query for. The item which is passed in is a JSONAPI item.
+You should have one property per item you want to query for. The item which is passed in is a JSONAPI payload-item.
 
 ## Usage
 
@@ -121,7 +120,7 @@ If you do not use JSONAPI, you should convert it to the JSONAPI format before ca
 
 ## Usage with ember-data
 
-The real power of this solutions comes together with the provided ember-data adapter. Just extend from it instead of from the default adapter:
+The real power of this utility comes together with the provided ember-data adapter. Just extend from it instead of from the default adapter:
 
 ```js
 import IndexedDbAdapter from 'ember-indexeddb/adapters/indexed-db';
@@ -134,7 +133,7 @@ Note that it will also persist data to IndexedDB when calling e.g. `createRecord
 If you want to persist data back to an API, you need to handle this yourself.
 This works with the default JSONAPISerializer.
 
-Note that `query` and `queryRecord` will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS.
+Note that `query` and `queryRecord` will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).
  
 ## Bulk saving models
 
