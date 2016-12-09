@@ -19,6 +19,10 @@ export default JSONAPIAdapter.extend({
 
   _shouldLogDurations: false,
 
+  generateIdForRecord() {
+    return Math.random().toString(32).slice(2).substr(0, 8);
+  },
+
   findAll(store, type) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
