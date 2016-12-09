@@ -4,6 +4,7 @@ This addon provides utilities to work with IndexedDB based on [Dexie](http://dex
 
 [![Build Status](https://travis-ci.org/mydea/ember-indexeddb.svg?branch=master)](https://travis-ci.org/mydea/ember-indexeddb)
 [![Ember Observer Score](https://emberobserver.com/badges/ember-indexeddb.svg)](https://emberobserver.com/addons/ember-indexeddb)
+[![npm version](https://badge.fury.io/js/ember-indexeddb.svg)](https://badge.fury.io/js/ember-indexeddb)
 
 It provides:
 
