@@ -457,7 +457,7 @@ export default Service.extend({
   },
 
   _mapItem(type, item) {
-    let dbConfiguration = get(this, 'dbConfiguration');
+    let dbConfiguration = get(this, 'indexedDbConfiguration');
     return dbConfiguration.mapItem(type, item);
   },
 
