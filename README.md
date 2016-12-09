@@ -2,6 +2,9 @@
 
 This addon provides utilities to work with IndexedDB based on [Dexie](http://dexie.org/).
 
+[![Build Status](https://travis-ci.org/mydea/ember-indexeddb.svg?branch=master)](https://travis-ci.org/mydea/ember-indexeddb)
+[![Ember Observer Score](https://emberobserver.com/badges/ember-indexeddb.svg)](https://emberobserver.com/addons/ember-indexeddb)
+
 It provides:
 
 * A service to configure the database & migrations/upgrades
