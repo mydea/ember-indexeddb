@@ -1,8 +1,7 @@
 import { moduleFor, test } from 'ember-qunit';
 
 moduleFor('service:indexed-db', 'Unit | Service | indexed db', {
-  // Specify the other units that are required for this test.
-  // needs: ['service:foo']
+  needs: ['service:indexed-db-configuration']
 });
 
 // Replace this with your real tests.

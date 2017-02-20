@@ -8,6 +8,15 @@ const {
   A: array
 } = Ember;
 
+/**
+ * This service should be overwritten to configure IndexedDB.
+ * Overwrite the `mapTable` property & add `versionX` properties to fit your application.
+ *
+ * @module Services
+ * @class IndexedDbConfiguration
+ * @extends Ember.Service
+ * @public
+ */
 export default Service.extend({
 
   /**

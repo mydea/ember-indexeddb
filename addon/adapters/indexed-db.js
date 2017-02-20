@@ -12,17 +12,66 @@ const {
   JSONAPIAdapter
 } = DS;
 
+/**
+ *
+ * This Ember-Data adapter will fetch and save all data to/from IndexedDB.
+ *
+ * @module Ember Data
+ * @class IndexedDbAdapter
+ * @extends DS.JSONAPIAdapter
+ * @public
+ */
 export default JSONAPIAdapter.extend({
+
+  /**
+   * The indexedDb service.
+   *
+   * @property indexedDb
+   * @type {IndexedDb}
+   * @rotected
+   */
   indexedDb: inject.service(),
 
+  /**
+   * Coalesce all find requests.
+   *
+   * @property coalesceFindRequests
+   * @type {Boolean}
+   * @default true
+   * @protected
+   */
   coalesceFindRequests: true,
 
+  /**
+   * Set this to true to log durations of IndexedDB operations to the console.
+   *
+   * @property _shouldLogDurations
+   * @type {Boolean}
+   * @default false
+   * @private
+   */
   _shouldLogDurations: false,
 
+  /**
+   * This function will generate a GUID to be used in IndexedDB.
+   *
+   * @method generateIdForRecord
+   * @return {String}
+   * @protected
+   */
   generateIdForRecord() {
     return Math.random().toString(32).slice(2).substr(0, 8);
   },
 
+  /**
+   * Fetch all records of a given type from IndexedDB.
+   *
+   * @method findAll
+   * @param store
+   * @param type
+   * @return {RSVP.Promise}
+   * @public
+   */
   findAll(store, type) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
@@ -37,6 +86,16 @@ export default JSONAPIAdapter.extend({
     });
   },
 
+  /**
+   * Find a record of a given type & ID from IndexedDB.
+   *
+   * @method findRecord
+   * @param store
+   * @param type
+   * @param {String} id
+   * @return {RSVP.Promise}
+   * @public
+   */
   findRecord(store, type, id) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
@@ -55,6 +114,16 @@ export default JSONAPIAdapter.extend({
     });
   },
 
+  /**
+   * Find many records for a given type by multiple IDs.
+   *
+   * @method findMany
+   * @param store
+   * @param type
+   * @param {Array} ids
+   * @return {RSVP.Promise}
+   * @public
+   */
   findMany(store, type, ids) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
@@ -69,6 +138,17 @@ export default JSONAPIAdapter.extend({
     });
   },
 
+  /**
+   * Query a type from IndexedDB.
+   * This will try to use real indices where possible.
+   *
+   * @method query
+   * @param store
+   * @param type
+   * @param {Object} query
+   * @return {RSVP.Promise}
+   * @public
+   */
   query(store, type, query) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
@@ -84,6 +164,17 @@ export default JSONAPIAdapter.extend({
     });
   },
 
+  /**
+   * Query a single item from IndexedDB.
+   * This will try to use real indices where possible.
+   *
+   * @method queryRecord
+   * @param store
+   * @param type
+   * @param {Object} query
+   * @return {RSVP.Promise}
+   * @public
+   */
   queryRecord(store, type, query) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
@@ -104,10 +195,30 @@ export default JSONAPIAdapter.extend({
     });
   },
 
+  /**
+   * Update a given record in IndexedDB.
+   *
+   * @method updateRecord
+   * @param store
+   * @param type
+   * @param snapshot
+   * @return {RSVP.Promise}
+   * @public
+   */
   updateRecord(store, type, snapshot) {
     return this._save(store, type, snapshot);
   },
 
+  /**
+   * Delete a record from IndexedDB.
+   *
+   * @method deleteRecord
+   * @param store
+   * @param type
+   * @param snapshot
+   * @return {RSVP.Promise}
+   * @public
+   */
   deleteRecord(store, type, snapshot) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
@@ -122,10 +233,30 @@ export default JSONAPIAdapter.extend({
     });
   },
 
+  /**
+   * Create a new record in IndexedDB.
+   *
+   * @method createRecord
+   * @param store
+   * @param type
+   * @param snapshot
+   * @return {RSVP.Promise}
+   * @public
+   */
   createRecord(store, type, snapshot) {
     return this._save(store, type, snapshot);
   },
 
+  /**
+   * This function is called under the hood by both `createRecord` and `updateRecord`.
+   *
+   * @method _save
+   * @param store
+   * @param type
+   * @param snapshot
+   * @return {RSVP.Promise}
+   * @private
+   */
   _save(store, type, snapshot) {
     let indexedDB = get(this, 'indexedDb');
     let { modelName } = type;
@@ -146,6 +277,14 @@ export default JSONAPIAdapter.extend({
     });
   },
 
+  /**
+   * This is used to normalize the response of IndexedDB for array responses.
+   *
+   * @method _normalizeArray
+   * @param records
+   * @return {Object}
+   * @private
+   */
   _normalizeArray(records) {
     if (!records) {
       return {
@@ -158,6 +297,14 @@ export default JSONAPIAdapter.extend({
     };
   },
 
+  /**
+   * This is used to normalize a single record response.
+   *
+   * @method _normalizeSingle
+   * @param record
+   * @return {Object}
+   * @private
+   */
   _normalizeSingle(record) {
     if (!record) {
       return null;
@@ -168,6 +315,14 @@ export default JSONAPIAdapter.extend({
     };
   },
 
+  /**
+   * This function is used to log durations of operations to the console, if `_shouldLogDurations` is set.
+   *
+   * @method _logDuration
+   * @param str
+   * @param isEnd
+   * @private
+   */
   _logDuration(str, isEnd = false) {
     if (!get(this, '_shouldLogDurations')) {
       return;

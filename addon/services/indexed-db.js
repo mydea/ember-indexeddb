@@ -15,7 +15,7 @@ const {
 /**
  * This service allows interacting with an IndexedDB databse.
  *
- * @namespace EmberIndexeddb.Service
+ * @module Services
  * @class IndexedDb
  * @extends Ember.Service
  * @public
