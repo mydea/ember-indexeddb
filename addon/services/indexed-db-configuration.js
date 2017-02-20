@@ -4,7 +4,8 @@ import computed from 'ember-computed';
 const {
   Service,
   get,
-  typeOf: getTypeOf
+  typeOf: getTypeOf,
+  A: array
 } = Ember;
 
 export default Service.extend({
@@ -179,7 +180,10 @@ export default Service.extend({
    * @private
    */
   _cleanObject(data) {
-    // Convert array-like structures to real arrays
+    if (!data) {
+      return null;
+    }
+
     let obj = {
       id: get(data, 'id'),
       type: get(data, 'type'),
@@ -190,12 +194,18 @@ export default Service.extend({
     let attributes = get(data, 'attributes') || {};
     let relationships = get(data, 'relationships') || {};
 
+    let isArray = (item) => {
+      return getTypeOf(item) === 'array' || (getTypeOf(item) === 'instance' && getTypeOf(item.toArray) === 'function');
+    };
+
     for (let i in attributes) {
       if (!attributes.hasOwnProperty(i)) {
         continue;
       }
-      if (getTypeOf(attributes[i]) === 'array') {
-        obj.attributes[i] = attributes[i].toArray();
+
+      // Convert array-like structures to real arrays
+      if (isArray(attributes[i])) {
+        obj.attributes[i] = array(attributes[i]).toArray();
       } else {
         obj.attributes[i] = attributes[i];
       }
@@ -205,8 +215,8 @@ export default Service.extend({
       if (!relationships.hasOwnProperty(i)) {
         continue;
       }
-      if (getTypeOf(relationships[i].data) === 'array') {
-        obj.relationships[i] = { data: relationships[i].data.toArray() };
+      if (isArray(relationships[i].data)) {
+        obj.relationships[i] = { data: array(relationships[i].data).toArray() };
       } else {
         obj.relationships[i] = relationships[i];
       }
