@@ -333,6 +333,108 @@ export default Service.extend({
   },
 
   /**
+   * Export a complete dump of the current database.
+   * The output of this can be used to recreate the exact database state via this.importDatabase(config);
+   *
+   * @method exportDatabase
+   * @return {RSVP.Promise}
+   * @public
+   */
+  exportDatabase() {
+    let db = get(this, 'db');
+
+    let config = {
+      databaseName: get(this, 'databaseName'),
+      version: get(this, 'currentVersion'),
+      stores: {},
+      data: {}
+    };
+
+    return new RSVP.Promise((resolve, reject) => {
+      // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
+      db.open().then(function() {
+        // Save the last version number
+        set(config, 'version', db.verno);
+
+        db.tables.forEach(function(table) {
+          let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
+          let schemaSyntax = primKeyAndIndexes.map(function(index) {
+            return index.src;
+          }).join(',');
+
+          set(config.stores, table.name, schemaSyntax);
+
+          table.each((object) => {
+            let arr = get(config.data, table.name);
+            if (!arr) {
+              arr = [];
+              set(config.data, table.name, arr);
+            }
+
+            arr.push(object);
+          });
+        });
+
+        resolve(config);
+      }, reject).finally(function() {
+        db.close();
+      });
+    });
+  },
+
+  /**
+   * Import a complete database dump as created by this.exportDatabase()
+   *
+   * @method importDatabase
+   * @param {Object} config A configuration object as created by this.exportDatabase()
+   * @return {RSVP.Promise}
+   * @public
+   */
+  importDatabase(config) {
+    let {
+      databaseName,
+      version,
+      stores,
+      data
+    } = config;
+
+    console.log(`====================================`);
+    console.log(`Importing database dump!`);
+    return new RSVP.Promise((resolve, reject) => {
+      console.log(`Dropping existing database...`);
+      this.dropDatabase().then(() => {
+        console.log(`Setting up database ${databaseName} in version ${version}...`);
+        let db = new Dexie(databaseName);
+        db.version(version).stores(stores);
+
+        console.log('Opening database...');
+        db.open().then(() => {
+          let tables = Object.keys(data);
+
+          let importNextTable = () => {
+            let [table] = tables.splice(0, 1);
+
+            if (!table) {
+              console.log('Database import done!');
+              return resolve();
+            }
+
+            console.log(`Importing data for ${table}...`);
+            console.time(`Import for ${table} done`);
+            let promise = db[table].bulkPut(data[table]);
+            promise.then(() => {
+              console.timeEnd(`Import for ${table} done`);
+              importNextTable();
+            }, reject);
+          };
+
+          importNextTable();
+        }, reject);
+      }, reject);
+    });
+  },
+
+  /**
    * Wait for all queued objects ot be resolved.
    * This will resolve when there are no open processes anymore.
    *
