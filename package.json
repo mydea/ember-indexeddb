@@ -11,7 +11,10 @@
     "doc": "doc",
     "test": "tests"
   },
-  "repository": "https://github.com/mydea/ember-indexeddb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mydea/ember-indexeddb.git"
+  },
   "scripts": {
     "build": "ember build",
     "start": "ember server",
@@ -50,6 +53,8 @@
     "node": ">= 0.12.0"
   },
   "ember-addon": {
-    "configPath": "tests/dummy/config"
-  }
+    "configPath": "tests/dummy/config",
+    "demoURL": "https://mydea.github.io/ember-indexeddb/docs/"
+  },
+  "homepage": "https://github.com/mydea/ember-indexeddb"
 }

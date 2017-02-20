@@ -3,6 +3,7 @@
   "description": "A utility for using IndexedDB with ember & ember-data",
   "version": "0.1.1",
   "indexModule": "Usage",
+  "url": "https://github.com/mydea/ember-indexeddb",
   "options": {
     "paths": [
       "addon"
