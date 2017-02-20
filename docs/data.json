@@ -2,8 +2,9 @@
     "project": {
         "name": "ember-indexeddb",
         "description": "A utility for using IndexedDB with ember & ember-data",
-        "version": "0.1.1.bcb2d59c",
-        "indexModule": "Usage"
+        "version": "0.1.1.658a199e",
+        "indexModule": "Usage",
+        "url": "https://github.com/mydea/ember-indexeddb"
     },
     "files": {
         "addon\\adapters\\indexed-db.js": {
