@@ -28,7 +28,7 @@ export default JSONAPIAdapter.extend({
    *
    * @property indexedDb
    * @type {IndexedDb}
-   * @rotected
+   * @protected
    */
   indexedDb: inject.service(),
 

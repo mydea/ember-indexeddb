@@ -1,10 +1,5 @@
-/**
- * Copyright 2016, Yahoo! Inc.
- * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
- */
-
 import IndexedDb from './services/indexed-db';
-import IndexedDbConfiguration from './services-indexed-db-configuration';
+import IndexedDbConfiguration from './services/indexed-db-configuration';
 
 /**
  * ## Installation
@@ -20,6 +15,7 @@ import IndexedDbConfiguration from './services-indexed-db-configuration';
  * If it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues).
  *
  * @module Usage
+ * @public
  */
 
 /**
@@ -49,6 +45,7 @@ import IndexedDbConfiguration from './services-indexed-db-configuration';
  *
  * @module Usage
  * @submodule Setup
+ * @public
  */
 
 /**
@@ -117,6 +114,7 @@ import IndexedDbConfiguration from './services-indexed-db-configuration';
 
  * @module Usage
  * @submodule Configuring your database
+ * @public
  */
 
 /**
@@ -143,6 +141,7 @@ import IndexedDbConfiguration from './services-indexed-db-configuration';
  *
  * @module Usage
  * @submodule Querying & Inserting data
+ * @public
  */
 
 /**
@@ -151,6 +150,7 @@ import IndexedDbConfiguration from './services-indexed-db-configuration';
  * Overwrite IndexedDbConfiguration to fit your application.
  *
  * @module Services
+ * @public
  */
 
 /**
@@ -172,9 +172,10 @@ import IndexedDbConfiguration from './services-indexed-db-configuration';
  Note that `query` and `queryRecord` will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).
  *
  * @module Ember Data
+ * @public
  */
 
 export default {
   IndexedDb,
   IndexedDbConfiguration
-}
+};
