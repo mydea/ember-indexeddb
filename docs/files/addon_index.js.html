@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>addon\index.js - ember-indexeddb</title>
+    <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
+    
+</head>
+<body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand">
+            <img src="../assets/img/ember-logo.png" alt="">
+            <span>indexeddb</span>
+          </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="" class="fa fa-github github"></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div id="main-wrapper" class="row">
+        <div id="content-wrapper">
+            <ol class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-search-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-search" aria-expanded="true" aria-controls="collapseOne">
+                        Search
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-search" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-search-heading">
+                        <div class="panel-body">
+                            <div id="api-tabview-filter">
+                                <input type="search" id="api-filter" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                    <li class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="sidebar-version-heading">
+                            <h4 class="panel-title">
+                                <a role="button" href="/commits/bcb2d59c" target="_blank">
+                                  Tag: 0.1.1.bcb2d59c
+                                </a>
+                            </h4>
+                        </div>
+                    </li>
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-modules-heading">
+                        <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" href="#sidebar-modules" aria-expanded="true" aria-controls="collapseOne">
+                      Modules
+                    </a>
+                  </h4>
+                    </div>
+                    <div id="sidebar-modules" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-modules-heading">
+                        <div class="panel-body">
+                                <ol>
+                                        <li>
+                                            <a href="../modules/Ember Data.html">Ember Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Usage.html">Usage</a>
+                                                    <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
+                                                    <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
+                                                    <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                </ol>
+                        </div>
+                    </div>
+                </li>
+            
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-classes-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-classes" aria-expanded="true" aria-controls="collapseOne">
+                        Classes
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-classes" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-classes-heading">
+                        <div class="panel-body">
+                            <ol>
+                                    <li>
+                                        <a href="../classes/IndexedDb.html">IndexedDb</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbAdapter.html">IndexedDbAdapter</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbConfiguration.html">IndexedDbConfiguration</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbSerializer.html">IndexedDbSerializer</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
+                                    </li>
+                            </ol>
+                        </div>
+                    </div>
+                </li>
+            </ol>
+            <div class="content-container">
+                <div class="apidocs">
+                    <div id="docs-main">
+                        <div class="content">
+<div class="page-header">
+    <h1><i class="fa fa-file-code-o" aria-hidden="true"></i>  File</h1>
+</div>
+
+<div class="file">
+    <pre class="prettyprint linenums">
+/**
+ * Copyright 2016, Yahoo! Inc.
+ * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
+ */
+
+import IndexedDb from &#x27;./services/indexed-db&#x27;;
+import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x27;;
+
+/**
+ * ## Installation
+ * &#x60;&#x60;&#x60;shell
+ * ember install ember-indexeddb
+ * &#x60;&#x60;&#x60;
+ *
+ * ## Changelog
+ * Changelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)
+ *
+ *
+ * ## Looking for help?
+ * If it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues).
+ *
+ * @module Usage
+ */
+
+/**
+ * ## Setup
+
+ After installing the addon, you&#x27;ll need to setup the database on application start.
+ For this, you should add the following to your application/route.js:
+
+ &#x60;&#x60;&#x60;js
+ // application/route.js or routes/application.js
+ import Ember from &#x27;ember&#x27;;
+
+ export default Ember.Route.extend({
+  indexedDb: Ember.inject.service(),
+
+  beforeModel() {
+    this._super(...arguments);
+
+    return this.get(&#x27;indexedDb&#x27;).setup();
+  }
+});
+ &#x60;&#x60;&#x60;
+
+ This returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.
+
+ Now, you just need to define your database tables by extending the indexed-db-configuration service.
+ *
+ * @module Usage
+ * @submodule Setup
+ */
+
+/**
+ * ## Configuring your database
+
+ You need to extend the indexed-db-configuration service:
+
+ &#x60;&#x60;&#x60;js
+ import IndexedDbConfigurationService from &#x27;ember-indexeddb/services/indexed-db-configuration&#x27;;
+
+ export default IndexedDbConfigurationService.extend({
+  currentVersion: 1,
+
+  version1: {
+    stores: {
+      &#x27;model-one&#x27;: &#x27;&amp;id,*isNew&#x27;,
+      &#x27;model-two&#x27;: &#x27;&amp;id,*status,*modelOne,[status+modelOne]&#x27;
+    }
+  }
+});
+ &#x60;&#x60;&#x60;
+
+ Please consult the Dexie Documentation on [details about configuring your database](https://github.com/dfahlander/Dexie.js/wiki/Version.stores()).
+ Basically, you should always have an &#x60;&amp;id&#x60; column as a primary index, and add further indices that you want to query by. You can also add multi-indices for more complex querying.
+
+ Each version can also have an upgrade function in addition (or instead of) a stores property. This can be used to do data migrations. See the Dexie Documentation for details about [data migrations and upgrades](https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()).
+
+ You can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a &#x60;versionX&#x60; property per version, starting at 1. So if you have a &#x60;currentVersion&#x60; of 3, you need to have &#x60;version1&#x60;, &#x60;version2&#x60; and &#x60;version3&#x60; properties.
+
+ All of these migrations are automatically run when running &#x60;this.get(&#x27;indexedDb&#x27;).setup();&#x60;.
+
+ In addition to the store configuration, you also need to define a &#x60;mapTable&#x60;.
+ This is a map of functions which is used to normalize JSONAPI payloads for IndexedDB.
+
+ For the above example, this should look something like this:
+
+ &#x60;&#x60;&#x60;js
+ mapTable: computed(function() {
+  return {
+    &#x27;model-one&#x27;: (item) =&gt; {
+      return {
+        id: this._toString(get(item, &#x27;id&#x27;)),
+        json: this._cleanupObject(item),
+        isNew: this._toZeroOne(get(item, &#x27;isNew&#x27;))
+      };
+    },
+    &#x27;model-two&#x27;: (item) =&gt; {
+      return {
+        id: this._toString(get(item, &#x27;id&#x27;)),
+        json: this._cleanupObject(item),
+        modelOne: this._toString(get(item, &#x27;relationships.modelOne.data.id&#x27;)),
+        status: get(item, &#x27;attributes.status&#x27;)
+      };
+    }
+  };
+})
+ &#x60;&#x60;&#x60;
+
+ Things to note here:
+
+ 1. Always convert your IDs to strings. You can use the provided &#x60;this._toString(val)&#x60; function for this.
+ 2. Always clean up your json. You can use the provided &#x60;this._cleanObject(item)&#x60; for this, which will clean up prototype &amp; meta properties/functions.
+ 3. IndexedDB doesn&#x27;t work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database. You can use the provided &#x60;this._toZeroOne(val)&#x60; for this.
+
+ You should have one property per item you want to query for. The item which is passed in is a JSONAPI payload-item.
+
+ * @module Usage
+ * @submodule Configuring your database
+ */
+
+/**
+ * ## Querying &amp; Inserting data
+
+ You can now work with IndexedDB!
+ For example, let&#x27;s image you query some items from a server:
+
+ &#x60;&#x60;&#x60;js
+ let indexedDB = this.get(&#x27;indexedDb&#x27;);
+ let ajax = this.get(&#x27;ajax&#x27;)
+
+ ajax.request(&#x27;/items&#x27;).then((items) =&gt; {
+  indexedDB.add(&#x27;item&#x27;, items);
+});
+
+ // Later, fetch them again
+ indexedDb.findAll(&#x27;item&#x27;).then((items) =&gt; {
+  // Here are the JSONAPI-payloads again!
+});
+ &#x60;&#x60;&#x60;
+
+ If you do not use JSONAPI, you should convert it to the JSONAPI format before calling &#x60;indexedDB.add(&#x27;item&#x27;, items);&#x60;.
+ *
+ * @module Usage
+ * @submodule Querying &amp; Inserting data
+ */
+
+/**
+ *
+ * Available services to use.
+ * Overwrite IndexedDbConfiguration to fit your application.
+ *
+ * @module Services
+ */
+
+/**
+ * ## Usage with Ember Data
+ *
+ * The real power of this utility comes together with the provided ember-data adapter. Just extend from it instead of from the default adapter:
+
+ &#x60;&#x60;&#x60;js
+ import IndexedDbAdapter from &#x27;ember-indexeddb/adapters/indexed-db&#x27;;
+
+ export default IndexedDbAdapter.extend();
+ &#x60;&#x60;&#x60;
+
+ Now, you can simply use the normal ember-data store with functions like &#x60;store.query(&#x27;item&#x27;, { isNew: true })&#x60;.
+ Note that it will also persist data to IndexedDB when calling e.g. &#x60;createRecord()&#x60; or &#x60;save()&#x60;.
+ If you want to persist data back to an API, you need to handle this yourself.
+ This works with the default JSONAPISerializer.
+
+ Note that &#x60;query&#x60; and &#x60;queryRecord&#x60; will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).
+ *
+ * @module Ember Data
+ */
+
+export default {
+  IndexedDb,
+  IndexedDbConfiguration
+}
+
+    </pre>
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/vendor/prettify/prettify-min.js"></script>
+    <script>prettyPrint();</script>
+    <script src="../assets/vendor/jquery/jquery.min.js"></script>
+    <script src="../assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="../assets/vendor/github-slugger/slugger.js"></script>
+    <script src="../assets/js/yuidoc-bootstrap.js"></script>
+</body>
+</html>

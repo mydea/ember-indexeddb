@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>addon\services\indexed-db-configuration.js - ember-indexeddb</title>
+    <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
+    
+</head>
+<body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand">
+            <img src="../assets/img/ember-logo.png" alt="">
+            <span>indexeddb</span>
+          </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="" class="fa fa-github github"></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div id="main-wrapper" class="row">
+        <div id="content-wrapper">
+            <ol class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-search-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-search" aria-expanded="true" aria-controls="collapseOne">
+                        Search
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-search" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-search-heading">
+                        <div class="panel-body">
+                            <div id="api-tabview-filter">
+                                <input type="search" id="api-filter" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                    <li class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="sidebar-version-heading">
+                            <h4 class="panel-title">
+                                <a role="button" href="/commits/bcb2d59c" target="_blank">
+                                  Tag: 0.1.1.bcb2d59c
+                                </a>
+                            </h4>
+                        </div>
+                    </li>
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-modules-heading">
+                        <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" href="#sidebar-modules" aria-expanded="true" aria-controls="collapseOne">
+                      Modules
+                    </a>
+                  </h4>
+                    </div>
+                    <div id="sidebar-modules" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-modules-heading">
+                        <div class="panel-body">
+                                <ol>
+                                        <li>
+                                            <a href="../modules/Ember Data.html">Ember Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Usage.html">Usage</a>
+                                                    <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
+                                                    <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
+                                                    <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                </ol>
+                        </div>
+                    </div>
+                </li>
+            
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-classes-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-classes" aria-expanded="true" aria-controls="collapseOne">
+                        Classes
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-classes" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-classes-heading">
+                        <div class="panel-body">
+                            <ol>
+                                    <li>
+                                        <a href="../classes/IndexedDb.html">IndexedDb</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbAdapter.html">IndexedDbAdapter</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbConfiguration.html">IndexedDbConfiguration</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbSerializer.html">IndexedDbSerializer</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
+                                    </li>
+                            </ol>
+                        </div>
+                    </div>
+                </li>
+            </ol>
+            <div class="content-container">
+                <div class="apidocs">
+                    <div id="docs-main">
+                        <div class="content">
+<div class="page-header">
+    <h1><i class="fa fa-file-code-o" aria-hidden="true"></i>  File</h1>
+</div>
+
+<div class="file">
+    <pre class="prettyprint linenums">
+import Ember from &#x27;ember&#x27;;
+import computed from &#x27;ember-computed&#x27;;
+
+const {
+  Service,
+  get,
+  typeOf: getTypeOf,
+  A: array
+} = Ember;
+
+/**
+ * This service should be overwritten to configure IndexedDB.
+ * Overwrite the &#x60;mapTable&#x60; property &amp; add &#x60;versionX&#x60; properties to fit your application.
+ *
+ * @module Services
+ * @class IndexedDbConfiguration
+ * @extends Ember.Service
+ * @public
+ */
+export default Service.extend({
+
+  /**
+   * Increment this whenever you do a new database version.
+   * Set it to 1 on your initial version.
+   *
+   * For every version, you should provide a &#x60;versionX&#x60; property.
+   * Each of these properties should be an object with &quot;stores&quot; and/or &quot;upgrade&quot; properties.
+   *
+   * stores should be an object where the keys are dasherized, singular model names (e.g. task-item),
+   * and the value is a string with the indexedable fields.
+   * See https://github.com/dfahlander/Dexie.js/wiki/Version.stores() for detailed options.
+   *
+   * upgrade is a function that gets a transaction as parameter, which can be used to run database migrations.
+   * See https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade() for detailed options/examples.
+   *
+   * An example would be:
+   *
+   * &#x60;&#x60;&#x60;js
+   * version1: {
+   *    stores: {
+   *      &#x27;task&#x27;: &#x27;&amp;id*,isRead&#x27;,
+   *      &#x27;task-item&#x27;: &#x27;&amp;id&#x27;
+   *    }
+   * },
+   *
+   * version2: {
+   *    stores: {
+   *      &#x27;task-item&#x27;: &#x27;&amp;id,*isNew&#x27;
+   *    },
+   *    upgrade: (transaction) =&gt; {
+     *     transaction[&#x27;task-item&#x27;].each((taskItem, cursor) =&gt; {
+           taskItem.isNew = 0;
+           cursor.update(taskItem);
+          });
+   *    }
+   * }
+   * &#x60;&#x60;&#x60;
+   *
+   * The
+   * You can also use upgrade/store without using the other option.
+   *
+   * @property currentVersion
+   * @type {Number}
+   * @public
+   */
+  currentVersion: 0,
+
+  /**
+   * The map functions for the tables.
+   * This should be an object with one key per table
+   * where the value is a function that takes an object and returns an object to save in IndexedDB.
+   *
+   * This object NEEDS to contain at least the properties id &amp; json.
+   * It should also contain one property per queryable property on the database table.
+   *
+   * There are a few things to note here:
+   *
+   *   1. Always convert your IDs to strings. You can use the provided &#x60;this._toString(val)&#x60; function for this.
+   *   2. Always clean up your json. You can use the provided &#x60;this._cleanObject(item)&#x60; for this.
+   *   3. IndexedDB doesn&#x27;t work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database.
+   *      You can use the provided &#x60;this._toZeroOne(val)&#x60; for this.
+   *
+   * For example, the following table config:
+   *
+   * &#x60;&#x60;&#x60;js
+   * {
+   *    task: &#x27;++id,isRead,status,[isRead+status]&#x27;
+   * }
+   * &#x60;&#x60;&#x60;
+   *
+   * should look something like this:
+   *
+   * &#x60;&#x60;&#x60;js
+   * return {
+   *    task: (item) =&gt; {
+   *      return {
+   *        id: this._toString(get(item, &#x27;id&#x27;)),
+   *        json: this._cleanObject(item),
+   *        isRead: this._toZeroOne(get(item, &#x27;attributes.isRead&#x27;)),
+   *        status: get(item, &#x27;attributes.status&#x27;)
+   *      };
+   *    }
+   * };
+   * &#x60;&#x60;&#x60;
+   *
+   * Note that if you do not specify anything here, it will default to
+   *
+   * &#x60;&#x60;&#x60;js
+   * return {
+   *    id: this._toString(get(item, &#x27;id&#x27;)),
+   *    json: this._cleanObject(item)
+   * };
+   * &#x60;&#x60;&#x60;
+   *
+   * @property mapTable
+   * @type {Object}
+   * @protected
+   */
+  mapTable: computed(function() {
+    return {};
+  }),
+
+  /**
+   * Map a payload to a database table.
+   * This will use the function provided in mapTable to get a payload to insert into IndexedDB.
+   * Returns null if no map function is found for the type.
+   *
+   * @method mapItem
+   * @param {String} type The type of object to map
+   * @param {Object} item The data to map
+   * @return {Object}
+   * @public
+   */
+  mapItem(type, item) {
+    let tables = get(this, &#x27;mapTable&#x27;);
+    let mapFunc = get(tables, type);
+
+    if (!item) {
+      return null;
+    }
+
+    if (!mapFunc) {
+      return {
+        id: this._toString(get(item, &#x27;id&#x27;)),
+        json: this._cleanObject(item)
+      };
+    }
+
+    return mapFunc(item);
+  },
+
+  /**
+   * Setup the database and do all necessary database migrations.
+   *
+   * @method setupDatabase
+   * @param {Dexie} db
+   * @return {Dexie}
+   * @public
+   */
+  setupDatabase(db) {
+    let currentVersion = get(this, &#x27;currentVersion&#x27;);
+
+    for (let v = 1; v &lt;= currentVersion; v++) {
+      let version = get(this, &#x60;version${v}&#x60;);
+      let stores = get(version, &#x27;stores&#x27;);
+      let upgrade = get(version, &#x27;upgrade&#x27;);
+
+      if (stores &amp;&amp; upgrade) {
+        db.version(v).stores(stores).upgrade(upgrade);
+      } else if (stores) {
+        db.version(v).stores(stores);
+      } else if (upgrade) {
+        db.version(v).upgrade(upgrade);
+      }
+
+    }
+
+    return db;
+  },
+
+  /**
+   * Cleanup a json object.
+   * This will convert array-like structures to actual arrays for saving.
+   * It will strip out meta properties etc.
+   *
+   * @method _cleanObject
+   * @param {Object} data
+   * @return {{id, type, attributes: {}, relationships: {}}}
+   * @private
+   */
+  _cleanObject(data) {
+    if (!data) {
+      return null;
+    }
+
+    let obj = {
+      id: get(data, &#x27;id&#x27;),
+      type: get(data, &#x27;type&#x27;),
+      attributes: {},
+      relationships: {}
+    };
+
+    let attributes = get(data, &#x27;attributes&#x27;) || {};
+    let relationships = get(data, &#x27;relationships&#x27;) || {};
+
+    let isArray = (item) =&gt; {
+      return getTypeOf(item) === &#x27;array&#x27; || (getTypeOf(item) === &#x27;instance&#x27; &amp;&amp; getTypeOf(item.toArray) === &#x27;function&#x27;);
+    };
+
+    for (let i in attributes) {
+      if (!attributes.hasOwnProperty(i)) {
+        continue;
+      }
+
+      // Convert array-like structures to real arrays
+      if (isArray(attributes[i])) {
+        obj.attributes[i] = array(attributes[i]).toArray();
+      } else {
+        obj.attributes[i] = attributes[i];
+      }
+    }
+
+    for (let i in relationships) {
+      if (!relationships.hasOwnProperty(i)) {
+        continue;
+      }
+      if (isArray(relationships[i].data)) {
+        obj.relationships[i] = { data: array(relationships[i].data).toArray() };
+      } else {
+        obj.relationships[i] = relationships[i];
+      }
+    }
+
+    return obj;
+  },
+
+  /**
+   * Convert a property to a string.
+   *
+   * @method _toString
+   * @param {Mixed} val
+   * @return {String}
+   * @private
+   */
+  _toString(val) {
+    return &#x60;${val}&#x60;;
+  },
+
+  /**
+   * Convert a boolean to 1/0.
+   *
+   * @method _toZeroOne
+   * @param val
+   * @return {1|0}
+   * @private
+   */
+  _toZeroOne(val) {
+    return val ? 1 : 0;
+  }
+
+});
+
+    </pre>
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/vendor/prettify/prettify-min.js"></script>
+    <script>prettyPrint();</script>
+    <script src="../assets/vendor/jquery/jquery.min.js"></script>
+    <script src="../assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="../assets/vendor/github-slugger/slugger.js"></script>
+    <script src="../assets/js/yuidoc-bootstrap.js"></script>
+</body>
+</html>

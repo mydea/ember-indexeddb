@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Setup - ember-indexeddb</title>
+    <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
+    
+</head>
+<body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand">
+            <img src="../assets/img/ember-logo.png" alt="">
+            <span>indexeddb</span>
+          </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="" class="fa fa-github github"></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div id="main-wrapper" class="row">
+        <div id="content-wrapper">
+            <ol class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-search-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-search" aria-expanded="true" aria-controls="collapseOne">
+                        Search
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-search" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-search-heading">
+                        <div class="panel-body">
+                            <div id="api-tabview-filter">
+                                <input type="search" id="api-filter" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                    <li class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="sidebar-version-heading">
+                            <h4 class="panel-title">
+                                <a role="button" href="/commits/bcb2d59c" target="_blank">
+                                  Tag: 0.1.1.bcb2d59c
+                                </a>
+                            </h4>
+                        </div>
+                    </li>
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-modules-heading">
+                        <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" href="#sidebar-modules" aria-expanded="true" aria-controls="collapseOne">
+                      Modules
+                    </a>
+                  </h4>
+                    </div>
+                    <div id="sidebar-modules" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-modules-heading">
+                        <div class="panel-body">
+                                <ol>
+                                        <li>
+                                            <a href="../modules/Ember Data.html">Ember Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Usage.html">Usage</a>
+                                                    <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
+                                                    <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
+                                                    <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                </ol>
+                        </div>
+                    </div>
+                </li>
+            
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-classes-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-classes" aria-expanded="true" aria-controls="collapseOne">
+                        Classes
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-classes" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-classes-heading">
+                        <div class="panel-body">
+                            <ol>
+                                    <li>
+                                        <a href="../classes/IndexedDb.html">IndexedDb</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbAdapter.html">IndexedDbAdapter</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbConfiguration.html">IndexedDbConfiguration</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbSerializer.html">IndexedDbSerializer</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
+                                    </li>
+                            </ol>
+                        </div>
+                    </div>
+                </li>
+            </ol>
+            <div class="content-container">
+                <div class="apidocs">
+                    <div id="docs-main">
+                        <div class="content">
+
+
+<div class="page-header">
+    <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> Setup Module
+              <a class="pull-right file-edit" href="undefined/blob/bcb2d59c/addon\index.js#L25" target="_blank">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+              </a>
+    </h1>
+</div>
+
+<div class="content-meta">
+
+
+        <div class="foundat">
+            Defined in: <a href="undefined/blob/bcb2d59c/addon\index.js#L25">addon\index.js:25</a>
+        </div>
+
+</div>
+
+
+<div class="module-description page-section">
+    <h2>Setup</h2>
+<p>After installing the addon, you'll need to setup the database on application start.
+For this, you should add the following to your application/route.js:</p>
+<pre class="code prettyprint"><code class="language-js">// application/route.js or routes/application.js
+import Ember from 'ember';
+
+export default Ember.Route.extend({
+ indexedDb: Ember.inject.service(),
+
+ beforeModel() {
+   this._super(...arguments);
+
+   return this.get('indexedDb').setup();
+ }
+});
+</code></pre>
+<p>This returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.</p>
+<p>Now, you just need to define your database tables by extending the indexed-db-configuration service.</p>
+
+</div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/vendor/prettify/prettify-min.js"></script>
+    <script>prettyPrint();</script>
+    <script src="../assets/vendor/jquery/jquery.min.js"></script>
+    <script src="../assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="../assets/vendor/github-slugger/slugger.js"></script>
+    <script src="../assets/js/yuidoc-bootstrap.js"></script>
+</body>
+</html>

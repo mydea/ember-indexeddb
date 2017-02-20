@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>addon\services\indexed-db.js - ember-indexeddb</title>
+    <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
+    
+</head>
+<body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand">
+            <img src="../assets/img/ember-logo.png" alt="">
+            <span>indexeddb</span>
+          </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="" class="fa fa-github github"></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div id="main-wrapper" class="row">
+        <div id="content-wrapper">
+            <ol class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-search-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-search" aria-expanded="true" aria-controls="collapseOne">
+                        Search
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-search" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-search-heading">
+                        <div class="panel-body">
+                            <div id="api-tabview-filter">
+                                <input type="search" id="api-filter" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                    <li class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="sidebar-version-heading">
+                            <h4 class="panel-title">
+                                <a role="button" href="/commits/bcb2d59c" target="_blank">
+                                  Tag: 0.1.1.bcb2d59c
+                                </a>
+                            </h4>
+                        </div>
+                    </li>
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-modules-heading">
+                        <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" href="#sidebar-modules" aria-expanded="true" aria-controls="collapseOne">
+                      Modules
+                    </a>
+                  </h4>
+                    </div>
+                    <div id="sidebar-modules" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-modules-heading">
+                        <div class="panel-body">
+                                <ol>
+                                        <li>
+                                            <a href="../modules/Ember Data.html">Ember Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Usage.html">Usage</a>
+                                                    <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
+                                                    <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
+                                                    <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                </ol>
+                        </div>
+                    </div>
+                </li>
+            
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-classes-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-classes" aria-expanded="true" aria-controls="collapseOne">
+                        Classes
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-classes" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-classes-heading">
+                        <div class="panel-body">
+                            <ol>
+                                    <li>
+                                        <a href="../classes/IndexedDb.html">IndexedDb</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbAdapter.html">IndexedDbAdapter</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbConfiguration.html">IndexedDbConfiguration</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbSerializer.html">IndexedDbSerializer</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
+                                    </li>
+                            </ol>
+                        </div>
+                    </div>
+                </li>
+            </ol>
+            <div class="content-container">
+                <div class="apidocs">
+                    <div id="docs-main">
+                        <div class="content">
+<div class="page-header">
+    <h1><i class="fa fa-file-code-o" aria-hidden="true"></i>  File</h1>
+</div>
+
+<div class="file">
+    <pre class="prettyprint linenums">
+/* global Dexie */
+import Ember from &#x27;ember&#x27;;
+
+const {
+  Service,
+  get,
+  set,
+  inject,
+  computed,
+  RSVP,
+  run,
+  typeOf: getTypeOf
+} = Ember;
+
+/**
+ * This service allows interacting with an IndexedDB databse.
+ *
+ * @module Services
+ * @class IndexedDb
+ * @extends Ember.Service
+ * @public
+ */
+export default Service.extend({
+
+  store: inject.service(),
+  indexedDbConfiguration: inject.service(),
+
+  /**
+   * The actual Dexie database.
+   *
+   * @property db
+   * @type {Dexie}
+   * @public
+   */
+  db: null,
+
+  /**
+   * The database name to use.
+   * Overwrite this if you want to use something different.
+   *
+   * @property databaseName
+   * @type {String}
+   * @default &#x27;ember-indexeddb&#x27;
+   * @public
+   */
+  databaseName: &#x27;ember-indexeddb&#x27;,
+
+  /**
+   * This is an object with an array per model type.
+   * It holds all the objects per model type that should be bulk saved.
+   * After actually saving, this will be cleared.
+   *
+   * @property _saveQueue
+   * @type {Object}
+   * @private
+   */
+  _saveQueue: {},
+
+  /**
+   * This is a promise that is used for bulk saving.
+   * All bulkSave() operations use and return the same promise, which is cached here.
+   *
+   * @property _savePromise
+   * @type {RSVP.Promise}
+   * @private
+   */
+  _savePromise: null,
+
+  /**
+   * All currently running promises are temporarily saved here.
+   * This is used to check if there are running transactions.
+   *
+   * @property _promiseQueue
+   * @type {RSVP.Promise[]}
+   * @private
+   */
+  _promiseQueue: [],
+
+  /**
+   * e.g. MS Edge doesn&#x27;t support compound indices.
+   * For these cases, querying shouldn&#x27;t try to use them.
+   *
+   * @property _supportsCompoundIndicies
+   * @type {Boolean}
+   * @readOnly
+   * @private
+   */
+  _supportsCompoundIndices: computed(function() {
+    try {
+      window.IDBKeyRange.only([1]);
+    } catch (e) {
+      return false;
+    }
+
+    return true;
+  }),
+
+  /**
+   * Call this and wait until it resolves before doing anything with IndexedDB!
+   * This should be done in beforeModel() on the application route.
+   * It will reject if IndexedDB is not available.
+   *
+   * @method setup
+   * @return {RSVP.Promise}
+   * @public
+   */
+  setup() {
+    return new RSVP.Promise((resolve, reject) =&gt; {
+
+      if (get(this, &#x27;db&#x27;)) {
+        resolve();
+      }
+
+      let db = new Dexie(get(this, &#x27;databaseName&#x27;));
+
+      let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
+      dbConfiguration.setupDatabase(db);
+
+      this.set(&#x27;db&#x27;, db);
+
+      db.open().then(resolve, reject);
+    });
+  },
+
+  /**
+   * Query indexedDB.
+   * This uses _buildQuery under the hood.
+   * This resolved to an array.
+   *
+   * @method query
+   * @param {String} type The model type to query
+   * @param {Object} query The query data
+   * @return {RSVP.Promise[]}
+   * @public
+   */
+  query(type, query) {
+    let promise = this._buildQuery(type, query);
+    return promise.toArray();
+  },
+
+  /**
+   * Query indexedDB.
+   * This uses _buildQuery under the hood.
+   * This resolved to an object.
+   *
+   * @method queryRecord
+   * @param {String} type The model type to query
+   * @param {Object} query The query data
+   * @return {RSVP.Promise}
+   * @public
+   */
+  queryRecord(type, query) {
+    let promise = this._buildQuery(type, query);
+    return promise.first();
+  },
+
+  /**
+   * Find one or multiple items by id.
+   * If id is an array, this will try to fetch all of these objects and resolve with an array.
+   * Otherwise, it will resolve with an object.
+   *
+   * @method find
+   * @param {String} type The model type to find
+   * @param {String|String[]} id One or multiple ids to fetch
+   * @return {RSVP.Promise}
+   * @public
+   */
+  find(type, id) {
+    let db = get(this, &#x27;db&#x27;);
+    if (getTypeOf(id) === &#x27;array&#x27;) {
+      return db[type].where(&#x27;id&#x27;).anyOf(id.map(this._toString)).toArray();
+    }
+    return db[type].get(this._toString(id));
+  },
+
+  /**
+   * Find all of a given type.
+   *
+   * @method findAll
+   * @param {String} type The model type to find.
+   * @return {RSVP.Promise}
+   * @public
+   */
+  findAll(type) {
+    let db = get(this, &#x27;db&#x27;);
+    return db[type].toArray();
+  },
+
+  /**
+   * Add one or multiple items to the database.
+   *
+   * @method add
+   * @param {String} type The model type to add
+   * @param {Object|Object[]} items One or multiple objects to add to the database.
+   * @return {RSVP.Promise}
+   * @public
+   */
+  add(type, items) {
+    let db = get(this, &#x27;db&#x27;);
+
+    // Single Item?
+    if (getTypeOf(items) !== &#x27;array&#x27;) {
+      items = [items];
+    }
+
+    let data = items.map((item) =&gt; {
+      return this._mapItem(type, item);
+    });
+
+    let promise = db[type].bulkPut(data);
+
+    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
+    promiseQueue.pushObject(promise);
+    let removeObject = () =&gt; {
+      promiseQueue.removeObject(promise);
+    };
+    promise.then(removeObject, removeObject);
+    return promise;
+  },
+
+  /**
+   * Save/update an item.
+   *
+   * @method save
+   * @param {String} type The model type of the object
+   * @param {String} id The id of the object
+   * @param {Object} item The serialized object to save.
+   * @return {RSVP.Promise}
+   * @public
+   */
+  save(type, id, item) {
+    let db = get(this, &#x27;db&#x27;);
+
+    let data = this._mapItem(type, item);
+    let promise = db[type].put(data);
+
+    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
+    promiseQueue.pushObject(promise);
+    promise.finally(() =&gt; promiseQueue.removeObject(promise));
+    return promise;
+  },
+
+  /**
+   * This will wait for 10ms and try to build a queue, and save everything at once if possible.
+   *
+   * @method saveBulk
+   * @param {String} type The model type to save
+   * @param {Object} item The data to save
+   * @return {RSVP.Promise}
+   * @public
+   */
+  saveBulk(type, item) {
+    let savePromise = get(this, &#x27;_savePromise&#x27;);
+    let saveQueue = get(this, &#x27;_saveQueue&#x27;);
+
+    // If no save promise exists, create a new one
+    if (!savePromise) {
+      savePromise = new RSVP.Promise((resolve, reject) =&gt; {
+        run.later(this, () =&gt; {
+          this._bulkSave().then((val) =&gt; {
+            set(this, &#x27;_savePromise&#x27;, null);
+            resolve(val);
+          }, reject);
+        }, 100);
+      });
+      set(this, &#x27;_savePromise&#x27;, savePromise);
+    }
+
+    let queue = get(saveQueue, type);
+    if (!queue) {
+      queue = [];
+      saveQueue[type] = queue;
+    }
+
+    queue.pushObject(item);
+    return savePromise;
+  },
+
+  /**
+   * Clear a database table.
+   *
+   * @method clear
+   * @param {String} type The model type to clear.
+   * @return {RSVP.Promise}
+   * @public
+   */
+  clear(type) {
+    let db = get(this, &#x27;db&#x27;);
+    let promise = db[type].clear();
+
+    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
+    promiseQueue.pushObject(promise);
+    promise.finally(() =&gt; promiseQueue.removeObject(promise));
+    return promise;
+  },
+
+  /**
+   * Delete one item.
+   *
+   * @method delete
+   * @param {String} type The model type to delete
+   * @param {String} id The id of the entry to delete
+   * @return {RSVP.Promise}
+   * @public
+   */
+  delete(type, id) {
+    let db = get(this, &#x27;db&#x27;);
+    let promise = db[type].delete(id);
+
+    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
+    promiseQueue.pushObject(promise);
+    promise.finally(() =&gt; promiseQueue.removeObject(promise));
+    return promise;
+  },
+
+  /**
+   * Drop the entire database.
+   *
+   * @method dropDatabase
+   * @return {RSVP.Promise}
+   * @public
+   */
+  dropDatabase() {
+    let db = get(this, &#x27;db&#x27;);
+
+    return new RSVP.Promise((resolve, reject) =&gt; {
+      try {
+        db.delete().then(resolve, reject);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  },
+
+  /**
+   * Export a complete dump of the current database.
+   * The output of this can be used to recreate the exact database state via this.importDatabase(config);
+   *
+   * @method exportDatabase
+   * @return {RSVP.Promise}
+   * @public
+   */
+  exportDatabase() {
+    let db = get(this, &#x27;db&#x27;);
+
+    let config = {
+      databaseName: get(this, &#x27;databaseName&#x27;),
+      version: get(this, &#x27;currentVersion&#x27;),
+      stores: {},
+      data: {}
+    };
+
+    return new RSVP.Promise((resolve, reject) =&gt; {
+      // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
+      db.open().then(function() {
+        // Save the last version number
+        set(config, &#x27;version&#x27;, db.verno);
+
+        db.tables.forEach(function(table) {
+          let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
+          let schemaSyntax = primKeyAndIndexes.map(function(index) {
+            return index.src;
+          }).join(&#x27;,&#x27;);
+
+          set(config.stores, table.name, schemaSyntax);
+
+          table.each((object) =&gt; {
+            let arr = get(config.data, table.name);
+            if (!arr) {
+              arr = [];
+              set(config.data, table.name, arr);
+            }
+
+            arr.push(object);
+          });
+        });
+
+        resolve(config);
+      }, reject).finally(function() {
+        db.close();
+      });
+    });
+  },
+
+  /**
+   * Import a complete database dump as created by this.exportDatabase()
+   *
+   * @method importDatabase
+   * @param {Object} config A configuration object as created by this.exportDatabase()
+   * @return {RSVP.Promise}
+   * @public
+   */
+  importDatabase(config) {
+    let {
+      databaseName,
+      version,
+      stores,
+      data
+    } = config;
+
+    console.log(&#x60;====================================&#x60;);
+    console.log(&#x60;Importing database dump!&#x60;);
+    return new RSVP.Promise((resolve, reject) =&gt; {
+      console.log(&#x60;Dropping existing database...&#x60;);
+      this.dropDatabase().then(() =&gt; {
+        console.log(&#x60;Setting up database ${databaseName} in version ${version}...&#x60;);
+        let db = new Dexie(databaseName);
+        db.version(version).stores(stores);
+
+        console.log(&#x27;Opening database...&#x27;);
+        db.open().then(() =&gt; {
+          let tables = Object.keys(data);
+
+          let importNextTable = () =&gt; {
+            let [table] = tables.splice(0, 1);
+
+            if (!table) {
+              console.log(&#x27;Database import done!&#x27;);
+              return resolve();
+            }
+
+            console.log(&#x60;Importing data for ${table}...&#x60;);
+            console.time(&#x60;Import for ${table} done&#x60;);
+            let promise = db[table].bulkPut(data[table]);
+            promise.then(() =&gt; {
+              console.timeEnd(&#x60;Import for ${table} done&#x60;);
+              importNextTable();
+            }, reject);
+          };
+
+          importNextTable();
+        }, reject);
+      }, reject);
+    });
+  },
+
+  /**
+   * Wait for all queued objects ot be resolved.
+   * This will resolve when there are no open processes anymore.
+   *
+   * @method waitForQueue
+   * @return {RSVP.Promise}
+   * @public
+   */
+  waitForQueue() {
+    return new RSVP.Promise((resolve) =&gt; {
+      let check = () =&gt; {
+        if (get(this, &#x27;_promiseQueue.length&#x27;) || get(this, &#x27;_savePromise&#x27;)) {
+          run.later(this, check, 100);
+          return;
+        }
+        run.next(() =&gt; {
+          resolve();
+        });
+      };
+
+      check();
+    });
+  },
+
+  /**
+   * Get the queue and save everything in it in bulk.
+   *
+   * @method _bulkSave
+   * @private
+   */
+  _bulkSave() {
+    let saveQueue = get(this, &#x27;_saveQueue&#x27;);
+
+    let promises = [];
+    for (let i in saveQueue) {
+      promises.push(this.add(i, saveQueue[i]));
+      saveQueue[i] = [];
+    }
+
+    return RSVP.all(promises);
+  },
+
+  /**
+   * Build a query for Dexie.
+   *
+   * This will try to find a matching index, and use it if possible.
+   * It can also handle multi-indecies, if they have been specified and are supported.
+   * If no matching index is found, it will fetch everything and try to filter it via JS.
+   * Note that this is _much_ slower than querying by actual indecies, so you should definitely use that if possible!
+   * If you are using multiple query arguments, and only one of them is found as index, it will query the database by this index
+   * and then do the other queries via JS filter.
+   *
+   * Note that this will also auto-convert boolean query arguments to 1/0.
+   *
+   * @method _buildQuery
+   * @param {String} type The model type to query
+   * @param {Object} query The actual query
+   * @return {Dexie.Collection}
+   * @private
+   */
+  _buildQuery(type, query) {
+    let db = get(this, &#x27;db&#x27;);
+    let _supportsCompoundIndices = get(this, &#x27;_supportsCompoundIndices&#x27;);
+
+    let promise = null;
+    let keys = Object.keys(query);
+
+    // Convert boolean queries to 1/0
+    for (let i in query) {
+      if (getTypeOf(query[i]) === &#x27;boolean&#x27;) {
+        query[i] = query[i] ? 1 : 0;
+      }
+    }
+
+    // Only one, then do a simple where
+    if (keys.length === 1) {
+      let key = keys[0]; // jscs:ignore
+      return db[type].where(key).equals(query[key]);
+    }
+
+    // Order of query params is important!
+    let { schema }  = db[type];
+    let { indexes } = schema;
+
+    // try to find a fitting multi index
+    // only if the client supports compound indices!
+    if (_supportsCompoundIndices) {
+      let multiIndex = indexes.find((index) =&gt; {
+        let keyPath = get(index, &#x27;keyPath&#x27;);
+
+        // If keyPath is not set, not an array or not the same length as the keys, it&#x27;s not the correct one
+        if (!keyPath || getTypeOf(keyPath) !== &#x27;array&#x27; || keyPath.length !== keys.length) {
+          return false;
+        }
+
+        // If one of the keys is not in the keyPath, return false
+        return !keys.find((key) =&gt; !keyPath.includes(key));
+      });
+
+      // If a multi index is found, use it
+      if (multiIndex) {
+        let keyPath = get(multiIndex, &#x27;keyPath&#x27;);
+        let compareValues = [];
+        keyPath.forEach((key) =&gt; {
+          compareValues.push(query[key]);
+        });
+
+        let keyName = get(multiIndex, &#x27;name&#x27;);
+        return db[type].where(keyName).equals(compareValues);
+      }
+    }
+
+    // Else, filter manually
+    Object.keys(query).forEach((i) =&gt; {
+      if (!promise) {
+        promise = db[type].where(i).equals(query[i]);
+      } else {
+        promise = promise.and((item) =&gt; get(item, i) === query[i]);
+      }
+    });
+
+    return promise;
+  },
+
+  _mapItem(type, item) {
+    let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
+    return dbConfiguration.mapItem(type, item);
+  },
+
+  _toString(val) {
+    return &#x60;${val}&#x60;;
+  }
+
+});
+
+    </pre>
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/vendor/prettify/prettify-min.js"></script>
+    <script>prettyPrint();</script>
+    <script src="../assets/vendor/jquery/jquery.min.js"></script>
+    <script src="../assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="../assets/vendor/github-slugger/slugger.js"></script>
+    <script src="../assets/js/yuidoc-bootstrap.js"></script>
+</body>
+</html>

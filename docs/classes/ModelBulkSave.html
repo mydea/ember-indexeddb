@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>ModelBulkSave - ember-indexeddb</title>
+    <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
+    
+</head>
+<body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand">
+            <img src="../assets/img/ember-logo.png" alt="">
+            <span>indexeddb</span>
+          </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="" class="fa fa-github github"></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div id="main-wrapper" class="row">
+        <div id="content-wrapper">
+            <ol class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-search-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-search" aria-expanded="true" aria-controls="collapseOne">
+                        Search
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-search" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-search-heading">
+                        <div class="panel-body">
+                            <div id="api-tabview-filter">
+                                <input type="search" id="api-filter" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                    <li class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="sidebar-version-heading">
+                            <h4 class="panel-title">
+                                <a role="button" href="/commits/bcb2d59c" target="_blank">
+                                  Tag: 0.1.1.bcb2d59c
+                                </a>
+                            </h4>
+                        </div>
+                    </li>
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-modules-heading">
+                        <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" href="#sidebar-modules" aria-expanded="true" aria-controls="collapseOne">
+                      Modules
+                    </a>
+                  </h4>
+                    </div>
+                    <div id="sidebar-modules" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-modules-heading">
+                        <div class="panel-body">
+                                <ol>
+                                        <li>
+                                            <a href="../modules/Ember Data.html">Ember Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Usage.html">Usage</a>
+                                                    <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
+                                                    <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
+                                                    <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                </ol>
+                        </div>
+                    </div>
+                </li>
+            
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-classes-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-classes" aria-expanded="true" aria-controls="collapseOne">
+                        Classes
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-classes" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-classes-heading">
+                        <div class="panel-body">
+                            <ol>
+                                    <li>
+                                        <a href="../classes/IndexedDb.html">IndexedDb</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbAdapter.html">IndexedDbAdapter</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbConfiguration.html">IndexedDbConfiguration</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbSerializer.html">IndexedDbSerializer</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
+                                    </li>
+                            </ol>
+                        </div>
+                    </div>
+                </li>
+            </ol>
+            <div class="content-container">
+                <div class="apidocs">
+                    <div id="docs-main">
+                        <div class="content">
+
+
+<div class="page-header">
+    <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> ModelBulkSave Class
+            <a class="pull-right file-edit" href="undefined/blob/bcb2d59c/addon\mixins\model-bulk-save.js#L9" target="_blank">
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+            </a>
+    </h1>
+</div>
+
+
+<div class="content-meta">
+
+
+            Module: <a href="../modules/Ember Data.html">Ember Data</a>
+
+
+        <div class="foundat">
+            Defined In: <a href="undefined/blob/bcb2d59c/addon\mixins\model-bulk-save.js#L9">addon\mixins\model-bulk-save.js:9</a>
+        </div>
+</div>
+
+
+
+  <div class="class-description">
+  <p>This mixin can be used on a DS.Model to add a <code>saveBulk</code> function.
+Saving a lot of data at the same time can be quite inefficient. To solve this issue, you can use the provided <code>model-bulk-save</code> mixin on your ember-data models:</p>
+<pre class="code prettyprint"><code class="language-js">import DS from 'ember-data';
+import ModelBulkSaveMixin from 'ember-indexeddb/mixins/model-bulk-save';
+
+export default DS.Model.extend(ModelBulkSaveMixin, {
+  name: DS.attr('string')
+});
+</code></pre>
+<p>Now, this model will have a new function <code>bulkSave()</code>:</p>
+<pre class="code prettyprint"><code class="language-js">let promise1 = model1.saveBulk();
+let promise2 = model2.saveBulk();
+</code></pre>
+<p>In the above example, <code>promise1</code> and <code>promise2</code> would actually be the same promise, and both of these items would be saved in one transaction. This waits for 100ms before resolving,  * so every model that calls <code>saveBulk</code> in this time period will be saved in the same transactions. Note that this function will resolve with all the saved objects.</p>
+
+  </div>
+
+<div>
+    <div class="page-section">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active"><a href="#tab_index" aria-controls="tab_index" role="tab" data-toggle="tab">Index</a></li>
+            <li role="presentation"><a href="#tab_methods" aria-controls="tab_methods" role="tab" data-toggle="tab">Methods</a></li>
+
+
+
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+
+              <form id="options-form" class="form-inline">
+                  Show:
+                  <label for="api-show-inherited" class="checkbox">
+                      <input type="checkbox" id="api-show-inherited" checked>
+                      Inherited
+                  </label>
+          
+                  <label for="api-show-protected" class="checkbox">
+                      <input type="checkbox" id="api-show-protected">
+                      Protected
+                  </label>
+          
+                  <label for="api-show-private" class="checkbox">
+                      <input type="checkbox" id="api-show-private">
+                      Private
+                  </label>
+                  <label for="api-show-deprecated" class="checkbox">
+                      <input type="checkbox" id="api-show-deprecated">
+                      Deprecated
+                  </label>
+          
+              </form>
+
+          <div id="tab_index" role="tabpanel" class="tab-pane active" >
+                  <div class="index-section methods">
+                      <h3>Methods</h3>
+
+                      <ul class="index-list methods">
+                              <li class="index-item method private">
+                                  <a href="#method__markAsError">_markAsError</a>
+
+                              </li>
+                              <li class="index-item method private">
+                                  <a href="#method__markAsSaved">_markAsSaved</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_saveBulk">saveBulk</a>
+
+                              </li>
+                      </ul>
+                  </div>
+
+
+
+          </div>
+
+              <div id="tab_methods" role="tabpanel" class="tab-pane">
+                  <div class="item-list">
+  <div id="method__markAsError" class="method item private">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method__markAsError"></a>
+  		_markAsError
+  	</span>
+  
+  		<span class="paren">()</span>
+  	</span>
+  
+  
+  
+  		<span class="flag private">private</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\mixins\model-bulk-save.js#L89">addon\mixins\model-bulk-save.js:89</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Manually mark the model as having an error.</p>
+  </div>
+  
+  
+  
+  </div>
+  <div id="method__markAsSaved" class="method item private">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method__markAsSaved"></a>
+  		_markAsSaved
+  	</span>
+  
+  		<span class="paren">()</span>
+  	</span>
+  
+  
+  
+  		<span class="flag private">private</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\mixins\model-bulk-save.js#L70">addon\mixins\model-bulk-save.js:70</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Manually mark the model as saved.</p>
+  </div>
+  
+  
+  
+  </div>
+  <div id="method_saveBulk" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_saveBulk"></a>
+  		saveBulk
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>modelName</code>
+  				</li>
+  				<li class="arg">
+  						<code>model</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\mixins\model-bulk-save.js#L45">addon\mixins\model-bulk-save.js:45</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Save this model, but try to save it together with other objects</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">modelName</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">model</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+                  </div>
+              </div>
+
+
+
+      </div>
+    </div>
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/vendor/prettify/prettify-min.js"></script>
+    <script>prettyPrint();</script>
+    <script src="../assets/vendor/jquery/jquery.min.js"></script>
+    <script src="../assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="../assets/vendor/github-slugger/slugger.js"></script>
+    <script src="../assets/js/yuidoc-bootstrap.js"></script>
+</body>
+</html>

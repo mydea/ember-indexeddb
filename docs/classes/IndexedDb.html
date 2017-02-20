@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>IndexedDb - ember-indexeddb</title>
+    <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="stylesheet" href="../assets/css/custom.css">
+    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
+    
+</head>
+<body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand">
+            <img src="../assets/img/ember-logo.png" alt="">
+            <span>indexeddb</span>
+          </a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="nav">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="" class="fa fa-github github"></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div id="main-wrapper" class="row">
+        <div id="content-wrapper">
+            <ol class="panel-group" id="sidebar" role="tablist" aria-multiselectable="true">
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-search-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-search" aria-expanded="true" aria-controls="collapseOne">
+                        Search
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-search" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-search-heading">
+                        <div class="panel-body">
+                            <div id="api-tabview-filter">
+                                <input type="search" id="api-filter" placeholder="Search...">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                    <li class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="sidebar-version-heading">
+                            <h4 class="panel-title">
+                                <a role="button" href="/commits/bcb2d59c" target="_blank">
+                                  Tag: 0.1.1.bcb2d59c
+                                </a>
+                            </h4>
+                        </div>
+                    </li>
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-modules-heading">
+                        <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" href="#sidebar-modules" aria-expanded="true" aria-controls="collapseOne">
+                      Modules
+                    </a>
+                  </h4>
+                    </div>
+                    <div id="sidebar-modules" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-modules-heading">
+                        <div class="panel-body">
+                                <ol>
+                                        <li>
+                                            <a href="../modules/Ember Data.html">Ember Data</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Usage.html">Usage</a>
+                                                    <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
+                                                    <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
+                                                    <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                </ol>
+                        </div>
+                    </div>
+                </li>
+            
+                <li class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="sidebar-classes-heading">
+                        <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" href="#sidebar-classes" aria-expanded="true" aria-controls="collapseOne">
+                        Classes
+                      </a>
+                    </h4>
+                    </div>
+                    <div id="sidebar-classes" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="sidebar-classes-heading">
+                        <div class="panel-body">
+                            <ol>
+                                    <li>
+                                        <a href="../classes/IndexedDb.html">IndexedDb</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbAdapter.html">IndexedDbAdapter</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbConfiguration.html">IndexedDbConfiguration</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/IndexedDbSerializer.html">IndexedDbSerializer</a>
+                                    </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
+                                    </li>
+                            </ol>
+                        </div>
+                    </div>
+                </li>
+            </ol>
+            <div class="content-container">
+                <div class="apidocs">
+                    <div id="docs-main">
+                        <div class="content">
+
+
+<div class="page-header">
+    <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> IndexedDb Class
+            <a class="pull-right file-edit" href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L15" target="_blank">
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+            </a>
+    </h1>
+</div>
+
+
+<div class="content-meta">
+
+
+            Module: <a href="../modules/Services.html">Services</a>
+
+
+        <div class="foundat">
+            Defined In: <a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L15">addon\services\indexed-db.js:15</a>
+        </div>
+</div>
+
+
+
+  <div class="class-description">
+  <p>This service allows interacting with an IndexedDB databse.</p>
+
+  </div>
+
+<div>
+    <div class="page-section">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active"><a href="#tab_index" aria-controls="tab_index" role="tab" data-toggle="tab">Index</a></li>
+            <li role="presentation"><a href="#tab_methods" aria-controls="tab_methods" role="tab" data-toggle="tab">Methods</a></li>
+
+            <li role="presentation"><a href="#tab_properties" aria-controls="tab_properties" role="tab" data-toggle="tab">Properties</a></li>
+
+
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+
+              <form id="options-form" class="form-inline">
+                  Show:
+                  <label for="api-show-inherited" class="checkbox">
+                      <input type="checkbox" id="api-show-inherited" checked>
+                      Inherited
+                  </label>
+          
+                  <label for="api-show-protected" class="checkbox">
+                      <input type="checkbox" id="api-show-protected">
+                      Protected
+                  </label>
+          
+                  <label for="api-show-private" class="checkbox">
+                      <input type="checkbox" id="api-show-private">
+                      Private
+                  </label>
+                  <label for="api-show-deprecated" class="checkbox">
+                      <input type="checkbox" id="api-show-deprecated">
+                      Deprecated
+                  </label>
+          
+              </form>
+
+          <div id="tab_index" role="tabpanel" class="tab-pane active" >
+                  <div class="index-section methods">
+                      <h3>Methods</h3>
+
+                      <ul class="index-list methods">
+                              <li class="index-item method private">
+                                  <a href="#method__buildQuery">_buildQuery</a>
+
+                              </li>
+                              <li class="index-item method private">
+                                  <a href="#method__bulkSave">_bulkSave</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_add">add</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_clear">clear</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_delete">delete</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_dropDatabase">dropDatabase</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_exportDatabase">exportDatabase</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_find">find</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_findAll">findAll</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_importDatabase">importDatabase</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_query">query</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_queryRecord">queryRecord</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_save">save</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_saveBulk">saveBulk</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_setup">setup</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_waitForQueue">waitForQueue</a>
+
+                              </li>
+                      </ul>
+                  </div>
+
+                  <div class="index-section properties">
+                      <h3>Properties</h3>
+
+                      <ul class="index-list properties">
+                              <li class="index-item property private">
+                                  <a href="#property__promiseQueue">_promiseQueue</a>
+
+                              </li>
+                              <li class="index-item property private">
+                                  <a href="#property__savePromise">_savePromise</a>
+
+                              </li>
+                              <li class="index-item property private">
+                                  <a href="#property__saveQueue">_saveQueue</a>
+
+                              </li>
+                              <li class="index-item property private">
+                                  <a href="#property__supportsCompoundIndicies">_supportsCompoundIndicies</a>
+
+                              </li>
+                              <li class="index-item property public">
+                                  <a href="#property_databaseName">databaseName</a>
+
+                              </li>
+                              <li class="index-item property public">
+                                  <a href="#property_db">db</a>
+
+                              </li>
+                      </ul>
+                  </div>
+
+
+          </div>
+
+              <div id="tab_methods" role="tabpanel" class="tab-pane">
+                  <div class="item-list">
+  <div id="method__buildQuery" class="method item private">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method__buildQuery"></a>
+  		_buildQuery
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>query</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">Dexie.Collection</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag private">private</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L479">addon\services\indexed-db.js:479</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Build a query for Dexie.</p>
+  <p>This will try to find a matching index, and use it if possible.
+  It can also handle multi-indecies, if they have been specified and are supported.
+  If no matching index is found, it will fetch everything and try to filter it via JS.
+  Note that this is <em>much</em> slower than querying by actual indecies, so you should definitely use that if possible!
+  If you are using multiple query arguments, and only one of them is found as index, it will query the database by this index
+  and then do the other queries via JS filter.</p>
+  <p>Note that this will also auto-convert boolean query arguments to 1/0.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to query</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">query</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  					<div class="param-description"><p>The actual query</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">Dexie.Collection</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method__bulkSave" class="method item private">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method__bulkSave"></a>
+  		_bulkSave
+  	</span>
+  
+  		<span class="paren">()</span>
+  	</span>
+  
+  
+  
+  		<span class="flag private">private</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L461">addon\services\indexed-db.js:461</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Get the queue and save everything in it in bulk.</p>
+  </div>
+  
+  
+  
+  </div>
+  <div id="method_add" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_add"></a>
+  		add
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>items</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L189">addon\services\indexed-db.js:189</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Add one or multiple items to the database.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to add</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">items</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a>  |  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object[][]</a></span>
+  
+  
+  					<div class="param-description"><p>One or multiple objects to add to the database.</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_clear" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_clear"></a>
+  		clear
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L279">addon\services\indexed-db.js:279</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Clear a database table.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to clear.</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_delete" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_delete"></a>
+  		delete
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>id</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L297">addon\services\indexed-db.js:297</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Delete one item.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to delete</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">id</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The id of the entry to delete</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_dropDatabase" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_dropDatabase"></a>
+  		dropDatabase
+  	</span>
+  
+  		<span class="paren">()</span>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L316">addon\services\indexed-db.js:316</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Drop the entire database.</p>
+  </div>
+  
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_exportDatabase" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_exportDatabase"></a>
+  		exportDatabase
+  	</span>
+  
+  		<span class="paren">()</span>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L335">addon\services\indexed-db.js:335</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Export a complete dump of the current database.
+  The output of this can be used to recreate the exact database state via this.importDatabase(config);</p>
+  </div>
+  
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_find" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_find"></a>
+  		find
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>id</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L157">addon\services\indexed-db.js:157</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Find one or multiple items by id.
+  If id is an array, this will try to fetch all of these objects and resolve with an array.
+  Otherwise, it will resolve with an object.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to find</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">id</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a>  |  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String[][]</a></span>
+  
+  
+  					<div class="param-description"><p>One or multiple ids to fetch</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_findAll" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_findAll"></a>
+  		findAll
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L176">addon\services\indexed-db.js:176</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Find all of a given type.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to find.</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_importDatabase" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_importDatabase"></a>
+  		importDatabase
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>config</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L385">addon\services\indexed-db.js:385</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Import a complete database dump as created by this.exportDatabase()</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">config</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  					<div class="param-description"><p>A configuration object as created by this.exportDatabase()</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_query" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_query"></a>
+  		query
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>query</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise[]</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L125">addon\services\indexed-db.js:125</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Query indexedDB.
+  This uses _buildQuery under the hood.
+  This resolved to an array.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to query</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">query</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  					<div class="param-description"><p>The query data</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise[]</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_queryRecord" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_queryRecord"></a>
+  		queryRecord
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>query</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L141">addon\services\indexed-db.js:141</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Query indexedDB.
+  This uses _buildQuery under the hood.
+  This resolved to an object.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to query</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">query</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  					<div class="param-description"><p>The query data</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_save" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_save"></a>
+  		save
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>id</code>
+  				</li>
+  				<li class="arg">
+  						<code>item</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L221">addon\services\indexed-db.js:221</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Save/update an item.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type of the object</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">id</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The id of the object</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">item</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  					<div class="param-description"><p>The serialized object to save.</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_saveBulk" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_saveBulk"></a>
+  		saveBulk
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>type</code>
+  				</li>
+  				<li class="arg">
+  						<code>item</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L243">addon\services\indexed-db.js:243</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>This will wait for 10ms and try to build a queue, and save everything at once if possible.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">type</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+  					<div class="param-description"><p>The model type to save</p>
+  </div>
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">item</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  					<div class="param-description"><p>The data to save</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_setup" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_setup"></a>
+  		setup
+  	</span>
+  
+  		<span class="paren">()</span>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L98">addon\services\indexed-db.js:98</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Call this and wait until it resolves before doing anything with IndexedDB!
+  This should be done in beforeModel() on the application route.
+  It will reject if IndexedDB is not available.</p>
+  </div>
+  
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_waitForQueue" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_waitForQueue"></a>
+  		waitForQueue
+  	</span>
+  
+  		<span class="paren">()</span>
+  		<span class="returns-inline">
+  			<span class="type">RSVP.Promise</span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L437">addon\services\indexed-db.js:437</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Wait for all queued objects ot be resolved.
+  This will resolve when there are no open processes anymore.</p>
+  </div>
+  
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type">RSVP.Promise</span>
+  			</div>
+  		</div>
+  
+  </div>
+                  </div>
+              </div>
+
+              <div id="tab_properties" role="tabpanel" class="tab-pane">
+                  <div class="item-list">
+  <div id="property__promiseQueue" class="property item private">
+      <h3 class="name anchorable-toc">
+          <a class="fa fa-link toc-anchor" href="#property__promiseQueue"></a>
+          _promiseQueue
+      </h3>
+      <span class="type">RSVP.Promise</span>
+  
+  
+          <span class="flag private">private</span>
+  
+  
+  
+      <div class="meta">
+                  <p>
+                  Defined in
+          <a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L69">addon\services\indexed-db.js:69</a>
+          </p>
+  
+  
+      </div>
+  
+      <div class="description">
+          <p>All currently running promises are temporarily saved here.
+  This is used to check if there are running transactions.</p>
+  
+      </div>
+  
+  
+  
+  </div>
+  <div id="property__savePromise" class="property item private">
+      <h3 class="name anchorable-toc">
+          <a class="fa fa-link toc-anchor" href="#property__savePromise"></a>
+          _savePromise
+      </h3>
+      <span class="type">RSVP.Promise</span>
+  
+  
+          <span class="flag private">private</span>
+  
+  
+  
+      <div class="meta">
+                  <p>
+                  Defined in
+          <a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L59">addon\services\indexed-db.js:59</a>
+          </p>
+  
+  
+      </div>
+  
+      <div class="description">
+          <p>This is a promise that is used for bulk saving.
+  All bulkSave() operations use and return the same promise, which is cached here.</p>
+  
+      </div>
+  
+  
+  
+  </div>
+  <div id="property__saveQueue" class="property item private">
+      <h3 class="name anchorable-toc">
+          <a class="fa fa-link toc-anchor" href="#property__saveQueue"></a>
+          _saveQueue
+      </h3>
+      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+          <span class="flag private">private</span>
+  
+  
+  
+      <div class="meta">
+                  <p>
+                  Defined in
+          <a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L48">addon\services\indexed-db.js:48</a>
+          </p>
+  
+  
+      </div>
+  
+      <div class="description">
+          <p>This is an object with an array per model type.
+  It holds all the objects per model type that should be bulk saved.
+  After actually saving, this will be cleared.</p>
+  
+      </div>
+  
+  
+  
+  </div>
+  <div id="property__supportsCompoundIndicies" class="property item private">
+      <h3 class="name anchorable-toc">
+          <a class="fa fa-link toc-anchor" href="#property__supportsCompoundIndicies"></a>
+          _supportsCompoundIndicies
+      </h3>
+      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
+  
+  
+          <span class="flag private">private</span>
+  
+  
+  
+      <div class="meta">
+                  <p>
+                  Defined in
+          <a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L79">addon\services\indexed-db.js:79</a>
+          </p>
+  
+  
+      </div>
+  
+      <div class="description">
+          <p>e.g. MS Edge doesn't support compound indices.
+  For these cases, querying shouldn't try to use them.</p>
+  
+      </div>
+  
+  
+  
+  </div>
+  <div id="property_databaseName" class="property item public">
+      <h3 class="name anchorable-toc">
+          <a class="fa fa-link toc-anchor" href="#property_databaseName"></a>
+          databaseName
+      </h3>
+      <span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+  
+  
+          <span class="flag public">public</span>
+  
+  
+  
+      <div class="meta">
+                  <p>
+                  Defined in
+          <a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L37">addon\services\indexed-db.js:37</a>
+          </p>
+  
+  
+      </div>
+  
+      <div class="description">
+          <p>The database name to use.
+  Overwrite this if you want to use something different.</p>
+  
+      </div>
+  
+          <p><br><strong>Default:</strong> &#x27;ember-indexeddb&#x27;</p>
+  
+  
+  </div>
+  <div id="property_db" class="property item public">
+      <h3 class="name anchorable-toc">
+          <a class="fa fa-link toc-anchor" href="#property_db"></a>
+          db
+      </h3>
+      <span class="type">Dexie</span>
+  
+  
+          <span class="flag public">public</span>
+  
+  
+  
+      <div class="meta">
+                  <p>
+                  Defined in
+          <a href="undefined/blob/bcb2d59c/addon\services\indexed-db.js#L28">addon\services\indexed-db.js:28</a>
+          </p>
+  
+  
+      </div>
+  
+      <div class="description">
+          <p>The actual Dexie database.</p>
+  
+      </div>
+  
+  
+  
+  </div>
+                  </div>
+              </div>
+
+
+      </div>
+    </div>
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/vendor/prettify/prettify-min.js"></script>
+    <script>prettyPrint();</script>
+    <script src="../assets/vendor/jquery/jquery.min.js"></script>
+    <script src="../assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.js"></script>
+    <script src="../assets/vendor/github-slugger/slugger.js"></script>
+    <script src="../assets/js/yuidoc-bootstrap.js"></script>
+</body>
+</html>
