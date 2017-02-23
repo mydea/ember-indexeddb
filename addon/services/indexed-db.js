@@ -356,6 +356,8 @@ export default Service.extend({
         // Save the last version number
         set(config, 'version', db.verno);
 
+        let promises = [];
+
         db.tables.forEach(function(table) {
           let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
           let schemaSyntax = primKeyAndIndexes.map(function(index) {
@@ -364,7 +366,7 @@ export default Service.extend({
 
           set(config.stores, table.name, schemaSyntax);
 
-          table.each((object) => {
+          let promise = table.each((object) => {
             let arr = get(config.data, table.name);
             if (!arr) {
               arr = [];
@@ -373,12 +375,14 @@ export default Service.extend({
 
             arr.push(object);
           });
+
+          promises.push(promise);
         });
 
-        resolve(config);
-      }, reject).finally(function() {
-        db.close();
-      });
+        RSVP.all(promises).then(() => {
+          resolve(config);
+        }, reject);
+      }, reject);
     });
   },
 
