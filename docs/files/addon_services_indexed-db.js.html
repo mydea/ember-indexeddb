@@ -53,8 +53,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/658a199e" target="_blank">
-                                  Tag: 0.1.1.658a199e
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v0.2.0" target="_blank">
+                                  Tag: v0.2.0
                                 </a>
                             </h4>
                         </div>
@@ -486,6 +486,8 @@ export default Service.extend({
         // Save the last version number
         set(config, &#x27;version&#x27;, db.verno);
 
+        let promises = [];
+
         db.tables.forEach(function(table) {
           let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
           let schemaSyntax = primKeyAndIndexes.map(function(index) {
@@ -494,7 +496,7 @@ export default Service.extend({
 
           set(config.stores, table.name, schemaSyntax);
 
-          table.each((object) =&gt; {
+          let promise = table.each((object) =&gt; {
             let arr = get(config.data, table.name);
             if (!arr) {
               arr = [];
@@ -503,12 +505,14 @@ export default Service.extend({
 
             arr.push(object);
           });
+
+          promises.push(promise);
         });
 
-        resolve(config);
-      }, reject).finally(function() {
-        db.close();
-      });
+        RSVP.all(promises).then(() =&gt; {
+          resolve(config);
+        }, reject);
+      }, reject);
     });
   },
 

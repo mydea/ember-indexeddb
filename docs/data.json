@@ -2,7 +2,7 @@
     "project": {
         "name": "ember-indexeddb",
         "description": "A utility for using IndexedDB with ember & ember-data",
-        "version": "0.1.1.658a199e",
+        "version": "v0.2.0",
         "indexModule": "Usage",
         "url": "https://github.com/mydea/ember-indexeddb"
     },
@@ -118,8 +118,10 @@
             "namespaces": {},
             "tag": "module",
             "file": "addon\\index.js",
-            "line": 9,
-            "description": "## Installation\n```shell\nember install ember-indexeddb\n```\n\n## Changelog\nChangelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)\n\n\n## Looking for help?\nIf it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues)."
+            "line": 4,
+            "description": "## Installation\n```shell\nember install ember-indexeddb\n```\n\n## Changelog\nChangelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)\n\n\n## Looking for help?\nIf it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues).",
+            "access": "public",
+            "tagname": ""
         },
         "Setup": {
             "name": "Setup",
@@ -132,8 +134,10 @@
             "module": "Usage",
             "namespace": "",
             "file": "addon\\index.js",
-            "line": 25,
-            "description": "## Setup\n\nAfter installing the addon, you'll need to setup the database on application start.\nFor this, you should add the following to your application/route.js:\n\n```js\n// application/route.js or routes/application.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n indexedDb: Ember.inject.service(),\n\n beforeModel() {\n   this._super(...arguments);\n\n   return this.get('indexedDb').setup();\n }\n});\n```\n\nThis returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.\n\nNow, you just need to define your database tables by extending the indexed-db-configuration service."
+            "line": 21,
+            "description": "## Setup\n\nAfter installing the addon, you'll need to setup the database on application start.\nFor this, you should add the following to your application/route.js:\n\n```js\n// application/route.js or routes/application.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n indexedDb: Ember.inject.service(),\n\n beforeModel() {\n   this._super(...arguments);\n\n   return this.get('indexedDb').setup();\n }\n});\n```\n\nThis returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.\n\nNow, you just need to define your database tables by extending the indexed-db-configuration service.",
+            "access": "public",
+            "tagname": ""
         },
         "Configuring your database": {
             "name": "Configuring your database",
@@ -146,8 +150,10 @@
             "module": "Usage",
             "namespace": "",
             "file": "addon\\index.js",
-            "line": 54,
-            "description": "## Configuring your database\n\nYou need to extend the indexed-db-configuration service:\n\n```js\nimport IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';\n\nexport default IndexedDbConfigurationService.extend({\n currentVersion: 1,\n\n version1: {\n   stores: {\n     'model-one': '&id,*isNew',\n     'model-two': '&id,*status,*modelOne,[status+modelOne]'\n   }\n }\n});\n```\n\nPlease consult the Dexie Documentation on [details about configuring your database](https://github.com/dfahlander/Dexie.js/wiki/Version.stores()).\nBasically, you should always have an `&id` column as a primary index, and add further indices that you want to query by. You can also add multi-indices for more complex querying.\n\nEach version can also have an upgrade function in addition (or instead of) a stores property. This can be used to do data migrations. See the Dexie Documentation for details about [data migrations and upgrades](https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()).\n\nYou can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a `versionX` property per version, starting at 1. So if you have a `currentVersion` of 3, you need to have `version1`, `version2` and `version3` properties.\n\nAll of these migrations are automatically run when running `this.get('indexedDb').setup();`.\n\nIn addition to the store configuration, you also need to define a `mapTable`.\nThis is a map of functions which is used to normalize JSONAPI payloads for IndexedDB.\n\nFor the above example, this should look something like this:\n\n```js\nmapTable: computed(function() {\n return {\n   'model-one': (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanupObject(item),\n       isNew: this._toZeroOne(get(item, 'isNew'))\n     };\n   },\n   'model-two': (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanupObject(item),\n       modelOne: this._toString(get(item, 'relationships.modelOne.data.id')),\n       status: get(item, 'attributes.status')\n     };\n   }\n };\n})\n```\n\nThings to note here:\n\n1. Always convert your IDs to strings. You can use the provided `this._toString(val)` function for this.\n2. Always clean up your json. You can use the provided `this._cleanObject(item)` for this, which will clean up prototype & meta properties/functions.\n3. IndexedDB doesn't work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database. You can use the provided `this._toZeroOne(val)` for this.\n\nYou should have one property per item you want to query for. The item which is passed in is a JSONAPI payload-item."
+            "line": 51,
+            "description": "## Configuring your database\n\nYou need to extend the indexed-db-configuration service:\n\n```js\nimport IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';\n\nexport default IndexedDbConfigurationService.extend({\n currentVersion: 1,\n\n version1: {\n   stores: {\n     'model-one': '&id,*isNew',\n     'model-two': '&id,*status,*modelOne,[status+modelOne]'\n   }\n }\n});\n```\n\nPlease consult the Dexie Documentation on [details about configuring your database](https://github.com/dfahlander/Dexie.js/wiki/Version.stores()).\nBasically, you should always have an `&id` column as a primary index, and add further indices that you want to query by. You can also add multi-indices for more complex querying.\n\nEach version can also have an upgrade function in addition (or instead of) a stores property. This can be used to do data migrations. See the Dexie Documentation for details about [data migrations and upgrades](https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()).\n\nYou can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a `versionX` property per version, starting at 1. So if you have a `currentVersion` of 3, you need to have `version1`, `version2` and `version3` properties.\n\nAll of these migrations are automatically run when running `this.get('indexedDb').setup();`.\n\nIn addition to the store configuration, you also need to define a `mapTable`.\nThis is a map of functions which is used to normalize JSONAPI payloads for IndexedDB.\n\nFor the above example, this should look something like this:\n\n```js\nmapTable: computed(function() {\n return {\n   'model-one': (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanupObject(item),\n       isNew: this._toZeroOne(get(item, 'isNew'))\n     };\n   },\n   'model-two': (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanupObject(item),\n       modelOne: this._toString(get(item, 'relationships.modelOne.data.id')),\n       status: get(item, 'attributes.status')\n     };\n   }\n };\n})\n```\n\nThings to note here:\n\n1. Always convert your IDs to strings. You can use the provided `this._toString(val)` function for this.\n2. Always clean up your json. You can use the provided `this._cleanObject(item)` for this, which will clean up prototype & meta properties/functions.\n3. IndexedDB doesn't work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database. You can use the provided `this._toZeroOne(val)` for this.\n\nYou should have one property per item you want to query for. The item which is passed in is a JSONAPI payload-item.",
+            "access": "public",
+            "tagname": ""
         },
         "Querying & Inserting data": {
             "name": "Querying & Inserting data",
@@ -160,8 +166,10 @@
             "module": "Usage",
             "namespace": "",
             "file": "addon\\index.js",
-            "line": 122,
-            "description": "## Querying & Inserting data\n\nYou can now work with IndexedDB!\nFor example, let's image you query some items from a server:\n\n```js\nlet indexedDB = this.get('indexedDb');\nlet ajax = this.get('ajax')\n\najax.request('/items').then((items) => {\n indexedDB.add('item', items);\n});\n\n// Later, fetch them again\nindexedDb.findAll('item').then((items) => {\n // Here are the JSONAPI-payloads again!\n});\n```\n\nIf you do not use JSONAPI, you should convert it to the JSONAPI format before calling `indexedDB.add('item', items);`."
+            "line": 120,
+            "description": "## Querying & Inserting data\n\nYou can now work with IndexedDB!\nFor example, let's image you query some items from a server:\n\n```js\nlet indexedDB = this.get('indexedDb');\nlet ajax = this.get('ajax')\n\najax.request('/items').then((items) => {\n indexedDB.add('item', items);\n});\n\n// Later, fetch them again\nindexedDb.findAll('item').then((items) => {\n // Here are the JSONAPI-payloads again!\n});\n```\n\nIf you do not use JSONAPI, you should convert it to the JSONAPI format before calling `indexedDB.add('item', items);`.",
+            "access": "public",
+            "tagname": ""
         }
     },
     "classes": {
@@ -245,7 +253,8 @@
             "itemtype": "property",
             "name": "indexedDb",
             "type": "{IndexedDb}",
-            "rotected": "",
+            "access": "protected",
+            "tagname": "",
             "class": "IndexedDbAdapter",
             "module": "Ember Data"
         },
@@ -1158,7 +1167,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 385,
+            "line": 389,
             "description": "Import a complete database dump as created by this.exportDatabase()",
             "itemtype": "method",
             "name": "importDatabase",
@@ -1180,7 +1189,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 437,
+            "line": 441,
             "description": "Wait for all queued objects ot be resolved.\nThis will resolve when there are no open processes anymore.",
             "itemtype": "method",
             "name": "waitForQueue",
@@ -1195,7 +1204,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 461,
+            "line": 465,
             "description": "Get the queue and save everything in it in bulk.",
             "itemtype": "method",
             "name": "_bulkSave",
@@ -1206,7 +1215,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 479,
+            "line": 483,
             "description": "Build a query for Dexie.\n\nThis will try to find a matching index, and use it if possible.\nIt can also handle multi-indecies, if they have been specified and are supported.\nIf no matching index is found, it will fetch everything and try to filter it via JS.\nNote that this is _much_ slower than querying by actual indecies, so you should definitely use that if possible!\nIf you are using multiple query arguments, and only one of them is found as index, it will query the database by this index\nand then do the other queries via JS filter.\n\nNote that this will also auto-convert boolean query arguments to 1/0.",
             "itemtype": "method",
             "name": "_buildQuery",
@@ -1230,23 +1239,7 @@
             "tagname": "",
             "class": "IndexedDb",
             "module": "Services"
-        },
-        {
-            "file": "addon\\index.js",
-            "line": 1,
-            "description": "Copyright 2016, Yahoo! Inc.\nCopyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.",
-            "class": "",
-            "module": "Services"
         }
     ],
-    "warnings": [
-        {
-            "message": "unknown tag: rotected",
-            "line": " addon\\adapters\\indexed-db.js:26"
-        },
-        {
-            "message": "Missing item type\nCopyright 2016, Yahoo! Inc.\nCopyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.",
-            "line": " addon\\index.js:1"
-        }
-    ]
+    "warnings": []
 }

@@ -53,8 +53,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/658a199e" target="_blank">
-                                  Tag: 0.1.1.658a199e
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v0.2.0" target="_blank">
+                                  Tag: v0.2.0
                                 </a>
                             </h4>
                         </div>
@@ -128,13 +128,8 @@
 
 <div class="file">
     <pre class="prettyprint linenums">
-/**
- * Copyright 2016, Yahoo! Inc.
- * Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.
- */
-
 import IndexedDb from &#x27;./services/indexed-db&#x27;;
-import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x27;;
+import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x27;;
 
 /**
  * ## Installation
@@ -150,6 +145,7 @@ import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x2
  * If it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues).
  *
  * @module Usage
+ * @public
  */
 
 /**
@@ -179,6 +175,7 @@ import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x2
  *
  * @module Usage
  * @submodule Setup
+ * @public
  */
 
 /**
@@ -247,6 +244,7 @@ import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x2
 
  * @module Usage
  * @submodule Configuring your database
+ * @public
  */
 
 /**
@@ -273,6 +271,7 @@ import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x2
  *
  * @module Usage
  * @submodule Querying &amp; Inserting data
+ * @public
  */
 
 /**
@@ -281,6 +280,7 @@ import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x2
  * Overwrite IndexedDbConfiguration to fit your application.
  *
  * @module Services
+ * @public
  */
 
 /**
@@ -302,12 +302,13 @@ import IndexedDbConfiguration from &#x27;./services-indexed-db-configuration&#x2
  Note that &#x60;query&#x60; and &#x60;queryRecord&#x60; will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).
  *
  * @module Ember Data
+ * @public
  */
 
 export default {
   IndexedDb,
   IndexedDbConfiguration
-}
+};
 
     </pre>
 </div>
