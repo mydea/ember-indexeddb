@@ -83,7 +83,7 @@ export default JSONAPIAdapter.extend({
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
-    });
+    }, 'indexedDbAdapter/findAll');
   },
 
   /**
@@ -111,7 +111,7 @@ export default JSONAPIAdapter.extend({
         }
         resolve(data);
       }, reject);
-    });
+    }, 'indexedDbAdapter/findRecord');
   },
 
   /**
@@ -135,7 +135,7 @@ export default JSONAPIAdapter.extend({
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
-    });
+    }, 'indexedDbAdapter/findMany');
   },
 
   /**
@@ -161,7 +161,7 @@ export default JSONAPIAdapter.extend({
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
-    });
+    }, 'indexedDbAdapter/query');
   },
 
   /**
@@ -192,7 +192,7 @@ export default JSONAPIAdapter.extend({
 
         resolve(data);
       }, reject);
-    });
+    }, 'indexedDbAdapter/queryRecord');
   },
 
   /**
@@ -230,7 +230,7 @@ export default JSONAPIAdapter.extend({
         this._logDuration(`deleteRecord ${modelName}/${id}`, true);
         resolve(null);
       }, reject);
-    });
+    }, 'indexedDbAdapter/deleteRecord');
   },
 
   /**
@@ -274,7 +274,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
 
-    });
+    }, 'indexedDbAdapter/_save');
   },
 
   /**

@@ -119,7 +119,7 @@ export default Service.extend({
       this.set('db', db);
 
       db.open().then(resolve, reject);
-    });
+    }, 'indexedDb/setup');
   },
 
   /**
@@ -135,7 +135,7 @@ export default Service.extend({
    */
   query(type, query) {
     let promise = this._buildQuery(type, query);
-    return promise.toArray();
+    return new RSVP.Promise((resolve, reject) => promise.toArray().then(resolve, reject), 'indexedDb/query');
   },
 
   /**
@@ -151,7 +151,7 @@ export default Service.extend({
    */
   queryRecord(type, query) {
     let promise = this._buildQuery(type, query);
-    return promise.first();
+    return new RSVP.Promise((resolve, reject) => promise.first().then(resolve, reject), 'indexedDb/queryRecord');
   },
 
   /**
@@ -170,7 +170,7 @@ export default Service.extend({
     if (getTypeOf(id) === 'array') {
       return db[type].where('id').anyOf(id.map(this._toString)).toArray();
     }
-    return db[type].get(this._toString(id));
+    return new RSVP.Promise((resolve, reject) => db[type].get(this._toString(id)).then(resolve, reject), 'indexedDb/find');
   },
 
   /**
@@ -183,7 +183,7 @@ export default Service.extend({
    */
   findAll(type) {
     let db = get(this, 'db');
-    return db[type].toArray();
+    return new RSVP.Promise((resolve, reject) => db[type].toArray().then(resolve, reject), 'indexedDb/findAll');
   },
 
   /**
@@ -207,7 +207,7 @@ export default Service.extend({
       return this._mapItem(type, item);
     });
 
-    let promise = db[type].bulkPut(data);
+    let promise = new RSVP.Promise((resolve, reject) => db[type].bulkPut(data).then(resolve, reject), 'indexedDb/add');
 
     let promiseQueue = get(this, '_promiseQueue');
     promiseQueue.pushObject(promise);
@@ -232,7 +232,7 @@ export default Service.extend({
     let db = get(this, 'db');
 
     let data = this._mapItem(type, item);
-    let promise = db[type].put(data);
+    let promise = new RSVP.Promise((resolve, reject) => db[type].put(data).then(resolve, reject), 'indexedDb/save');
 
     let promiseQueue = get(this, '_promiseQueue');
     promiseQueue.pushObject(promise);
@@ -262,7 +262,7 @@ export default Service.extend({
             resolve(val);
           }, reject);
         }, 100);
-      });
+      }, 'indexedDb/saveBulk');
       set(this, '_savePromise', savePromise);
     }
 
@@ -286,7 +286,7 @@ export default Service.extend({
    */
   clear(type) {
     let db = get(this, 'db');
-    let promise = db[type].clear();
+    let promise = new RSVP.Promise((resolve, reject) => db[type].clear().then(resolve, reject), 'indexedDb/clear');
 
     let promiseQueue = get(this, '_promiseQueue');
     promiseQueue.pushObject(promise);
@@ -305,7 +305,7 @@ export default Service.extend({
    */
   delete(type, id) {
     let db = get(this, 'db');
-    let promise = db[type].delete(id);
+    let promise = new RSVP.Promise((resolve, reject) => db[type].delete(id).then(resolve, reject), 'indexedDb/delete');
 
     let promiseQueue = get(this, '_promiseQueue');
     promiseQueue.pushObject(promise);
@@ -323,13 +323,17 @@ export default Service.extend({
   dropDatabase() {
     let db = get(this, 'db');
 
+    if (!db) {
+      return RSVP.Promise.resolve();
+    }
+
     return new RSVP.Promise((resolve, reject) => {
       try {
         db.delete().then(resolve, reject);
       } catch (e) {
         reject(e);
       }
-    });
+    }, 'indexedDb/dropDatabase');
   },
 
   /**
@@ -383,7 +387,7 @@ export default Service.extend({
           resolve(config);
         }, reject);
       }, reject);
-    });
+    }, 'indexedDb/exportDatabase');
   },
 
   /**
@@ -435,7 +439,7 @@ export default Service.extend({
           importNextTable();
         }, reject);
       }, reject);
-    });
+    }, 'indexedDb/importDatabase');
   },
 
   /**
@@ -459,7 +463,7 @@ export default Service.extend({
       };
 
       check();
-    });
+    }, 'indexedDb/waitForQueue');
   },
 
   /**
@@ -477,7 +481,7 @@ export default Service.extend({
       saveQueue[i] = [];
     }
 
-    return RSVP.all(promises);
+    return RSVP.all(promises, 'indexedDb/_bulkSave');
   },
 
   /**
