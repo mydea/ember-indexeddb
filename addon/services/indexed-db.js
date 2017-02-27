@@ -9,7 +9,8 @@ const {
   computed,
   RSVP,
   run,
-  typeOf: getTypeOf
+  typeOf: getTypeOf,
+  testing
 } = Ember;
 
 /**
@@ -406,16 +407,22 @@ export default Service.extend({
       data
     } = config;
 
-    console.log(`====================================`);
-    console.log(`Importing database dump!`);
+    let _log = (message) => {
+      if (!testing) {
+        console.log(message);
+      }
+    };
+
+    _log(`====================================`);
+    _log(`Importing database dump!`);
     return new RSVP.Promise((resolve, reject) => {
-      console.log(`Dropping existing database...`);
+      _log(`Dropping existing database...`);
       this.dropDatabase().then(() => {
-        console.log(`Setting up database ${databaseName} in version ${version}...`);
+        _log(`Setting up database ${databaseName} in version ${version}...`);
         let db = new Dexie(databaseName);
         db.version(version).stores(stores);
 
-        console.log('Opening database...');
+        _log('Opening database...');
         db.open().then(() => {
           let tables = Object.keys(data);
 
@@ -423,15 +430,13 @@ export default Service.extend({
             let [table] = tables.splice(0, 1);
 
             if (!table) {
-              console.log('Database import done!');
+              _log('Database import done!');
               return resolve();
             }
 
-            console.log(`Importing data for ${table}...`);
-            console.time(`Import for ${table} done`);
+            _log(`Importing ${data[table].length} rows for ${table}...`);
             let promise = db[table].bulkPut(data[table]);
             promise.then(() => {
-              console.timeEnd(`Import for ${table} done`);
               importNextTable();
             }, reject);
           };
