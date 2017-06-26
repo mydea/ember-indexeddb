@@ -89,7 +89,7 @@ export default Service.extend({
   _supportsCompoundIndices: computed(function() {
     try {
       window.IDBKeyRange.only([1]);
-    } catch (e) {
+    } catch(e) {
       return false;
     }
 
@@ -331,7 +331,7 @@ export default Service.extend({
     return new RSVP.Promise((resolve, reject) => {
       try {
         db.delete().then(resolve, reject);
-      } catch (e) {
+      } catch(e) {
         reject(e);
       }
     }, 'indexedDb/dropDatabase');
@@ -409,14 +409,16 @@ export default Service.extend({
 
     let _log = (message) => {
       if (!testing) {
+        /* eslint-disable no-console */
         console.log(message);
+        /* eslint-disable no-console */
       }
     };
 
-    _log(`====================================`);
-    _log(`Importing database dump!`);
+    _log('====================================');
+    _log('Importing database dump!');
     return new RSVP.Promise((resolve, reject) => {
-      _log(`Dropping existing database...`);
+      _log('Dropping existing database...');
       this.dropDatabase().then(() => {
         _log(`Setting up database ${databaseName} in version ${version}...`);
         let db = new Dexie(databaseName);
@@ -523,12 +525,14 @@ export default Service.extend({
 
     // Only one, then do a simple where
     if (keys.length === 1) {
-      let key = keys[0]; // jscs:ignore
+      /* eslint-disable ember-suave/prefer-destructuring */
+      let key = keys[0];
+      /* eslint-enable ember-suave/prefer-destructuring */
       return db[type].where(key).equals(query[key]);
     }
 
     // Order of query params is important!
-    let { schema }  = db[type];
+    let { schema } = db[type];
     let { indexes } = schema;
 
     // try to find a fitting multi index

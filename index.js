@@ -1,6 +1,4 @@
-/* jshint node: true */
-// jscs:disable
-
+/* eslint-env node */
 'use strict';
 
 var fastbootTransform = require('fastboot-transform');

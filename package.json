@@ -21,9 +21,9 @@
     "test": "ember try:each"
   },
   "dependencies": {
-    "ember-cli-babel": "^6.4.1",
     "broccoli-funnel": "^1.2.0",
     "broccoli-merge-trees": "^2.0.0",
+    "ember-cli-babel": "^6.4.1",
     "exists-sync": "^0.0.4",
     "fastboot-transform": "^0.1.1"
   },
@@ -32,11 +32,11 @@
     "ember-cli": "~2.13.3",
     "ember-cli-app-version": "^3.0.0",
     "ember-cli-dependency-checker": "^2.0.0",
+    "ember-cli-eslint": "^4.0.0",
     "ember-cli-github-pages": "^0.1.2",
     "ember-cli-htmlbars": "^2.0.2",
     "ember-cli-htmlbars-inline-precompile": "^0.4.3",
     "ember-cli-inject-live-reload": "^1.6.1",
-    "ember-cli-jshint": "^2.0.1",
     "ember-cli-qunit": "^4.0.0",
     "ember-cli-release": "^1.0.0-beta.2",
     "ember-cli-shims": "~1.1.0",
@@ -49,7 +49,7 @@
     "ember-load-initializers": "^1.0.0",
     "ember-resolver": "^4.1.0",
     "ember-source": "~2.13.2",
-    "ember-suave": "~4.0.1",
+    "eslint-plugin-ember-suave": "^1.0.0",
     "loader.js": "^4.5.0",
     "yuidoc-ember-theme": "^1.4.0"
   },

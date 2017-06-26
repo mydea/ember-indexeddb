@@ -79,7 +79,7 @@ export default Mixin.create({
       this._internalModel.send('willCommit');
       this._internalModel._attributes = {};
       this._internalModel.send('didCommit');
-    } catch (e) {
+    } catch(e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an "Attempted to handle event `didCommit` on ..." error could occur
     }
@@ -97,7 +97,7 @@ export default Mixin.create({
     try {
       this._internalModel.send('becameInvalid');
       this._internalModel.send('becameError');
-    } catch (e) {
+    } catch(e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an "Attempted to handle event `didCommit` on ..." error could occur
     }

@@ -328,10 +328,12 @@ export default JSONAPIAdapter.extend({
       return;
     }
 
+    /* eslint-disable no-console */
     if (isEnd) {
       console.timeEnd(str);
     } else {
       console.time(str);
     }
+    /* eslint-enable no-console */
   }
 });
