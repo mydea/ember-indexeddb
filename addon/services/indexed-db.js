@@ -10,7 +10,8 @@ const {
   RSVP,
   run,
   typeOf: getTypeOf,
-  testing
+  testing,
+  A: array
 } = Ember;
 
 /**
@@ -55,7 +56,7 @@ export default Service.extend({
    * @type {Object}
    * @private
    */
-  _saveQueue: {},
+  _saveQueue: null,
 
   /**
    * This is a promise that is used for bulk saving.
@@ -75,7 +76,7 @@ export default Service.extend({
    * @type {RSVP.Promise[]}
    * @private
    */
-  _promiseQueue: [],
+  _promiseQueue: null,
 
   /**
    * e.g. MS Edge doesn't support compound indices.
@@ -112,7 +113,7 @@ export default Service.extend({
         resolve();
       }
 
-      let db = new Dexie(get(this, 'databaseName'));
+      let db = new window.Dexie(get(this, 'databaseName'));
 
       let dbConfiguration = get(this, 'indexedDbConfiguration');
       dbConfiguration.setupDatabase(db);
@@ -201,7 +202,7 @@ export default Service.extend({
 
     // Single Item?
     if (getTypeOf(items) !== 'array') {
-      items = [items];
+      items = array([items]);
     }
 
     let data = items.map((item) => {
@@ -582,6 +583,12 @@ export default Service.extend({
 
   _toString(val) {
     return `${val}`;
+  },
+
+  init() {
+    this._super(...arguments);
+    set(this, '_saveQueue', {});
+    set(this, '_promiseQueue', array([]));
   }
 
 });

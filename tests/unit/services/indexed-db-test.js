@@ -1,11 +1,127 @@
 import { moduleFor, test } from 'ember-qunit';
+import Ember from 'ember';
+
+const {
+  RSVP,
+  get
+} = Ember;
+
+const createMockDb = function() {
+  return {
+    _versions: [],
+    _stores: [],
+    _upgrades: [],
+
+    version(v) {
+      this._versions.push(v);
+      let _this = this;
+
+      let obj = {
+        stores(s) {
+          _this._stores.push(s);
+          return obj;
+
+        },
+        upgrade(u) {
+          _this._upgrades.push(u);
+          return obj;
+        }
+      };
+
+      return obj;
+    }
+  };
+};
 
 moduleFor('service:indexed-db', 'Unit | Service | indexed db', {
   needs: ['service:indexed-db-configuration']
 });
 
-// Replace this with your real tests.
-test('it exists', function(assert) {
-  let service = this.subject();
-  assert.ok(service);
+// service.setup() is hard to test as it relies on the global Dexie
+
+test('add works', function(assert) {
+  let done = assert.async();
+  assert.expect(6);
+  let db = createMockDb();
+
+  let putItems = [];
+  let promises = [];
+
+  db.items = {
+    bulkPut(items) {
+      putItems.push(items);
+      let promise = RSVP.Promise.resolve(items);
+      promises.push(promise);
+      return promise;
+    }
+  };
+
+  let service = this.subject({
+    db
+  });
+
+  let item = {
+    id: 'TEST-1',
+    type: 'items'
+  };
+  let promise1 = service.add('items', item);
+
+  let response1 = [
+    {
+      id: 'TEST-1',
+      json: {
+        id: 'TEST-1', attributes: {}, relationships: {}, type: 'items'
+      }
+    }
+  ];
+  assert.deepEqual(putItems,
+    [
+      response1
+    ],
+    'adding one items works'
+  );
+
+  promise1.then((data) => {
+    assert.deepEqual(data, response1, 'promise 1 resolves with array of data');
+  });
+
+  putItems = [];
+  let item2 = {
+    id: 'TEST-2',
+    type: 'items'
+  };
+  let promise2 = service.add('items', [item, item2]);
+
+  let response2 = [
+    {
+      id: 'TEST-1',
+      json: {
+        id: 'TEST-1', attributes: {}, relationships: {}, type: 'items'
+      }
+    },
+    {
+      id: 'TEST-2',
+      json: {
+        id: 'TEST-2', attributes: {}, relationships: {}, type: 'items'
+      }
+    }
+  ];
+  assert.deepEqual(putItems,
+    [
+      response2
+    ],
+    'adding two items works'
+  );
+
+  let promiseQueue = get(service, '_promiseQueue');
+  assert.equal(get(promiseQueue, 'length'), 2, 'there are two items in the promise queue');
+
+  promise2.then((data) => {
+    assert.deepEqual(data, response2, 'promise 2 resolves with array of data');
+  });
+
+  RSVP.all([promise1, promise2]).then(() => {
+    assert.equal(get(promiseQueue, 'length'), 0, 'promise queue is cleared');
+    done();
+  });
 });

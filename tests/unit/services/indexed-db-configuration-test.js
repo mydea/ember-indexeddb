@@ -13,6 +13,33 @@ const {
   PromiseArray
 } = DS;
 
+const createMockDb = function() {
+  return {
+    _versions: [],
+    _stores: [],
+    _upgrades: [],
+
+    version(v) {
+      this._versions.push(v);
+      let _this = this;
+
+      let obj = {
+        stores(s) {
+          _this._stores.push(s);
+          return obj;
+
+        },
+        upgrade(u) {
+          _this._upgrades.push(u);
+          return obj;
+        }
+      };
+
+      return obj;
+    }
+  };
+};
+
 moduleFor('service:indexed-db-configuration', 'Unit | Service | indexed db configuration', {});
 
 test('mapItem() uses the default function if no mapTable is given', function(assert) {
@@ -171,4 +198,53 @@ test('cleanObject works', function(assert) {
       }
     }
   }, 'it correctly cleans objects with promise arrays');
+});
+
+test('setupDatabase() works with one version', function(assert) {
+  // Basic example with just one version
+  let stores = {};
+  let upgrade = function() {
+  };
+
+  let service = this.subject({
+    currentVersion: 1,
+    version1: {
+      stores,
+      upgrade
+    }
+  });
+  let mockDb = createMockDb();
+  let result = service.setupDatabase(mockDb);
+  assert.deepEqual(result._versions, [1], 'it works with just one version');
+  assert.deepEqual(result._stores, [stores], 'stores are correctly given to db');
+  assert.deepEqual(result._upgrades, [upgrade], 'upgrade is correctly given to db');
+});
+
+test('setupDatabase() works with multiple versions', function(assert) {
+  // Example with multiple versions
+  let stores1 = {};
+  let stores2 = {};
+  let upgrade1 = function() {
+  };
+  let upgrade2 = function() {
+  };
+
+  let service = this.subject({
+    currentVersion: 3,
+    version1: {
+      stores: stores1
+    },
+    version2: {
+      stores: stores2,
+      upgrade: upgrade1
+    },
+    version3: {
+      upgrade: upgrade2
+    }
+  });
+  let mockDb = createMockDb();
+  let result = service.setupDatabase(mockDb);
+  assert.deepEqual(result._versions, [1, 2, 3], 'it works with multiple versions');
+  assert.deepEqual(result._stores, [stores1, stores2], 'stores are correctly given to db for multiple versions');
+  assert.deepEqual(result._upgrades, [upgrade1, upgrade2], 'upgrades are correctly given to db for multiple versions');
 });
