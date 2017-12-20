@@ -1,6 +1,0 @@
-{
-  "name": "ember-indexeddb",
-  "dependencies": {
-    "dexie": "^1.5.1"
-  }
-}
