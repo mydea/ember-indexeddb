@@ -11,6 +11,7 @@ const Router = EmberRouter.extend({
 });
 
 Router.map(function() {
+  this.route('example');
 });
 
 export default Router;

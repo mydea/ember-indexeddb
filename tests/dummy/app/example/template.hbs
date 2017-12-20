@@ -1,0 +1,19 @@
+<h1>
+  Items
+</h1>
+
+<ul>
+  {{#each model as |item|}}
+    <li>
+      {{item.title}}
+      created on {{item.date}}
+      {{#if item.isNew}}
+        (New!)
+      {{/if}}
+    </li>
+  {{/each}}
+</ul>
+
+<button {{action 'addItems'}}>
+  Add new items
+</button>
