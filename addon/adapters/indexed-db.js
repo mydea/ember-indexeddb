@@ -5,7 +5,8 @@ import $ from 'jquery';
 const {
   get,
   inject,
-  RSVP
+  RSVP,
+  A: array
 } = Ember;
 
 const {
@@ -292,8 +293,11 @@ export default JSONAPIAdapter.extend({
       };
     }
 
+    let data = array(records).compact();
+    data = array(data).mapBy('json');
+
     return {
-      data: records.compact().mapBy('json')
+      data
     };
   },
 
