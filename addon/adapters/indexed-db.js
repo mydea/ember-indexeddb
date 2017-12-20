@@ -1,13 +1,9 @@
+import { inject as service } from '@ember/service';
+import { get } from '@ember/object';
+import RSVP from 'rsvp';
+import { A as array } from '@ember/array';
 import DS from 'ember-data';
-import Ember from 'ember';
 import $ from 'jquery';
-
-const {
-  get,
-  inject,
-  RSVP,
-  A: array
-} = Ember;
 
 const {
   JSONAPIAdapter
@@ -31,7 +27,7 @@ export default JSONAPIAdapter.extend({
    * @type {IndexedDb}
    * @protected
    */
-  indexedDb: inject.service(),
+  indexedDb: service(),
 
   /**
    * Coalesce all find requests.

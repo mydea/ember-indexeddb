@@ -1,17 +1,14 @@
 /* global Dexie */
+import Service, { inject as service } from '@ember/service';
+import { computed, set, get } from '@ember/object';
+import RSVP from 'rsvp';
+import { run } from '@ember/runloop';
+import { typeOf as getTypeOf } from '@ember/utils';
+import { A as array } from '@ember/array';
 import Ember from 'ember';
 
 const {
-  Service,
-  get,
-  set,
-  inject,
-  computed,
-  RSVP,
-  run,
-  typeOf: getTypeOf,
-  testing,
-  A: array
+  testing
 } = Ember;
 
 /**
@@ -24,8 +21,8 @@ const {
  */
 export default Service.extend({
 
-  store: inject.service(),
-  indexedDbConfiguration: inject.service(),
+  store: service(),
+  indexedDbConfiguration: service(),
 
   /**
    * The actual Dexie database.
@@ -118,7 +115,7 @@ export default Service.extend({
       let dbConfiguration = get(this, 'indexedDbConfiguration');
       dbConfiguration.setupDatabase(db);
 
-      this.set('db', db);
+      set(this, 'db', db);
 
       db.open().then(resolve, reject);
     }, 'indexedDb/setup');

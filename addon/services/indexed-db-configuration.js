@@ -1,12 +1,8 @@
-import Ember from 'ember';
+import Service from '@ember/service';
+import { get } from '@ember/object';
+import { typeOf as getTypeOf } from '@ember/utils';
+import { A as array } from '@ember/array';
 import computed from 'ember-computed';
-
-const {
-  Service,
-  get,
-  typeOf: getTypeOf,
-  A: array
-} = Ember;
 
 /**
  * This service should be overwritten to configure IndexedDB.

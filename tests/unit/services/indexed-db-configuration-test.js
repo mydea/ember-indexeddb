@@ -1,13 +1,9 @@
+import { get } from '@ember/object';
+import { A as array } from '@ember/array';
+import RSVP from 'rsvp';
+import { run } from '@ember/runloop';
 import { moduleFor, test } from 'ember-qunit';
-import Ember from 'ember';
 import DS from 'ember-data';
-
-const {
-  get,
-  A: array,
-  RSVP,
-  run
-} = Ember;
 
 const {
   PromiseArray

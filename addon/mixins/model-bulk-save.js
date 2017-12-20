@@ -1,10 +1,6 @@
-import Ember from 'ember';
-
-const {
-  get,
-  inject,
-  Mixin
-} = Ember;
+import { inject as service } from '@ember/service';
+import { get } from '@ember/object';
+import Mixin from '@ember/object/mixin';
 
 /**
  *
@@ -37,7 +33,7 @@ const {
  */
 export default Mixin.create({
 
-  indexedDb: inject.service(),
+  indexedDb: service(),
 
   // ---------------------------------------------------------------------------------------------------------
   // Methods

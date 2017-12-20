@@ -1,10 +1,6 @@
+import RSVP from 'rsvp';
+import { get } from '@ember/object';
 import { moduleFor, test } from 'ember-qunit';
-import Ember from 'ember';
-
-const {
-  RSVP,
-  get
-} = Ember;
 
 const createMockDb = function() {
   return {

@@ -1,10 +1,6 @@
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 import ModelBulkSaveMixin from 'ember-indexeddb/mixins/model-bulk-save';
 import { module, test } from 'qunit';
-
-const {
-  Object: EmberObject
-} = Ember;
 
 module('Unit | Mixin | model bulk save');
 
