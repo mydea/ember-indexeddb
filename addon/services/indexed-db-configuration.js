@@ -160,6 +160,10 @@ export default Service.extend({
   setupDatabase(db) {
     let currentVersion = get(this, 'currentVersion');
 
+    if (!currentVersion) {
+      throw new Error('You need to override services/indexed-db-configuration.js and provide at least one version.');
+    }
+
     for (let v = 1; v <= currentVersion; v++) {
       let version = get(this, `version${v}`);
       let stores = get(version, 'stores');
