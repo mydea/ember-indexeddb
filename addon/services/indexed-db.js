@@ -6,6 +6,7 @@ import { run } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
 import { A as array } from '@ember/array';
 import Ember from 'ember';
+import { registerWaiter, unregisterWaiter } from '@ember/test';
 
 const {
   testing
@@ -54,6 +55,16 @@ export default Service.extend({
    * @private
    */
   _saveQueue: null,
+
+  /**
+   * This is the test waiter used to ensure all promises are resolved in tests.
+   * This is set by the this._registerTestWaiter() method.
+   *
+   * @property _testWaiter
+   * @type {Function}
+   * @private
+   */
+  _testWaiter: null,
 
   /**
    * This is a promise that is used for bulk saving.
@@ -133,8 +144,11 @@ export default Service.extend({
    * @public
    */
   query(type, query) {
-    let promise = this._buildQuery(type, query);
-    return new RSVP.Promise((resolve, reject) => promise.toArray().then(resolve, reject), 'indexedDb/query');
+    let queryPromise = this._buildQuery(type, query);
+    let promise = new RSVP.Promise((resolve, reject) => queryPromise.toArray().then(resolve, reject), 'indexedDb/query');
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -149,8 +163,11 @@ export default Service.extend({
    * @public
    */
   queryRecord(type, query) {
-    let promise = this._buildQuery(type, query);
-    return new RSVP.Promise((resolve, reject) => promise.first().then(resolve, reject), 'indexedDb/queryRecord');
+    let queryPromise = this._buildQuery(type, query);
+    let promise = new RSVP.Promise((resolve, reject) => queryPromise.first().then(resolve, reject), 'indexedDb/queryRecord');
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -169,7 +186,10 @@ export default Service.extend({
     if (getTypeOf(id) === 'array') {
       return db[type].where('id').anyOf(id.map(this._toString)).toArray();
     }
-    return new RSVP.Promise((resolve, reject) => db[type].get(this._toString(id)).then(resolve, reject), 'indexedDb/find');
+    let promise = new RSVP.Promise((resolve, reject) => db[type].get(this._toString(id)).then(resolve, reject), 'indexedDb/find');
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -182,7 +202,10 @@ export default Service.extend({
    */
   findAll(type) {
     let db = get(this, 'db');
-    return new RSVP.Promise((resolve, reject) => db[type].toArray().then(resolve, reject), 'indexedDb/findAll');
+    let promise = new RSVP.Promise((resolve, reject) => db[type].toArray().then(resolve, reject), 'indexedDb/findAll');
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -208,12 +231,7 @@ export default Service.extend({
 
     let promise = new RSVP.Promise((resolve, reject) => db[type].bulkPut(data).then(resolve, reject), 'indexedDb/add');
 
-    let promiseQueue = get(this, '_promiseQueue');
-    promiseQueue.pushObject(promise);
-    let removeObject = () => {
-      promiseQueue.removeObject(promise);
-    };
-    promise.then(removeObject, removeObject);
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -233,9 +251,7 @@ export default Service.extend({
     let data = this._mapItem(type, item);
     let promise = new RSVP.Promise((resolve, reject) => db[type].put(data).then(resolve, reject), 'indexedDb/save');
 
-    let promiseQueue = get(this, '_promiseQueue');
-    promiseQueue.pushObject(promise);
-    promise.finally(() => promiseQueue.removeObject(promise));
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -263,6 +279,7 @@ export default Service.extend({
         }, 100);
       }, 'indexedDb/saveBulk');
       set(this, '_savePromise', savePromise);
+      this._addToPromiseQueue(savePromise);
     }
 
     let queue = get(saveQueue, type);
@@ -287,9 +304,7 @@ export default Service.extend({
     let db = get(this, 'db');
     let promise = new RSVP.Promise((resolve, reject) => db[type].clear().then(resolve, reject), 'indexedDb/clear');
 
-    let promiseQueue = get(this, '_promiseQueue');
-    promiseQueue.pushObject(promise);
-    promise.finally(() => promiseQueue.removeObject(promise));
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -306,9 +321,7 @@ export default Service.extend({
     let db = get(this, 'db');
     let promise = new RSVP.Promise((resolve, reject) => db[type].delete(id).then(resolve, reject), 'indexedDb/delete');
 
-    let promiseQueue = get(this, '_promiseQueue');
-    promiseQueue.pushObject(promise);
-    promise.finally(() => promiseQueue.removeObject(promise));
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -326,13 +339,21 @@ export default Service.extend({
       return RSVP.Promise.resolve();
     }
 
-    return new RSVP.Promise((resolve, reject) => {
+    let promise = new RSVP.Promise((resolve, reject) => {
       try {
-        db.delete().then(resolve, reject);
+        db.delete().then(() => {
+          if (!get(this, 'isDestroyed')) {
+            set(this, 'db', null);
+          }
+          resolve();
+        }, reject);
       } catch(e) {
         reject(e);
       }
     }, 'indexedDb/dropDatabase');
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -582,10 +603,69 @@ export default Service.extend({
     return `${val}`;
   },
 
+  /**
+   * Add a promise to the promise queue.
+   * When the promise resolves or rejects, it will be removed from the promise queue.
+   *
+   * @method _addToPromiseQueue
+   * @param {RSVP.Promise} promise
+   * @return {RSVP.Promise}
+   * @private
+   */
+  _addToPromiseQueue(promise) {
+    let promiseQueue = get(this, '_promiseQueue');
+    promiseQueue.pushObject(promise);
+
+    let removeObject = () => {
+      promiseQueue.removeObject(promise);
+    };
+    promise.finally(removeObject);
+    return promise;
+  },
+
+  /**
+   * Register the test waiter.
+   * This waiter checks if there are no promises left in the _promiseQueue.
+   *
+   * @method _registerTestWaiter
+   * @private
+   */
+  _registerTestWaiter() {
+    if (!testing) {
+      return;
+    }
+    let testWaiter = () => {
+      return get(this, '_promiseQueue.length') === 0;
+    };
+    registerWaiter(testWaiter);
+    set(this, '_testWaiter', testWaiter);
+  },
+
+  /**
+   * This removes the test waiter.
+   *
+   * @method _unregisterTestWaiter
+   * @private
+   */
+  _unregisterTestWaiter() {
+    if (!testing) {
+      return;
+    }
+    let testWaiter = get(this, '_testWaiter');
+    unregisterWaiter(testWaiter);
+  },
+
   init() {
     this._super(...arguments);
     set(this, '_saveQueue', {});
     set(this, '_promiseQueue', array([]));
+
+    this._registerTestWaiter();
+  },
+
+  willDestroy() {
+    this._unregisterTestWaiter();
+    this._super(...arguments);
   }
 
 });
