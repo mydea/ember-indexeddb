@@ -22,13 +22,13 @@ test('example app works', async function(assert) {
   items = findAll('.item');
   assert.equal(items.length, 3, 'three items are found');
   assert.deepEqual(
-    items.map((item) => item.innerText.trim()),
+    items.map((item) => item.querySelector('td').innerText.trim()),
     [
-      `Item created on ${dateString1} (New!)`,
-      `Item created on ${dateString1} (New!)`,
-      `Item created on ${dateString1} (New!)`
+      dateString1,
+      dateString1,
+      dateString1
     ],
-    'items have correct titles'
+    'items have correct dates'
   );
 
   let [dateString2] = (new Date).toISOString().split('.');
@@ -39,17 +39,15 @@ test('example app works', async function(assert) {
   items = findAll('.item');
   assert.equal(items.length, 6, 'three items are found');
   assert.deepEqual(
-    items.map((item) => item.innerText.trim()),
+    items.map((item) => item.querySelector('td').innerText.trim()),
     [
-      `Item created on ${dateString1}`,
-      `Item created on ${dateString1}`,
-      `Item created on ${dateString1}`,
-      `Item created on ${dateString2} (New!)`,
-      `Item created on ${dateString2} (New!)`,
-      `Item created on ${dateString2} (New!)`
+      dateString1,
+      dateString1,
+      dateString1,
+      dateString2,
+      dateString2,
+      dateString2
     ],
-    'items have correct titles'
+    'items have correct dates'
   );
-
-  // await click('#reset-db');
 });

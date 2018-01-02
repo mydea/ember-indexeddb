@@ -39,7 +39,9 @@ const createMockDb = function() {
 moduleFor('service:indexed-db-configuration', 'Unit | Service | indexed db configuration', {});
 
 test('mapItem() uses the default function if no mapTable is given', function(assert) {
-  let service = this.subject({});
+  let service = this.subject({
+    mapTable: {}
+  });
 
   let payload = {
     id: 'test-1',

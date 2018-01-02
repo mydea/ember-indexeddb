@@ -1,6 +1,6 @@
 import Service from '@ember/service';
 import { get } from '@ember/object';
-import { typeOf as getTypeOf } from '@ember/utils';
+import { typeOf as getTypeOf, isNone } from '@ember/utils';
 import { A as array } from '@ember/array';
 import computed from 'ember-computed';
 
@@ -248,13 +248,19 @@ export default Service.extend({
 
   /**
    * Convert a boolean to 1/0.
+   * Optionally, you can specify the value that should be used if the given value does not exist in the payload.
+   * For example, if you want that a given value should be 1 if not found in the payload, use `this._toZeroOne(value, 1)`.
    *
    * @method _toZeroOne
-   * @param val
+   * @param {Mixed} val
+   * @param {0|1} noneValue The value to use if val is null/undefined.
    * @return {1|0}
    * @private
    */
-  _toZeroOne(val) {
+  _toZeroOne(val, noneValue = 0) {
+    if (isNone(val)) {
+      return noneValue;
+    }
     return val ? 1 : 0;
   }
 

@@ -2,16 +2,53 @@
   Items
 </h1>
 
-<ul>
-  {{#each model as |item|}}
-    <li class="item">
-      {{item.title}} created on {{item.date}} {{if item.isNew '(New!)'}}
-    </li>
-  {{/each}}
-</ul>
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        Created on
+      </th>
+      <th>
+        Is Read
+      </th>
+      <th>
+        Is Synced
+      </th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each model as |item|}}
+      <tr class="item">
+        <td>
+          {{item.date}}
+        </td>
+        <td>
+          {{item.isRead}}
+        </td>
+        <td>
+          {{item.isSynced}}
+        </td>
+        <td>
+          <button {{action 'markAsRead' item}}>
+            Mark as read
+          </button>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
 
-<button id="add-items" {{action 'addItems'}}>
-  Add new items
+<button id="add-items" {{action 'fetchItems'}}>
+  Fetch items from API
+</button>
+
+<button id="add-items" {{action 'addItem'}}>
+  Add item locally
+</button>
+
+<button id="add-items" {{action 'syncItems'}}>
+  Sync to server
 </button>
 
 <button id="reset-db" {{action 'resetDb'}}>
