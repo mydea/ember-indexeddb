@@ -4,16 +4,16 @@
 
 <ul>
   {{#each model as |item|}}
-    <li>
-      {{item.title}}
-      created on {{item.date}}
-      {{#if item.isNew}}
-        (New!)
-      {{/if}}
+    <li class="item">
+      {{item.title}} created on {{item.date}} {{if item.isNew '(New!)'}}
     </li>
   {{/each}}
 </ul>
 
-<button {{action 'addItems'}}>
+<button id="add-items" {{action 'addItems'}}>
   Add new items
+</button>
+
+<button id="reset-db" {{action 'resetDb'}}>
+  Reset DB
 </button>

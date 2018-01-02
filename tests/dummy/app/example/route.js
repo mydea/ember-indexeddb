@@ -1,6 +1,7 @@
 import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
 import { get, set } from '@ember/object';
+import RSVP from 'rsvp';
 
 export default Route.extend({
 
@@ -21,8 +22,28 @@ export default Route.extend({
 
     addItems() {
       this._markItemsAsOld();
-      this._createItems().then(() => {
-        this.refresh();
+
+      return new RSVP.Promise((resolve, reject) => {
+        this._createItems().then(() => {
+          return this.refresh();
+        }).then(resolve).catch(reject);
+      });
+
+    },
+
+    resetDb() {
+      let indexedDb = get(this, 'indexedDb');
+      let store = get(this, 'store');
+
+      return new RSVP.Promise((resolve, reject) => {
+        indexedDb.dropDatabase().then(() => {
+          store.unloadAll();
+          return indexedDb.setup();
+        }).then(() => {
+          return this.refresh();
+        }).then(() => {
+          resolve();
+        }).catch(reject);
       });
     }
 
@@ -54,7 +75,7 @@ export default Route.extend({
       type: 'item',
       attributes: {
         title: 'Item ',
-        date: (new Date()).toString(),
+        date: (new Date()).toISOString().split('.')[0],
         'is-new': true
       }
     };
