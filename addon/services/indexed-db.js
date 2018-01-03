@@ -374,7 +374,7 @@ export default Service.extend({
       data: {}
     };
 
-    return new RSVP.Promise((resolve, reject) => {
+    let promise = new RSVP.Promise((resolve, reject) => {
       // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
       db.open().then(function() {
         // Save the last version number
@@ -408,6 +408,9 @@ export default Service.extend({
         }, reject);
       }, reject);
     }, 'indexedDb/exportDatabase');
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -436,7 +439,7 @@ export default Service.extend({
 
     _log('====================================');
     _log('Importing database dump!');
-    return new RSVP.Promise((resolve, reject) => {
+    let promise = new RSVP.Promise((resolve, reject) => {
       _log('Dropping existing database...');
       this.dropDatabase().then(() => {
         _log(`Setting up database ${databaseName} in version ${version}...`);
@@ -466,6 +469,9 @@ export default Service.extend({
         }, reject);
       }, reject);
     }, 'indexedDb/importDatabase');
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
