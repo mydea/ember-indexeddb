@@ -1,6 +1,6 @@
 {
   "name": "ember-indexeddb",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "A utility for using IndexedDB with ember & ember-data",
   "keywords": [
     "ember-addon"
