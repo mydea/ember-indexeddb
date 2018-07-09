@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.1
+
+* Remove unnecessary bower install of Dexie in install blueprint
+* Ensure tests wait on import/export to finish
+* [INTERNAL] Update dependencies
+* [INTERNAL] Update to new test syntax
+
 ## v1.0.0
 
 * Update to Dexie 2.x

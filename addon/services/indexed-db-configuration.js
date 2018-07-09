@@ -1,8 +1,7 @@
 import Service from '@ember/service';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { typeOf as getTypeOf, isNone } from '@ember/utils';
 import { A as array } from '@ember/array';
-import computed from 'ember-computed';
 
 /**
  * This service should be overwritten to configure IndexedDB.

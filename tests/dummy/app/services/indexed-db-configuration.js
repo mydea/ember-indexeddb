@@ -4,11 +4,13 @@ import { computed, get } from '@ember/object';
 export default IndexedDbConfigurationService.extend({
   currentVersion: 1,
 
-  version1: {
-    stores: {
-      'item': '&id,*isRead,*isSynced'
-    }
-  },
+  version1: computed(function() {
+    return {
+      stores: {
+        'item': '&id,*isRead,*isSynced'
+      }
+    };
+  }),
 
   mapTable: computed(function() {
     return {
