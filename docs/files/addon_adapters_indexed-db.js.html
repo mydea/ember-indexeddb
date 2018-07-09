@@ -13,13 +13,14 @@
     <link rel="stylesheet" href="../assets/css/theme.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
     
+
 </head>
 <body>
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
           <a href="../" class="navbar-brand">
-            <img src="../assets/img/ember-logo.png" alt="">
+              <img src="../assets/img/ember-logo.png" alt="enterprise logo">
             <span>indexeddb</span>
           </a>
         </div>
@@ -53,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v0.2.0" target="_blank">
-                                  Tag: v0.2.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.0.1" target="_blank">
+                                  Tag: v1.0.1
                                 </a>
                             </h4>
                         </div>
@@ -128,15 +129,12 @@
 
 <div class="file">
     <pre class="prettyprint linenums">
+import { inject as service } from &#x27;@ember/service&#x27;;
+import { get } from &#x27;@ember/object&#x27;;
+import RSVP from &#x27;rsvp&#x27;;
+import { A as array } from &#x27;@ember/array&#x27;;
 import DS from &#x27;ember-data&#x27;;
-import Ember from &#x27;ember&#x27;;
 import $ from &#x27;jquery&#x27;;
-
-const {
-  get,
-  inject,
-  RSVP
-} = Ember;
 
 const {
   JSONAPIAdapter
@@ -160,7 +158,7 @@ export default JSONAPIAdapter.extend({
    * @type {IndexedDb}
    * @protected
    */
-  indexedDb: inject.service(),
+  indexedDb: service(),
 
   /**
    * Coalesce all find requests.
@@ -213,7 +211,7 @@ export default JSONAPIAdapter.extend({
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
-    });
+    }, &#x27;indexedDbAdapter/findAll&#x27;);
   },
 
   /**
@@ -241,7 +239,7 @@ export default JSONAPIAdapter.extend({
         }
         resolve(data);
       }, reject);
-    });
+    }, &#x27;indexedDbAdapter/findRecord&#x27;);
   },
 
   /**
@@ -265,7 +263,7 @@ export default JSONAPIAdapter.extend({
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
-    });
+    }, &#x27;indexedDbAdapter/findMany&#x27;);
   },
 
   /**
@@ -291,7 +289,7 @@ export default JSONAPIAdapter.extend({
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
-    });
+    }, &#x27;indexedDbAdapter/query&#x27;);
   },
 
   /**
@@ -322,7 +320,7 @@ export default JSONAPIAdapter.extend({
 
         resolve(data);
       }, reject);
-    });
+    }, &#x27;indexedDbAdapter/queryRecord&#x27;);
   },
 
   /**
@@ -360,7 +358,7 @@ export default JSONAPIAdapter.extend({
         this._logDuration(&#x60;deleteRecord ${modelName}/${id}&#x60;, true);
         resolve(null);
       }, reject);
-    });
+    }, &#x27;indexedDbAdapter/deleteRecord&#x27;);
   },
 
   /**
@@ -404,7 +402,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
 
-    });
+    }, &#x27;indexedDbAdapter/_save&#x27;);
   },
 
   /**
@@ -422,8 +420,11 @@ export default JSONAPIAdapter.extend({
       };
     }
 
+    let data = array(records).compact();
+    data = array(data).mapBy(&#x27;json&#x27;);
+
     return {
-      data: records.compact().mapBy(&#x27;json&#x27;)
+      data
     };
   },
 
@@ -458,11 +459,13 @@ export default JSONAPIAdapter.extend({
       return;
     }
 
+    /* eslint-disable no-console */
     if (isEnd) {
       console.timeEnd(str);
     } else {
       console.time(str);
     }
+    /* eslint-enable no-console */
   }
 });
 

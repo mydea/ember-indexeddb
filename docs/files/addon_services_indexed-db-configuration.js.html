@@ -13,13 +13,14 @@
     <link rel="stylesheet" href="../assets/css/theme.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
     
+
 </head>
 <body>
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
           <a href="../" class="navbar-brand">
-            <img src="../assets/img/ember-logo.png" alt="">
+              <img src="../assets/img/ember-logo.png" alt="enterprise logo">
             <span>indexeddb</span>
           </a>
         </div>
@@ -53,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v0.2.0" target="_blank">
-                                  Tag: v0.2.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.0.1" target="_blank">
+                                  Tag: v1.0.1
                                 </a>
                             </h4>
                         </div>
@@ -128,15 +129,10 @@
 
 <div class="file">
     <pre class="prettyprint linenums">
-import Ember from &#x27;ember&#x27;;
-import computed from &#x27;ember-computed&#x27;;
-
-const {
-  Service,
-  get,
-  typeOf: getTypeOf,
-  A: array
-} = Ember;
+import Service from &#x27;@ember/service&#x27;;
+import { get, computed } from &#x27;@ember/object&#x27;;
+import { typeOf as getTypeOf, isNone } from &#x27;@ember/utils&#x27;;
+import { A as array } from &#x27;@ember/array&#x27;;
 
 /**
  * This service should be overwritten to configure IndexedDB.
@@ -290,6 +286,10 @@ export default Service.extend({
   setupDatabase(db) {
     let currentVersion = get(this, &#x27;currentVersion&#x27;);
 
+    if (!currentVersion) {
+      throw new Error(&#x27;You need to override services/indexed-db-configuration.js and provide at least one version.&#x27;);
+    }
+
     for (let v = 1; v &lt;= currentVersion; v++) {
       let version = get(this, &#x60;version${v}&#x60;);
       let stores = get(version, &#x27;stores&#x27;);
@@ -378,13 +378,19 @@ export default Service.extend({
 
   /**
    * Convert a boolean to 1/0.
+   * Optionally, you can specify the value that should be used if the given value does not exist in the payload.
+   * For example, if you want that a given value should be 1 if not found in the payload, use &#x60;this._toZeroOne(value, 1)&#x60;.
    *
    * @method _toZeroOne
-   * @param val
+   * @param {Mixed} val
+   * @param {0|1} noneValue The value to use if val is null/undefined.
    * @return {1|0}
    * @private
    */
-  _toZeroOne(val) {
+  _toZeroOne(val, noneValue = 0) {
+    if (isNone(val)) {
+      return noneValue;
+    }
     return val ? 1 : 0;
   }
 

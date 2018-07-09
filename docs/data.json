@@ -2,7 +2,7 @@
     "project": {
         "name": "ember-indexeddb",
         "description": "A utility for using IndexedDB with ember & ember-data",
-        "version": "v0.2.0",
+        "version": "v1.0.1",
         "indexModule": "Usage",
         "url": "https://github.com/mydea/ember-indexeddb"
     },
@@ -184,7 +184,7 @@
             "module": "Ember Data",
             "namespace": "",
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 15,
+            "line": 12,
             "description": "This Ember-Data adapter will fetch and save all data to/from IndexedDB."
         },
         "ModelBulkSave": {
@@ -198,7 +198,7 @@
             "module": "Ember Data",
             "namespace": "",
             "file": "addon\\mixins\\model-bulk-save.js",
-            "line": 9,
+            "line": 5,
             "description": "This mixin can be used on a DS.Model to add a `saveBulk` function.\nSaving a lot of data at the same time can be quite inefficient. To solve this issue, you can use the provided `model-bulk-save` mixin on your ember-data models:\n```js\nimport DS from 'ember-data';\nimport ModelBulkSaveMixin from 'ember-indexeddb/mixins/model-bulk-save';\n\nexport default DS.Model.extend(ModelBulkSaveMixin, {\n  name: DS.attr('string')\n});\n ```\nNow, this model will have a new function `bulkSave()`:\n```js\nlet promise1 = model1.saveBulk();\nlet promise2 = model2.saveBulk();\n ```\nIn the above example, `promise1` and `promise2` would actually be the same promise, and both of these items would be saved in one transaction. This waits for 100ms before resolving,  * so every model that calls `saveBulk` in this time period will be saved in the same transactions. Note that this function will resolve with all the saved objects."
         },
         "IndexedDbSerializer": {
@@ -226,7 +226,7 @@
             "module": "Services",
             "namespace": "",
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 11,
+            "line": 6,
             "description": "This service should be overwritten to configure IndexedDB.\nOverwrite the `mapTable` property & add `versionX` properties to fit your application."
         },
         "IndexedDb": {
@@ -248,7 +248,7 @@
     "classitems": [
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 26,
+            "line": 23,
             "description": "The indexedDb service.",
             "itemtype": "property",
             "name": "indexedDb",
@@ -260,7 +260,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 35,
+            "line": 32,
             "description": "Coalesce all find requests.",
             "itemtype": "property",
             "name": "coalesceFindRequests",
@@ -273,7 +273,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 45,
+            "line": 42,
             "description": "Set this to true to log durations of IndexedDB operations to the console.",
             "itemtype": "property",
             "name": "_shouldLogDurations",
@@ -286,7 +286,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 55,
+            "line": 52,
             "description": "This function will generate a GUID to be used in IndexedDB.",
             "itemtype": "method",
             "name": "generateIdForRecord",
@@ -301,7 +301,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 66,
+            "line": 63,
             "description": "Fetch all records of a given type from IndexedDB.",
             "itemtype": "method",
             "name": "findAll",
@@ -326,7 +326,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 89,
+            "line": 86,
             "description": "Find a record of a given type & ID from IndexedDB.",
             "itemtype": "method",
             "name": "findRecord",
@@ -356,7 +356,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 117,
+            "line": 114,
             "description": "Find many records for a given type by multiple IDs.",
             "itemtype": "method",
             "name": "findMany",
@@ -386,7 +386,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 141,
+            "line": 138,
             "description": "Query a type from IndexedDB.\nThis will try to use real indices where possible.",
             "itemtype": "method",
             "name": "query",
@@ -416,7 +416,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 167,
+            "line": 164,
             "description": "Query a single item from IndexedDB.\nThis will try to use real indices where possible.",
             "itemtype": "method",
             "name": "queryRecord",
@@ -446,7 +446,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 198,
+            "line": 195,
             "description": "Update a given record in IndexedDB.",
             "itemtype": "method",
             "name": "updateRecord",
@@ -475,7 +475,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 212,
+            "line": 209,
             "description": "Delete a record from IndexedDB.",
             "itemtype": "method",
             "name": "deleteRecord",
@@ -504,7 +504,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 236,
+            "line": 233,
             "description": "Create a new record in IndexedDB.",
             "itemtype": "method",
             "name": "createRecord",
@@ -533,7 +533,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 250,
+            "line": 247,
             "description": "This function is called under the hood by both `createRecord` and `updateRecord`.",
             "itemtype": "method",
             "name": "_save",
@@ -562,7 +562,7 @@
         },
         {
             "file": "addon\\adapters\\indexed-db.js",
-            "line": 280,
+            "line": 277,
             "description": "This is used to normalize the response of IndexedDB for array responses.",
             "itemtype": "method",
             "name": "_normalizeArray",
@@ -625,7 +625,7 @@
         },
         {
             "file": "addon\\mixins\\model-bulk-save.js",
-            "line": 45,
+            "line": 41,
             "description": "Save this model, but try to save it together with other objects",
             "itemtype": "method",
             "name": "saveBulk",
@@ -650,7 +650,7 @@
         },
         {
             "file": "addon\\mixins\\model-bulk-save.js",
-            "line": 70,
+            "line": 66,
             "description": "Manually mark the model as saved.",
             "itemtype": "method",
             "name": "_markAsSaved",
@@ -661,7 +661,7 @@
         },
         {
             "file": "addon\\mixins\\model-bulk-save.js",
-            "line": 89,
+            "line": 85,
             "description": "Manually mark the model as having an error.",
             "itemtype": "method",
             "name": "_markAsError",
@@ -672,7 +672,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 22,
+            "line": 17,
             "description": "Increment this whenever you do a new database version.\nSet it to 1 on your initial version.\n\nFor every version, you should provide a `versionX` property.\nEach of these properties should be an object with \"stores\" and/or \"upgrade\" properties.\n\nstores should be an object where the keys are dasherized, singular model names (e.g. task-item),\nand the value is a string with the indexedable fields.\nSee https://github.com/dfahlander/Dexie.js/wiki/Version.stores() for detailed options.\n\nupgrade is a function that gets a transaction as parameter, which can be used to run database migrations.\nSee https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade() for detailed options/examples.\n\nAn example would be:\n\n```js\nversion1: {\n   stores: {\n     'task': '&id*,isRead',\n     'task-item': '&id'\n   }\n},\n\nversion2: {\n   stores: {\n     'task-item': '&id,*isNew'\n   },\n   upgrade: (transaction) => {\n    transaction['task-item'].each((taskItem, cursor) => {\n          taskItem.isNew = 0;\n          cursor.update(taskItem);\n         });\n   }\n}\n```\n\nThe\nYou can also use upgrade/store without using the other option.",
             "itemtype": "property",
             "name": "currentVersion",
@@ -684,7 +684,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 68,
+            "line": 63,
             "description": "The map functions for the tables.\nThis should be an object with one key per table\nwhere the value is a function that takes an object and returns an object to save in IndexedDB.\n\nThis object NEEDS to contain at least the properties id & json.\nIt should also contain one property per queryable property on the database table.\n\nThere are a few things to note here:\n\n  1. Always convert your IDs to strings. You can use the provided `this._toString(val)` function for this.\n  2. Always clean up your json. You can use the provided `this._cleanObject(item)` for this.\n  3. IndexedDB doesn't work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database.\n     You can use the provided `this._toZeroOne(val)` for this.\n\nFor example, the following table config:\n\n```js\n{\n   task: '++id,isRead,status,[isRead+status]'\n}\n```\n\nshould look something like this:\n\n```js\nreturn {\n   task: (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanObject(item),\n       isRead: this._toZeroOne(get(item, 'attributes.isRead')),\n       status: get(item, 'attributes.status')\n     };\n   }\n};\n```\n\nNote that if you do not specify anything here, it will default to\n\n```js\nreturn {\n   id: this._toString(get(item, 'id')),\n   json: this._cleanObject(item)\n};\n```",
             "itemtype": "property",
             "name": "mapTable",
@@ -696,7 +696,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 123,
+            "line": 118,
             "description": "Map a payload to a database table.\nThis will use the function provided in mapTable to get a payload to insert into IndexedDB.\nReturns null if no map function is found for the type.",
             "itemtype": "method",
             "name": "mapItem",
@@ -723,7 +723,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 152,
+            "line": 147,
             "description": "Setup the database and do all necessary database migrations.",
             "itemtype": "method",
             "name": "setupDatabase",
@@ -745,7 +745,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 181,
+            "line": 180,
             "description": "Cleanup a json object.\nThis will convert array-like structures to actual arrays for saving.\nIt will strip out meta properties etc.",
             "itemtype": "method",
             "name": "_cleanObject",
@@ -767,7 +767,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 237,
+            "line": 236,
             "description": "Convert a property to a string.",
             "itemtype": "method",
             "name": "_toString",
@@ -789,14 +789,20 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 249,
-            "description": "Convert a boolean to 1/0.",
+            "line": 248,
+            "description": "Convert a boolean to 1/0.\nOptionally, you can specify the value that should be used if the given value does not exist in the payload.\nFor example, if you want that a given value should be 1 if not found in the payload, use `this._toZeroOne(value, 1)`.",
             "itemtype": "method",
             "name": "_toZeroOne",
             "params": [
                 {
                     "name": "val",
-                    "description": ""
+                    "description": "",
+                    "type": "Mixed"
+                },
+                {
+                    "name": "noneValue",
+                    "description": "The value to use if val is null/undefined.",
+                    "type": "0|1"
                 }
             ],
             "return": {
@@ -848,6 +854,18 @@
         {
             "file": "addon\\services\\indexed-db.js",
             "line": 59,
+            "description": "This is the test waiter used to ensure all promises are resolved in tests.\nThis is set by the this._registerTestWaiter() method.",
+            "itemtype": "property",
+            "name": "_testWaiter",
+            "type": "{Function}",
+            "access": "private",
+            "tagname": "",
+            "class": "IndexedDb",
+            "module": "Services"
+        },
+        {
+            "file": "addon\\services\\indexed-db.js",
+            "line": 69,
             "description": "This is a promise that is used for bulk saving.\nAll bulkSave() operations use and return the same promise, which is cached here.",
             "itemtype": "property",
             "name": "_savePromise",
@@ -859,7 +877,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 69,
+            "line": 79,
             "description": "All currently running promises are temporarily saved here.\nThis is used to check if there are running transactions.",
             "itemtype": "property",
             "name": "_promiseQueue",
@@ -871,7 +889,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 79,
+            "line": 89,
             "description": "e.g. MS Edge doesn't support compound indices.\nFor these cases, querying shouldn't try to use them.",
             "itemtype": "property",
             "name": "_supportsCompoundIndicies",
@@ -884,7 +902,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 98,
+            "line": 108,
             "description": "Call this and wait until it resolves before doing anything with IndexedDB!\nThis should be done in beforeModel() on the application route.\nIt will reject if IndexedDB is not available.",
             "itemtype": "method",
             "name": "setup",
@@ -899,7 +917,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 125,
+            "line": 135,
             "description": "Query indexedDB.\nThis uses _buildQuery under the hood.\nThis resolved to an array.",
             "itemtype": "method",
             "name": "query",
@@ -926,7 +944,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 141,
+            "line": 154,
             "description": "Query indexedDB.\nThis uses _buildQuery under the hood.\nThis resolved to an object.",
             "itemtype": "method",
             "name": "queryRecord",
@@ -953,7 +971,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 157,
+            "line": 173,
             "description": "Find one or multiple items by id.\nIf id is an array, this will try to fetch all of these objects and resolve with an array.\nOtherwise, it will resolve with an object.",
             "itemtype": "method",
             "name": "find",
@@ -980,7 +998,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 176,
+            "line": 195,
             "description": "Find all of a given type.",
             "itemtype": "method",
             "name": "findAll",
@@ -1002,7 +1020,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 189,
+            "line": 211,
             "description": "Add one or multiple items to the database.",
             "itemtype": "method",
             "name": "add",
@@ -1029,7 +1047,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 221,
+            "line": 238,
             "description": "Save/update an item.",
             "itemtype": "method",
             "name": "save",
@@ -1061,7 +1079,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 243,
+            "line": 258,
             "description": "This will wait for 10ms and try to build a queue, and save everything at once if possible.",
             "itemtype": "method",
             "name": "saveBulk",
@@ -1088,7 +1106,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 279,
+            "line": 295,
             "description": "Clear a database table.",
             "itemtype": "method",
             "name": "clear",
@@ -1110,7 +1128,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 297,
+            "line": 311,
             "description": "Delete one item.",
             "itemtype": "method",
             "name": "delete",
@@ -1137,7 +1155,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 316,
+            "line": 328,
             "description": "Drop the entire database.",
             "itemtype": "method",
             "name": "dropDatabase",
@@ -1152,7 +1170,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 335,
+            "line": 359,
             "description": "Export a complete dump of the current database.\nThe output of this can be used to recreate the exact database state via this.importDatabase(config);",
             "itemtype": "method",
             "name": "exportDatabase",
@@ -1167,7 +1185,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 389,
+            "line": 416,
             "description": "Import a complete database dump as created by this.exportDatabase()",
             "itemtype": "method",
             "name": "importDatabase",
@@ -1189,7 +1207,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 441,
+            "line": 477,
             "description": "Wait for all queued objects ot be resolved.\nThis will resolve when there are no open processes anymore.",
             "itemtype": "method",
             "name": "waitForQueue",
@@ -1204,7 +1222,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 465,
+            "line": 501,
             "description": "Get the queue and save everything in it in bulk.",
             "itemtype": "method",
             "name": "_bulkSave",
@@ -1215,7 +1233,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 483,
+            "line": 519,
             "description": "Build a query for Dexie.\n\nThis will try to find a matching index, and use it if possible.\nIt can also handle multi-indecies, if they have been specified and are supported.\nIf no matching index is found, it will fetch everything and try to filter it via JS.\nNote that this is _much_ slower than querying by actual indecies, so you should definitely use that if possible!\nIf you are using multiple query arguments, and only one of them is found as index, it will query the database by this index\nand then do the other queries via JS filter.\n\nNote that this will also auto-convert boolean query arguments to 1/0.",
             "itemtype": "method",
             "name": "_buildQuery",
@@ -1235,6 +1253,50 @@
                 "description": "",
                 "type": "Dexie.Collection"
             },
+            "access": "private",
+            "tagname": "",
+            "class": "IndexedDb",
+            "module": "Services"
+        },
+        {
+            "file": "addon\\services\\indexed-db.js",
+            "line": 612,
+            "description": "Add a promise to the promise queue.\nWhen the promise resolves or rejects, it will be removed from the promise queue.",
+            "itemtype": "method",
+            "name": "_addToPromiseQueue",
+            "params": [
+                {
+                    "name": "promise",
+                    "description": "",
+                    "type": "RSVP.Promise"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RSVP.Promise"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "IndexedDb",
+            "module": "Services"
+        },
+        {
+            "file": "addon\\services\\indexed-db.js",
+            "line": 632,
+            "description": "Register the test waiter.\nThis waiter checks if there are no promises left in the _promiseQueue.",
+            "itemtype": "method",
+            "name": "_registerTestWaiter",
+            "access": "private",
+            "tagname": "",
+            "class": "IndexedDb",
+            "module": "Services"
+        },
+        {
+            "file": "addon\\services\\indexed-db.js",
+            "line": 650,
+            "description": "This removes the test waiter.",
+            "itemtype": "method",
+            "name": "_unregisterTestWaiter",
             "access": "private",
             "tagname": "",
             "class": "IndexedDb",

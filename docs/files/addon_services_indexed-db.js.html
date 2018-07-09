@@ -13,13 +13,14 @@
     <link rel="stylesheet" href="../assets/css/theme.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
     
+
 </head>
 <body>
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
           <a href="../" class="navbar-brand">
-            <img src="../assets/img/ember-logo.png" alt="">
+              <img src="../assets/img/ember-logo.png" alt="enterprise logo">
             <span>indexeddb</span>
           </a>
         </div>
@@ -53,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v0.2.0" target="_blank">
-                                  Tag: v0.2.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.0.1" target="_blank">
+                                  Tag: v1.0.1
                                 </a>
                             </h4>
                         </div>
@@ -129,17 +130,17 @@
 <div class="file">
     <pre class="prettyprint linenums">
 /* global Dexie */
+import Service, { inject as service } from &#x27;@ember/service&#x27;;
+import { computed, set, get } from &#x27;@ember/object&#x27;;
+import RSVP from &#x27;rsvp&#x27;;
+import { run } from &#x27;@ember/runloop&#x27;;
+import { typeOf as getTypeOf } from &#x27;@ember/utils&#x27;;
+import { A as array } from &#x27;@ember/array&#x27;;
 import Ember from &#x27;ember&#x27;;
+import { registerWaiter, unregisterWaiter } from &#x27;@ember/test&#x27;;
 
 const {
-  Service,
-  get,
-  set,
-  inject,
-  computed,
-  RSVP,
-  run,
-  typeOf: getTypeOf
+  testing
 } = Ember;
 
 /**
@@ -152,8 +153,8 @@ const {
  */
 export default Service.extend({
 
-  store: inject.service(),
-  indexedDbConfiguration: inject.service(),
+  store: service(),
+  indexedDbConfiguration: service(),
 
   /**
    * The actual Dexie database.
@@ -184,7 +185,17 @@ export default Service.extend({
    * @type {Object}
    * @private
    */
-  _saveQueue: {},
+  _saveQueue: null,
+
+  /**
+   * This is the test waiter used to ensure all promises are resolved in tests.
+   * This is set by the this._registerTestWaiter() method.
+   *
+   * @property _testWaiter
+   * @type {Function}
+   * @private
+   */
+  _testWaiter: null,
 
   /**
    * This is a promise that is used for bulk saving.
@@ -204,7 +215,7 @@ export default Service.extend({
    * @type {RSVP.Promise[]}
    * @private
    */
-  _promiseQueue: [],
+  _promiseQueue: null,
 
   /**
    * e.g. MS Edge doesn&#x27;t support compound indices.
@@ -218,7 +229,7 @@ export default Service.extend({
   _supportsCompoundIndices: computed(function() {
     try {
       window.IDBKeyRange.only([1]);
-    } catch (e) {
+    } catch(e) {
       return false;
     }
 
@@ -241,15 +252,15 @@ export default Service.extend({
         resolve();
       }
 
-      let db = new Dexie(get(this, &#x27;databaseName&#x27;));
+      let db = new window.Dexie(get(this, &#x27;databaseName&#x27;));
 
       let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
       dbConfiguration.setupDatabase(db);
 
-      this.set(&#x27;db&#x27;, db);
+      set(this, &#x27;db&#x27;, db);
 
       db.open().then(resolve, reject);
-    });
+    }, &#x27;indexedDb/setup&#x27;);
   },
 
   /**
@@ -264,8 +275,11 @@ export default Service.extend({
    * @public
    */
   query(type, query) {
-    let promise = this._buildQuery(type, query);
-    return promise.toArray();
+    let queryPromise = this._buildQuery(type, query);
+    let promise = new RSVP.Promise((resolve, reject) =&gt; queryPromise.toArray().then(resolve, reject), &#x27;indexedDb/query&#x27;);
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -280,8 +294,11 @@ export default Service.extend({
    * @public
    */
   queryRecord(type, query) {
-    let promise = this._buildQuery(type, query);
-    return promise.first();
+    let queryPromise = this._buildQuery(type, query);
+    let promise = new RSVP.Promise((resolve, reject) =&gt; queryPromise.first().then(resolve, reject), &#x27;indexedDb/queryRecord&#x27;);
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -300,7 +317,10 @@ export default Service.extend({
     if (getTypeOf(id) === &#x27;array&#x27;) {
       return db[type].where(&#x27;id&#x27;).anyOf(id.map(this._toString)).toArray();
     }
-    return db[type].get(this._toString(id));
+    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].get(this._toString(id)).then(resolve, reject), &#x27;indexedDb/find&#x27;);
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -313,7 +333,10 @@ export default Service.extend({
    */
   findAll(type) {
     let db = get(this, &#x27;db&#x27;);
-    return db[type].toArray();
+    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].toArray().then(resolve, reject), &#x27;indexedDb/findAll&#x27;);
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -330,21 +353,16 @@ export default Service.extend({
 
     // Single Item?
     if (getTypeOf(items) !== &#x27;array&#x27;) {
-      items = [items];
+      items = array([items]);
     }
 
     let data = items.map((item) =&gt; {
       return this._mapItem(type, item);
     });
 
-    let promise = db[type].bulkPut(data);
+    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].bulkPut(data).then(resolve, reject), &#x27;indexedDb/add&#x27;);
 
-    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
-    promiseQueue.pushObject(promise);
-    let removeObject = () =&gt; {
-      promiseQueue.removeObject(promise);
-    };
-    promise.then(removeObject, removeObject);
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -362,11 +380,9 @@ export default Service.extend({
     let db = get(this, &#x27;db&#x27;);
 
     let data = this._mapItem(type, item);
-    let promise = db[type].put(data);
+    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].put(data).then(resolve, reject), &#x27;indexedDb/save&#x27;);
 
-    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
-    promiseQueue.pushObject(promise);
-    promise.finally(() =&gt; promiseQueue.removeObject(promise));
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -392,8 +408,9 @@ export default Service.extend({
             resolve(val);
           }, reject);
         }, 100);
-      });
+      }, &#x27;indexedDb/saveBulk&#x27;);
       set(this, &#x27;_savePromise&#x27;, savePromise);
+      this._addToPromiseQueue(savePromise);
     }
 
     let queue = get(saveQueue, type);
@@ -416,11 +433,9 @@ export default Service.extend({
    */
   clear(type) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = db[type].clear();
+    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].clear().then(resolve, reject), &#x27;indexedDb/clear&#x27;);
 
-    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
-    promiseQueue.pushObject(promise);
-    promise.finally(() =&gt; promiseQueue.removeObject(promise));
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -435,11 +450,9 @@ export default Service.extend({
    */
   delete(type, id) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = db[type].delete(id);
+    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].delete(id).then(resolve, reject), &#x27;indexedDb/delete&#x27;);
 
-    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
-    promiseQueue.pushObject(promise);
-    promise.finally(() =&gt; promiseQueue.removeObject(promise));
+    this._addToPromiseQueue(promise);
     return promise;
   },
 
@@ -453,13 +466,25 @@ export default Service.extend({
   dropDatabase() {
     let db = get(this, &#x27;db&#x27;);
 
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    if (!db) {
+      return RSVP.Promise.resolve();
+    }
+
+    let promise = new RSVP.Promise((resolve, reject) =&gt; {
       try {
-        db.delete().then(resolve, reject);
-      } catch (e) {
+        db.delete().then(() =&gt; {
+          if (!get(this, &#x27;isDestroyed&#x27;)) {
+            set(this, &#x27;db&#x27;, null);
+          }
+          resolve();
+        }, reject);
+      } catch(e) {
         reject(e);
       }
-    });
+    }, &#x27;indexedDb/dropDatabase&#x27;);
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -480,7 +505,7 @@ export default Service.extend({
       data: {}
     };
 
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    let promise = new RSVP.Promise((resolve, reject) =&gt; {
       // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
       db.open().then(function() {
         // Save the last version number
@@ -513,7 +538,10 @@ export default Service.extend({
           resolve(config);
         }, reject);
       }, reject);
-    });
+    }, &#x27;indexedDb/exportDatabase&#x27;);
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -532,16 +560,24 @@ export default Service.extend({
       data
     } = config;
 
-    console.log(&#x60;====================================&#x60;);
-    console.log(&#x60;Importing database dump!&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
-      console.log(&#x60;Dropping existing database...&#x60;);
+    let _log = (message) =&gt; {
+      if (!testing) {
+        /* eslint-disable no-console */
+        console.log(message);
+        /* eslint-disable no-console */
+      }
+    };
+
+    _log(&#x27;====================================&#x27;);
+    _log(&#x27;Importing database dump!&#x27;);
+    let promise = new RSVP.Promise((resolve, reject) =&gt; {
+      _log(&#x27;Dropping existing database...&#x27;);
       this.dropDatabase().then(() =&gt; {
-        console.log(&#x60;Setting up database ${databaseName} in version ${version}...&#x60;);
+        _log(&#x60;Setting up database ${databaseName} in version ${version}...&#x60;);
         let db = new Dexie(databaseName);
         db.version(version).stores(stores);
 
-        console.log(&#x27;Opening database...&#x27;);
+        _log(&#x27;Opening database...&#x27;);
         db.open().then(() =&gt; {
           let tables = Object.keys(data);
 
@@ -549,15 +585,13 @@ export default Service.extend({
             let [table] = tables.splice(0, 1);
 
             if (!table) {
-              console.log(&#x27;Database import done!&#x27;);
+              _log(&#x27;Database import done!&#x27;);
               return resolve();
             }
 
-            console.log(&#x60;Importing data for ${table}...&#x60;);
-            console.time(&#x60;Import for ${table} done&#x60;);
+            _log(&#x60;Importing ${data[table].length} rows for ${table}...&#x60;);
             let promise = db[table].bulkPut(data[table]);
             promise.then(() =&gt; {
-              console.timeEnd(&#x60;Import for ${table} done&#x60;);
               importNextTable();
             }, reject);
           };
@@ -565,7 +599,10 @@ export default Service.extend({
           importNextTable();
         }, reject);
       }, reject);
-    });
+    }, &#x27;indexedDb/importDatabase&#x27;);
+
+    this._addToPromiseQueue(promise);
+    return promise;
   },
 
   /**
@@ -589,7 +626,7 @@ export default Service.extend({
       };
 
       check();
-    });
+    }, &#x27;indexedDb/waitForQueue&#x27;);
   },
 
   /**
@@ -607,7 +644,7 @@ export default Service.extend({
       saveQueue[i] = [];
     }
 
-    return RSVP.all(promises);
+    return RSVP.all(promises, &#x27;indexedDb/_bulkSave&#x27;);
   },
 
   /**
@@ -644,12 +681,14 @@ export default Service.extend({
 
     // Only one, then do a simple where
     if (keys.length === 1) {
-      let key = keys[0]; // jscs:ignore
+      /* eslint-disable ember-suave/prefer-destructuring */
+      let key = keys[0];
+      /* eslint-enable ember-suave/prefer-destructuring */
       return db[type].where(key).equals(query[key]);
     }
 
     // Order of query params is important!
-    let { schema }  = db[type];
+    let { schema } = db[type];
     let { indexes } = schema;
 
     // try to find a fitting multi index
@@ -699,6 +738,71 @@ export default Service.extend({
 
   _toString(val) {
     return &#x60;${val}&#x60;;
+  },
+
+  /**
+   * Add a promise to the promise queue.
+   * When the promise resolves or rejects, it will be removed from the promise queue.
+   *
+   * @method _addToPromiseQueue
+   * @param {RSVP.Promise} promise
+   * @return {RSVP.Promise}
+   * @private
+   */
+  _addToPromiseQueue(promise) {
+    let promiseQueue = get(this, &#x27;_promiseQueue&#x27;);
+    promiseQueue.pushObject(promise);
+
+    let removeObject = () =&gt; {
+      promiseQueue.removeObject(promise);
+    };
+    promise.finally(removeObject);
+    return promise;
+  },
+
+  /**
+   * Register the test waiter.
+   * This waiter checks if there are no promises left in the _promiseQueue.
+   *
+   * @method _registerTestWaiter
+   * @private
+   */
+  _registerTestWaiter() {
+    if (!testing) {
+      return;
+    }
+    let testWaiter = () =&gt; {
+      return get(this, &#x27;_promiseQueue.length&#x27;) === 0;
+    };
+    registerWaiter(testWaiter);
+    set(this, &#x27;_testWaiter&#x27;, testWaiter);
+  },
+
+  /**
+   * This removes the test waiter.
+   *
+   * @method _unregisterTestWaiter
+   * @private
+   */
+  _unregisterTestWaiter() {
+    if (!testing) {
+      return;
+    }
+    let testWaiter = get(this, &#x27;_testWaiter&#x27;);
+    unregisterWaiter(testWaiter);
+  },
+
+  init() {
+    this._super(...arguments);
+    set(this, &#x27;_saveQueue&#x27;, {});
+    set(this, &#x27;_promiseQueue&#x27;, array([]));
+
+    this._registerTestWaiter();
+  },
+
+  willDestroy() {
+    this._unregisterTestWaiter();
+    this._super(...arguments);
   }
 
 });

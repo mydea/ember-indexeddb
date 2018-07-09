@@ -13,13 +13,14 @@
     <link rel="stylesheet" href="../assets/css/theme.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700' rel='stylesheet' type='text/css'>
     
+
 </head>
 <body>
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
           <a href="../" class="navbar-brand">
-            <img src="../assets/img/ember-logo.png" alt="">
+              <img src="../assets/img/ember-logo.png" alt="enterprise logo">
             <span>indexeddb</span>
           </a>
         </div>
@@ -53,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v0.2.0" target="_blank">
-                                  Tag: v0.2.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.0.1" target="_blank">
+                                  Tag: v1.0.1
                                 </a>
                             </h4>
                         </div>
@@ -128,13 +129,9 @@
 
 <div class="file">
     <pre class="prettyprint linenums">
-import Ember from &#x27;ember&#x27;;
-
-const {
-  get,
-  inject,
-  Mixin
-} = Ember;
+import { inject as service } from &#x27;@ember/service&#x27;;
+import { get } from &#x27;@ember/object&#x27;;
+import Mixin from &#x27;@ember/object/mixin&#x27;;
 
 /**
  *
@@ -167,7 +164,7 @@ const {
  */
 export default Mixin.create({
 
-  indexedDb: inject.service(),
+  indexedDb: service(),
 
   // ---------------------------------------------------------------------------------------------------------
   // Methods
@@ -209,7 +206,7 @@ export default Mixin.create({
       this._internalModel.send(&#x27;willCommit&#x27;);
       this._internalModel._attributes = {};
       this._internalModel.send(&#x27;didCommit&#x27;);
-    } catch (e) {
+    } catch(e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an &quot;Attempted to handle event &#x60;didCommit&#x60; on ...&quot; error could occur
     }
@@ -227,7 +224,7 @@ export default Mixin.create({
     try {
       this._internalModel.send(&#x27;becameInvalid&#x27;);
       this._internalModel.send(&#x27;becameError&#x27;);
-    } catch (e) {
+    } catch(e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an &quot;Attempted to handle event &#x60;didCommit&#x60; on ...&quot; error could occur
     }
