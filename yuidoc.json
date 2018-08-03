@@ -6,7 +6,8 @@
   "url": "https://github.com/mydea/ember-indexeddb",
   "options": {
     "paths": [
-      "addon"
+      "addon",
+      "addon-test-support"
     ],
     "exclude": "vendor",
     "outdir": "docs",
