@@ -2,6 +2,18 @@ import IndexedDb from './services/indexed-db';
 import IndexedDbConfiguration from './services/indexed-db-configuration';
 
 /**
+ *
+ * This addon provides utilities to work with IndexedDB based on [Dexie](http://dexie.org/).
+ * It provides:
+ *
+ * * A service to configure the database & migrations/upgrades
+ * * A service to interact with the database
+ * * An ember-data adapter for IndexedDB
+ * * Test helpers
+ *
+ * This set of utilities makes it possible to query data from an API, put it into IndexedDB,
+ * and work with a local database for full offline capabilities.
+ *
  * ## Installation
  * ```shell
  * ember install ember-indexeddb
