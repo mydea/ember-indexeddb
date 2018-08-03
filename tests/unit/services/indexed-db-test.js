@@ -2,6 +2,8 @@ import RSVP from 'rsvp';
 import { get } from '@ember/object';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
+import { setupIndexedDb } from 'ember-indexeddb/test-support/helpers/indexed-db';
+import { run } from '@ember/runloop';
 
 const createMockDb = function() {
   return {
@@ -32,6 +34,7 @@ const createMockDb = function() {
 
 module('Unit | Service | indexed db', function(hooks) {
   setupTest(hooks);
+  setupIndexedDb(hooks);
 
   // service.setup() is hard to test as it relies on the global Dexie
 
@@ -121,4 +124,17 @@ module('Unit | Service | indexed db', function(hooks) {
       done();
     });
   });
+
+  test('it does not open multiple db instances on setup', async function(assert) {
+    let service = this.owner.lookup('service:indexed-db');
+
+    await run(() => service.setup());
+    let { db } = service;
+    assert.ok(db, 'database is setup');
+
+    await run(() => service.setup());
+    let db2 = service.db;
+    assert.equal(db2, db, 'db is not overwritten');
+  });
+
 });

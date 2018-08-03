@@ -1,16 +1,15 @@
 import { click, currentURL, visit, findAll } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
+import { setupIndexedDb } from 'ember-indexeddb/test-support/helpers/indexed-db';
 
 module('Acceptance | example', function(hooks) {
   setupApplicationTest(hooks);
+  setupIndexedDb(hooks);
 
   test('example app works', async function(assert) {
     await visit('/example');
     assert.equal(currentURL(), '/example');
-
-    // Ensure the DB is cleared
-    await click('#reset-db');
 
     let items = findAll('.item');
     assert.equal(items.length, 0, 'no items are found');
@@ -51,5 +50,8 @@ module('Acceptance | example', function(hooks) {
       ],
       'items have correct dates'
     );
+
+    // Clean the database
+    await click('#reset-db');
   });
 });

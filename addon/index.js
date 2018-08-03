@@ -38,15 +38,16 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
 
  ```js
  // application/route.js or routes/application.js
- import Ember from 'ember';
+ import Route from '@ember/routing/route';
+ import { inject as service } from '@ember/service';
 
  export default Ember.Route.extend({
-  indexedDb: Ember.inject.service(),
+  indexedDb: service(),
 
   beforeModel() {
     this._super(...arguments);
 
-    return this.get('indexedDb').setup();
+    return this.indexedDb.setupTask.perform();
   }
 });
  ```
@@ -136,8 +137,7 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
  For example, let's image you query some items from a server:
 
  ```js
- let indexedDB = this.get('indexedDb');
- let ajax = this.get('ajax')
+ let { indexedDB, ajax } = this;
 
  ajax.request('/items').then((items) => {
   indexedDB.add('item', items);

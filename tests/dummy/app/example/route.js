@@ -2,6 +2,7 @@ import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
 import { get, set } from '@ember/object';
 import RSVP from 'rsvp';
+import { task } from 'ember-concurrency';
 
 export default Route.extend({
 
@@ -10,7 +11,7 @@ export default Route.extend({
 
   beforeModel() {
     let indexedDb = get(this, 'indexedDb');
-    return indexedDb.setup();
+    return get(indexedDb, 'setupTask').perform();
   },
 
   model() {
@@ -55,22 +56,21 @@ export default Route.extend({
     },
 
     resetDb() {
-      let indexedDb = get(this, 'indexedDb');
-      let store = get(this, 'store');
-
-      return new RSVP.Promise((resolve, reject) => {
-        indexedDb.dropDatabase().then(() => {
-          store.unloadAll();
-          return indexedDb.setup();
-        }).then(() => {
-          return this.refresh();
-        }).then(() => {
-          resolve();
-        }).catch(reject);
-      });
+      return get(this, 'resetDbTask').perform();
     }
 
   },
+
+  resetDbTask: task(function* () {
+    let indexedDb = get(this, 'indexedDb');
+    let store = get(this, 'store');
+
+    yield get(indexedDb, 'dropDatabaseTask').linked().perform();
+    yield get(indexedDb, 'setupTask').linked().perform();
+    store.unloadAll();
+
+    return this.refresh();
+  }),
 
   _trySyncServer() {
     let store = get(this, 'store');

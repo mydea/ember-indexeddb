@@ -1,4 +1,4 @@
-import { set } from '@ember/object';
+import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
 
 /**
@@ -27,13 +27,13 @@ export function setupIndexedDb(hooks) {
   hooks.beforeEach(function() {
     let indexedDb = this.owner.lookup('service:indexed-db');
     set(indexedDb, 'databaseName', `test-indexed-db-${+(new Date)}`);
-    return indexedDb.setup();
+    return get(indexedDb, 'setupTask').perform();
   });
 
   hooks.afterEach(async function() {
     let indexedDb = this.owner.lookup('service:indexed-db');
-    await run(() => indexedDb.waitForQueue());
-    await run(() => indexedDb.dropDatabase());
+    await run(() => get(indexedDb, 'waitForQueueTask').perform());
+    await run(() => get(indexedDb, 'dropDatabaseTask').perform());
   });
 }
 
