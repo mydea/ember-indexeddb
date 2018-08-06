@@ -2,7 +2,7 @@
     "project": {
         "name": "ember-indexeddb",
         "description": "A utility for using IndexedDB with ember & ember-data",
-        "version": "v1.0.1",
+        "version": "v1.1.0",
         "indexModule": "Usage",
         "url": "https://github.com/mydea/ember-indexeddb"
     },
@@ -65,6 +65,15 @@
             "classes": {},
             "fors": {},
             "namespaces": {}
+        },
+        "addon-test-support\\helpers\\indexed-db.js": {
+            "name": "addon-test-support\\helpers\\indexed-db.js",
+            "modules": {
+                "Test Helpers": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
         }
     },
     "modules": {
@@ -99,7 +108,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "addon\\services\\indexed-db.js",
-            "line": 15,
+            "line": 16,
             "description": "Available services to use.\n Overwrite IndexedDbConfiguration to fit your application.",
             "extends": "Ember.Service",
             "access": "public",
@@ -119,7 +128,7 @@
             "tag": "module",
             "file": "addon\\index.js",
             "line": 4,
-            "description": "## Installation\n```shell\nember install ember-indexeddb\n```\n\n## Changelog\nChangelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)\n\n\n## Looking for help?\nIf it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues).",
+            "description": "This addon provides utilities to work with IndexedDB based on [Dexie](http://dexie.org/).\n It provides:\n* A service to configure the database & migrations/upgrades\n * A service to interact with the database\n * An ember-data adapter for IndexedDB\n * Test helpers\nThis set of utilities makes it possible to query data from an API, put it into IndexedDB,\n and work with a local database for full offline capabilities.\n## Installation\n ```shell\n ember install ember-indexeddb\n ```\n## Changelog\n Changelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)\n\n## Looking for help?\n If it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues).",
             "access": "public",
             "tagname": ""
         },
@@ -134,8 +143,8 @@
             "module": "Usage",
             "namespace": "",
             "file": "addon\\index.js",
-            "line": 21,
-            "description": "## Setup\n\nAfter installing the addon, you'll need to setup the database on application start.\nFor this, you should add the following to your application/route.js:\n\n```js\n// application/route.js or routes/application.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n indexedDb: Ember.inject.service(),\n\n beforeModel() {\n   this._super(...arguments);\n\n   return this.get('indexedDb').setup();\n }\n});\n```\n\nThis returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.\n\nNow, you just need to define your database tables by extending the indexed-db-configuration service.",
+            "line": 33,
+            "description": "## Setup\n\nAfter installing the addon, you'll need to setup the database on application start.\nFor this, you should add the following to your application/route.js:\n\n```js\n// application/route.js or routes/application.js\nimport Route from '@ember/routing/route';\nimport { inject as service } from '@ember/service';\n\nexport default Ember.Route.extend({\n indexedDb: service(),\n\n beforeModel() {\n   this._super(...arguments);\n\n   return this.indexedDb.setupTask.perform();\n }\n});\n```\n\nThis returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.\n\nNow, you just need to define your database tables by extending the indexed-db-configuration service.",
             "access": "public",
             "tagname": ""
         },
@@ -150,7 +159,7 @@
             "module": "Usage",
             "namespace": "",
             "file": "addon\\index.js",
-            "line": 51,
+            "line": 64,
             "description": "## Configuring your database\n\nYou need to extend the indexed-db-configuration service:\n\n```js\nimport IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';\n\nexport default IndexedDbConfigurationService.extend({\n currentVersion: 1,\n\n version1: {\n   stores: {\n     'model-one': '&id,*isNew',\n     'model-two': '&id,*status,*modelOne,[status+modelOne]'\n   }\n }\n});\n```\n\nPlease consult the Dexie Documentation on [details about configuring your database](https://github.com/dfahlander/Dexie.js/wiki/Version.stores()).\nBasically, you should always have an `&id` column as a primary index, and add further indices that you want to query by. You can also add multi-indices for more complex querying.\n\nEach version can also have an upgrade function in addition (or instead of) a stores property. This can be used to do data migrations. See the Dexie Documentation for details about [data migrations and upgrades](https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()).\n\nYou can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a `versionX` property per version, starting at 1. So if you have a `currentVersion` of 3, you need to have `version1`, `version2` and `version3` properties.\n\nAll of these migrations are automatically run when running `this.get('indexedDb').setup();`.\n\nIn addition to the store configuration, you also need to define a `mapTable`.\nThis is a map of functions which is used to normalize JSONAPI payloads for IndexedDB.\n\nFor the above example, this should look something like this:\n\n```js\nmapTable: computed(function() {\n return {\n   'model-one': (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanupObject(item),\n       isNew: this._toZeroOne(get(item, 'isNew'))\n     };\n   },\n   'model-two': (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanupObject(item),\n       modelOne: this._toString(get(item, 'relationships.modelOne.data.id')),\n       status: get(item, 'attributes.status')\n     };\n   }\n };\n})\n```\n\nThings to note here:\n\n1. Always convert your IDs to strings. You can use the provided `this._toString(val)` function for this.\n2. Always clean up your json. You can use the provided `this._cleanObject(item)` for this, which will clean up prototype & meta properties/functions.\n3. IndexedDB doesn't work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database. You can use the provided `this._toZeroOne(val)` for this.\n\nYou should have one property per item you want to query for. The item which is passed in is a JSONAPI payload-item.",
             "access": "public",
             "tagname": ""
@@ -166,8 +175,22 @@
             "module": "Usage",
             "namespace": "",
             "file": "addon\\index.js",
-            "line": 120,
-            "description": "## Querying & Inserting data\n\nYou can now work with IndexedDB!\nFor example, let's image you query some items from a server:\n\n```js\nlet indexedDB = this.get('indexedDb');\nlet ajax = this.get('ajax')\n\najax.request('/items').then((items) => {\n indexedDB.add('item', items);\n});\n\n// Later, fetch them again\nindexedDb.findAll('item').then((items) => {\n // Here are the JSONAPI-payloads again!\n});\n```\n\nIf you do not use JSONAPI, you should convert it to the JSONAPI format before calling `indexedDB.add('item', items);`.",
+            "line": 133,
+            "description": "## Querying & Inserting data\n\nYou can now work with IndexedDB!\nFor example, let's image you query some items from a server:\n\n```js\nlet { indexedDB, ajax } = this;\n\najax.request('/items').then((items) => {\n indexedDB.add('item', items);\n});\n\n// Later, fetch them again\nindexedDb.findAll('item').then((items) => {\n // Here are the JSONAPI-payloads again!\n});\n```\n\nIf you do not use JSONAPI, you should convert it to the JSONAPI format before calling `indexedDB.add('item', items);`.",
+            "access": "public",
+            "tagname": ""
+        },
+        "Test Helpers": {
+            "name": "Test Helpers",
+            "submodules": {},
+            "elements": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "addon-test-support\\helpers\\indexed-db.js",
+            "line": 4,
+            "description": "## Test Helpers\n\nThis test helper can be used to interact with the database in your tests.\nIt works with the new test syntax, and can be used in all styles of tests (e.g. acceptance, integration, unit).\n\n```js\nimport { setupIndexedDb } from 'ember-indexeddb/test-support/helpers/indexed-db';\n\nmodule('Acceptance | my test', function(hooks) {\n setupApplicationTest(hooks);\n setupIndexedDb(hooks);\n\n  // add your actual tests here\n});\n```\n\nThis will setup & open a randomly named database for this test, and close & delete it again after the test.",
             "access": "public",
             "tagname": ""
         }
@@ -240,7 +263,7 @@
             "module": "Services",
             "namespace": "",
             "file": "addon\\services\\indexed-db.js",
-            "line": 15,
+            "line": 16,
             "description": "This service allows interacting with an IndexedDB databse."
         }
     },
@@ -816,7 +839,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 28,
+            "line": 29,
             "description": "The actual Dexie database.",
             "itemtype": "property",
             "name": "db",
@@ -828,7 +851,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 37,
+            "line": 38,
             "description": "The database name to use.\nOverwrite this if you want to use something different.",
             "itemtype": "property",
             "name": "databaseName",
@@ -841,7 +864,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 48,
+            "line": 49,
             "description": "This is an object with an array per model type.\nIt holds all the objects per model type that should be bulk saved.\nAfter actually saving, this will be cleared.",
             "itemtype": "property",
             "name": "_saveQueue",
@@ -853,7 +876,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 59,
+            "line": 60,
             "description": "This is the test waiter used to ensure all promises are resolved in tests.\nThis is set by the this._registerTestWaiter() method.",
             "itemtype": "property",
             "name": "_testWaiter",
@@ -865,7 +888,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 69,
+            "line": 70,
             "description": "This is a promise that is used for bulk saving.\nAll bulkSave() operations use and return the same promise, which is cached here.",
             "itemtype": "property",
             "name": "_savePromise",
@@ -877,7 +900,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 79,
+            "line": 80,
             "description": "All currently running promises are temporarily saved here.\nThis is used to check if there are running transactions.",
             "itemtype": "property",
             "name": "_promiseQueue",
@@ -889,7 +912,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 89,
+            "line": 90,
             "description": "e.g. MS Edge doesn't support compound indices.\nFor these cases, querying shouldn't try to use them.",
             "itemtype": "property",
             "name": "_supportsCompoundIndicies",
@@ -902,8 +925,8 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 108,
-            "description": "Call this and wait until it resolves before doing anything with IndexedDB!\nThis should be done in beforeModel() on the application route.\nIt will reject if IndexedDB is not available.",
+            "line": 109,
+            "description": "Call this and wait until it resolves before doing anything with IndexedDB!\nThis should be done in beforeModel() on the application route.\nIt will reject if IndexedDB is not available.\n\nAlso available as a task: `indexedDb.setupTask.perform()`",
             "itemtype": "method",
             "name": "setup",
             "return": {
@@ -917,7 +940,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 135,
+            "line": 143,
             "description": "Query indexedDB.\nThis uses _buildQuery under the hood.\nThis resolved to an array.",
             "itemtype": "method",
             "name": "query",
@@ -944,7 +967,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 154,
+            "line": 162,
             "description": "Query indexedDB.\nThis uses _buildQuery under the hood.\nThis resolved to an object.",
             "itemtype": "method",
             "name": "queryRecord",
@@ -971,7 +994,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 173,
+            "line": 181,
             "description": "Find one or multiple items by id.\nIf id is an array, this will try to fetch all of these objects and resolve with an array.\nOtherwise, it will resolve with an object.",
             "itemtype": "method",
             "name": "find",
@@ -998,7 +1021,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 195,
+            "line": 203,
             "description": "Find all of a given type.",
             "itemtype": "method",
             "name": "findAll",
@@ -1020,7 +1043,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 211,
+            "line": 219,
             "description": "Add one or multiple items to the database.",
             "itemtype": "method",
             "name": "add",
@@ -1047,7 +1070,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 238,
+            "line": 246,
             "description": "Save/update an item.",
             "itemtype": "method",
             "name": "save",
@@ -1079,7 +1102,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 258,
+            "line": 266,
             "description": "This will wait for 10ms and try to build a queue, and save everything at once if possible.",
             "itemtype": "method",
             "name": "saveBulk",
@@ -1106,7 +1129,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 295,
+            "line": 303,
             "description": "Clear a database table.",
             "itemtype": "method",
             "name": "clear",
@@ -1128,7 +1151,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 311,
+            "line": 319,
             "description": "Delete one item.",
             "itemtype": "method",
             "name": "delete",
@@ -1155,8 +1178,8 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 328,
-            "description": "Drop the entire database.",
+            "line": 336,
+            "description": "Drop the entire database.\n\nAlso available as a task: `indexedDb.dropDatabaseTask.perform()`",
             "itemtype": "method",
             "name": "dropDatabase",
             "return": {
@@ -1170,8 +1193,8 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 359,
-            "description": "Export a complete dump of the current database.\nThe output of this can be used to recreate the exact database state via this.importDatabase(config);",
+            "line": 363,
+            "description": "Export a complete dump of the current database.\nThe output of this can be used to recreate the exact database state via this.importDatabase(config);\n\nAlso available as a task: `indexedDb.exportDatabaseTask.perform()`",
             "itemtype": "method",
             "name": "exportDatabase",
             "return": {
@@ -1185,8 +1208,8 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 416,
-            "description": "Import a complete database dump as created by this.exportDatabase()",
+            "line": 421,
+            "description": "Import a complete database dump as created by this.exportDatabase()\n\nAlso available as a task: `indexedDb.importDatabaseTask.perform()`",
             "itemtype": "method",
             "name": "importDatabase",
             "params": [
@@ -1207,8 +1230,8 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 477,
-            "description": "Wait for all queued objects ot be resolved.\nThis will resolve when there are no open processes anymore.",
+            "line": 475,
+            "description": "Wait for all queued objects ot be resolved.\nThis will resolve when there are no open processes anymore.\n\nAlso available as a task: `indexedDb.waitForQueueTask.perform()`",
             "itemtype": "method",
             "name": "waitForQueue",
             "return": {
@@ -1222,7 +1245,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 501,
+            "line": 494,
             "description": "Get the queue and save everything in it in bulk.",
             "itemtype": "method",
             "name": "_bulkSave",
@@ -1233,7 +1256,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 519,
+            "line": 512,
             "description": "Build a query for Dexie.\n\nThis will try to find a matching index, and use it if possible.\nIt can also handle multi-indecies, if they have been specified and are supported.\nIf no matching index is found, it will fetch everything and try to filter it via JS.\nNote that this is _much_ slower than querying by actual indecies, so you should definitely use that if possible!\nIf you are using multiple query arguments, and only one of them is found as index, it will query the database by this index\nand then do the other queries via JS filter.\n\nNote that this will also auto-convert boolean query arguments to 1/0.",
             "itemtype": "method",
             "name": "_buildQuery",
@@ -1260,7 +1283,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 612,
+            "line": 605,
             "description": "Add a promise to the promise queue.\nWhen the promise resolves or rejects, it will be removed from the promise queue.",
             "itemtype": "method",
             "name": "_addToPromiseQueue",
@@ -1282,7 +1305,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 632,
+            "line": 625,
             "description": "Register the test waiter.\nThis waiter checks if there are no promises left in the _promiseQueue.",
             "itemtype": "method",
             "name": "_registerTestWaiter",
@@ -1293,7 +1316,7 @@
         },
         {
             "file": "addon\\services\\indexed-db.js",
-            "line": 650,
+            "line": 643,
             "description": "This removes the test waiter.",
             "itemtype": "method",
             "name": "_unregisterTestWaiter",

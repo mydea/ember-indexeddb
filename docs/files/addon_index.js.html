@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.0.1" target="_blank">
-                                  Tag: v1.0.1
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.0" target="_blank">
+                                  Tag: v1.1.0
                                 </a>
                             </h4>
                         </div>
@@ -76,6 +76,9 @@
                                         </li>
                                         <li>
                                             <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Test Helpers.html">Test Helpers</a>
                                         </li>
                                         <li>
                                             <a href="../modules/Usage.html">Usage</a>
@@ -133,6 +136,18 @@ import IndexedDb from &#x27;./services/indexed-db&#x27;;
 import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x27;;
 
 /**
+ *
+ * This addon provides utilities to work with IndexedDB based on [Dexie](http://dexie.org/).
+ * It provides:
+ *
+ * * A service to configure the database &amp; migrations/upgrades
+ * * A service to interact with the database
+ * * An ember-data adapter for IndexedDB
+ * * Test helpers
+ *
+ * This set of utilities makes it possible to query data from an API, put it into IndexedDB,
+ * and work with a local database for full offline capabilities.
+ *
  * ## Installation
  * &#x60;&#x60;&#x60;shell
  * ember install ember-indexeddb
@@ -157,15 +172,16 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
 
  &#x60;&#x60;&#x60;js
  // application/route.js or routes/application.js
- import Ember from &#x27;ember&#x27;;
+ import Route from &#x27;@ember/routing/route&#x27;;
+ import { inject as service } from &#x27;@ember/service&#x27;;
 
  export default Ember.Route.extend({
-  indexedDb: Ember.inject.service(),
+  indexedDb: service(),
 
   beforeModel() {
     this._super(...arguments);
 
-    return this.get(&#x27;indexedDb&#x27;).setup();
+    return this.indexedDb.setupTask.perform();
   }
 });
  &#x60;&#x60;&#x60;
@@ -255,8 +271,7 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
  For example, let&#x27;s image you query some items from a server:
 
  &#x60;&#x60;&#x60;js
- let indexedDB = this.get(&#x27;indexedDb&#x27;);
- let ajax = this.get(&#x27;ajax&#x27;)
+ let { indexedDB, ajax } = this;
 
  ajax.request(&#x27;/items&#x27;).then((items) =&gt; {
   indexedDB.add(&#x27;item&#x27;, items);

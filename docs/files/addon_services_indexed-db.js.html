@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.0.1" target="_blank">
-                                  Tag: v1.0.1
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.0" target="_blank">
+                                  Tag: v1.1.0
                                 </a>
                             </h4>
                         </div>
@@ -76,6 +76,9 @@
                                         </li>
                                         <li>
                                             <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Test Helpers.html">Test Helpers</a>
                                         </li>
                                         <li>
                                             <a href="../modules/Usage.html">Usage</a>
@@ -132,12 +135,13 @@
 /* global Dexie */
 import Service, { inject as service } from &#x27;@ember/service&#x27;;
 import { computed, set, get } from &#x27;@ember/object&#x27;;
-import RSVP from &#x27;rsvp&#x27;;
-import { run } from &#x27;@ember/runloop&#x27;;
+import { Promise } from &#x27;rsvp&#x27;;
+import { later } from &#x27;@ember/runloop&#x27;;
 import { typeOf as getTypeOf } from &#x27;@ember/utils&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
 import Ember from &#x27;ember&#x27;;
 import { registerWaiter, unregisterWaiter } from &#x27;@ember/test&#x27;;
+import { task, timeout } from &#x27;ember-concurrency&#x27;;
 
 const {
   testing
@@ -241,27 +245,34 @@ export default Service.extend({
    * This should be done in beforeModel() on the application route.
    * It will reject if IndexedDB is not available.
    *
+   * Also available as a task: &#x60;indexedDb.setupTask.perform()&#x60;
+   *
    * @method setup
    * @return {RSVP.Promise}
    * @public
    */
   setup() {
-    return new RSVP.Promise((resolve, reject) =&gt; {
-
-      if (get(this, &#x27;db&#x27;)) {
-        resolve();
-      }
-
-      let db = new window.Dexie(get(this, &#x27;databaseName&#x27;));
-
-      let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
-      dbConfiguration.setupDatabase(db);
-
-      set(this, &#x27;db&#x27;, db);
-
-      db.open().then(resolve, reject);
-    }, &#x27;indexedDb/setup&#x27;);
+    return get(this, &#x27;setupTask&#x27;).perform();
   },
+  setupTask: task(function* () {
+    if (get(this, &#x27;db&#x27;)) {
+      return get(this, &#x27;db&#x27;);
+    }
+
+    let db = new window.Dexie(get(this, &#x27;databaseName&#x27;));
+
+    let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
+    dbConfiguration.setupDatabase(db);
+
+    set(this, &#x27;db&#x27;, db);
+
+    // Sometimes, it does not open immediately,
+    // In this case, we want to try again
+    while (!db.isOpen()) {
+      yield db.open();
+    }
+    return db;
+  }),
 
   /**
    * Query indexedDB.
@@ -276,7 +287,7 @@ export default Service.extend({
    */
   query(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new RSVP.Promise((resolve, reject) =&gt; queryPromise.toArray().then(resolve, reject), &#x27;indexedDb/query&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; queryPromise.toArray().then(resolve, reject), &#x27;indexedDb/query&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -295,7 +306,7 @@ export default Service.extend({
    */
   queryRecord(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new RSVP.Promise((resolve, reject) =&gt; queryPromise.first().then(resolve, reject), &#x27;indexedDb/queryRecord&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; queryPromise.first().then(resolve, reject), &#x27;indexedDb/queryRecord&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -317,7 +328,7 @@ export default Service.extend({
     if (getTypeOf(id) === &#x27;array&#x27;) {
       return db[type].where(&#x27;id&#x27;).anyOf(id.map(this._toString)).toArray();
     }
-    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].get(this._toString(id)).then(resolve, reject), &#x27;indexedDb/find&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; db[type].get(this._toString(id)).then(resolve, reject), &#x27;indexedDb/find&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -333,7 +344,7 @@ export default Service.extend({
    */
   findAll(type) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].toArray().then(resolve, reject), &#x27;indexedDb/findAll&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; db[type].toArray().then(resolve, reject), &#x27;indexedDb/findAll&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -360,7 +371,7 @@ export default Service.extend({
       return this._mapItem(type, item);
     });
 
-    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].bulkPut(data).then(resolve, reject), &#x27;indexedDb/add&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; db[type].bulkPut(data).then(resolve, reject), &#x27;indexedDb/add&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -380,7 +391,7 @@ export default Service.extend({
     let db = get(this, &#x27;db&#x27;);
 
     let data = this._mapItem(type, item);
-    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].put(data).then(resolve, reject), &#x27;indexedDb/save&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; db[type].put(data).then(resolve, reject), &#x27;indexedDb/save&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -401,8 +412,8 @@ export default Service.extend({
 
     // If no save promise exists, create a new one
     if (!savePromise) {
-      savePromise = new RSVP.Promise((resolve, reject) =&gt; {
-        run.later(this, () =&gt; {
+      savePromise = new Promise((resolve, reject) =&gt; {
+        later(this, () =&gt; {
           this._bulkSave().then((val) =&gt; {
             set(this, &#x27;_savePromise&#x27;, null);
             resolve(val);
@@ -433,7 +444,7 @@ export default Service.extend({
    */
   clear(type) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].clear().then(resolve, reject), &#x27;indexedDb/clear&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; db[type].clear().then(resolve, reject), &#x27;indexedDb/clear&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -450,7 +461,7 @@ export default Service.extend({
    */
   delete(type, id) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = new RSVP.Promise((resolve, reject) =&gt; db[type].delete(id).then(resolve, reject), &#x27;indexedDb/delete&#x27;);
+    let promise = new Promise((resolve, reject) =&gt; db[type].delete(id).then(resolve, reject), &#x27;indexedDb/delete&#x27;);
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -459,43 +470,46 @@ export default Service.extend({
   /**
    * Drop the entire database.
    *
+   * Also available as a task: &#x60;indexedDb.dropDatabaseTask.perform()&#x60;
+   *
    * @method dropDatabase
    * @return {RSVP.Promise}
    * @public
    */
   dropDatabase() {
-    let db = get(this, &#x27;db&#x27;);
-
-    if (!db) {
-      return RSVP.Promise.resolve();
-    }
-
-    let promise = new RSVP.Promise((resolve, reject) =&gt; {
-      try {
-        db.delete().then(() =&gt; {
-          if (!get(this, &#x27;isDestroyed&#x27;)) {
-            set(this, &#x27;db&#x27;, null);
-          }
-          resolve();
-        }, reject);
-      } catch(e) {
-        reject(e);
-      }
-    }, &#x27;indexedDb/dropDatabase&#x27;);
-
+    let promise = get(this, &#x27;dropDatabaseTask&#x27;).perform();
     this._addToPromiseQueue(promise);
     return promise;
   },
+  dropDatabaseTask: task(function* () {
+    let db = get(this, &#x27;db&#x27;);
+
+    if (!db) {
+      return;
+    }
+
+    yield get(this, &#x27;waitForQueueTask&#x27;).perform();
+    yield db.delete();
+
+    set(this, &#x27;db&#x27;, null);
+  }),
 
   /**
    * Export a complete dump of the current database.
    * The output of this can be used to recreate the exact database state via this.importDatabase(config);
+   *
+   * Also available as a task: &#x60;indexedDb.exportDatabaseTask.perform()&#x60;
    *
    * @method exportDatabase
    * @return {RSVP.Promise}
    * @public
    */
   exportDatabase() {
+    let promise = get(this, &#x27;exportDatabaseTask&#x27;).perform();
+    this._addToPromiseQueue(promise);
+    return promise;
+  },
+  exportDatabaseTask: task(function* () {
     let db = get(this, &#x27;db&#x27;);
 
     let config = {
@@ -505,47 +519,43 @@ export default Service.extend({
       data: {}
     };
 
-    let promise = new RSVP.Promise((resolve, reject) =&gt; {
-      // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
-      db.open().then(function() {
-        // Save the last version number
-        set(config, &#x27;version&#x27;, db.verno);
+    // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
+    yield db.open();
 
-        let promises = [];
+    // Save the last version number
+    set(config, &#x27;version&#x27;, db.verno);
 
-        db.tables.forEach(function(table) {
-          let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
-          let schemaSyntax = primKeyAndIndexes.map(function(index) {
-            return index.src;
-          }).join(&#x27;,&#x27;);
+    let promises = [];
 
-          set(config.stores, table.name, schemaSyntax);
+    db.tables.forEach(function(table) {
+      let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
+      let schemaSyntax = primKeyAndIndexes.map(function(index) {
+        return index.src;
+      }).join(&#x27;,&#x27;);
 
-          let promise = table.each((object) =&gt; {
-            let arr = get(config.data, table.name);
-            if (!arr) {
-              arr = [];
-              set(config.data, table.name, arr);
-            }
+      set(config.stores, table.name, schemaSyntax);
 
-            arr.push(object);
-          });
+      let promise = table.each((object) =&gt; {
+        let arr = get(config.data, table.name);
+        if (!arr) {
+          arr = [];
+          set(config.data, table.name, arr);
+        }
 
-          promises.push(promise);
-        });
+        arr.push(object);
+      });
 
-        RSVP.all(promises).then(() =&gt; {
-          resolve(config);
-        }, reject);
-      }, reject);
-    }, &#x27;indexedDb/exportDatabase&#x27;);
+      promises.push(promise);
+    });
 
-    this._addToPromiseQueue(promise);
-    return promise;
-  },
+    yield Promise.all(promises);
+    return config;
+  }),
 
   /**
    * Import a complete database dump as created by this.exportDatabase()
+   *
+   * Also available as a task: &#x60;indexedDb.importDatabaseTask.perform()&#x60;
    *
    * @method importDatabase
    * @param {Object} config A configuration object as created by this.exportDatabase()
@@ -553,6 +563,11 @@ export default Service.extend({
    * @public
    */
   importDatabase(config) {
+    let promise = get(this, &#x27;importDatabaseTask&#x27;).perform(config);
+    this._addToPromiseQueue(promise);
+    return promise;
+  },
+  importDatabaseTask: task(function* (config) {
     let {
       databaseName,
       version,
@@ -570,64 +585,45 @@ export default Service.extend({
 
     _log(&#x27;====================================&#x27;);
     _log(&#x27;Importing database dump!&#x27;);
-    let promise = new RSVP.Promise((resolve, reject) =&gt; {
-      _log(&#x27;Dropping existing database...&#x27;);
-      this.dropDatabase().then(() =&gt; {
-        _log(&#x60;Setting up database ${databaseName} in version ${version}...&#x60;);
-        let db = new Dexie(databaseName);
-        db.version(version).stores(stores);
 
-        _log(&#x27;Opening database...&#x27;);
-        db.open().then(() =&gt; {
-          let tables = Object.keys(data);
+    _log(&#x27;Dropping existing database...&#x27;);
+    yield get(this, &#x27;dropDatabaseTask&#x27;).perform();
 
-          let importNextTable = () =&gt; {
-            let [table] = tables.splice(0, 1);
+    _log(&#x60;Setting up database ${databaseName} in version ${version}...&#x60;);
+    let db = new Dexie(databaseName);
+    db.version(version).stores(stores);
 
-            if (!table) {
-              _log(&#x27;Database import done!&#x27;);
-              return resolve();
-            }
+    _log(&#x27;Opening database...&#x27;);
+    yield db.open();
 
-            _log(&#x60;Importing ${data[table].length} rows for ${table}...&#x60;);
-            let promise = db[table].bulkPut(data[table]);
-            promise.then(() =&gt; {
-              importNextTable();
-            }, reject);
-          };
+    let tables = Object.keys(data);
+    while (tables.length) {
+      let table = tables.shift();
+      _log(&#x60;Importing ${data[table].length} rows for ${table}...&#x60;);
+      yield db[table].bulkPut(data[table]);
+    }
 
-          importNextTable();
-        }, reject);
-      }, reject);
-    }, &#x27;indexedDb/importDatabase&#x27;);
-
-    this._addToPromiseQueue(promise);
-    return promise;
-  },
+    _log(&#x27;Database import done!&#x27;);
+  }),
 
   /**
    * Wait for all queued objects ot be resolved.
    * This will resolve when there are no open processes anymore.
+   *
+   * Also available as a task: &#x60;indexedDb.waitForQueueTask.perform()&#x60;
    *
    * @method waitForQueue
    * @return {RSVP.Promise}
    * @public
    */
   waitForQueue() {
-    return new RSVP.Promise((resolve) =&gt; {
-      let check = () =&gt; {
-        if (get(this, &#x27;_promiseQueue.length&#x27;) || get(this, &#x27;_savePromise&#x27;)) {
-          run.later(this, check, 100);
-          return;
-        }
-        run.next(() =&gt; {
-          resolve();
-        });
-      };
-
-      check();
-    }, &#x27;indexedDb/waitForQueue&#x27;);
+    return get(this, &#x27;waitForQueueTask&#x27;).perform();
   },
+  waitForQueueTask: task(function* () {
+    while (get(this, &#x27;_promiseQueue.length&#x27;) || get(this, &#x27;_savePromise&#x27;)) {
+      yield timeout(100);
+    }
+  }),
 
   /**
    * Get the queue and save everything in it in bulk.
@@ -644,7 +640,7 @@ export default Service.extend({
       saveQueue[i] = [];
     }
 
-    return RSVP.all(promises, &#x27;indexedDb/_bulkSave&#x27;);
+    return Promise.all(promises, &#x27;indexedDb/_bulkSave&#x27;);
   },
 
   /**

@@ -13,6 +13,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "Querying & Inserting data",
         "Services",
         "Setup",
+        "Test Helpers",
         "Usage"
     ],
     "allModules": [
@@ -29,7 +30,7 @@ YUI.add("yuidoc-meta", function(Y) {
         {
             "displayName": "Querying & Inserting data",
             "name": "Querying & Inserting data",
-            "description": "## Querying & Inserting data\n\nYou can now work with IndexedDB!\nFor example, let's image you query some items from a server:\n\n```js\nlet indexedDB = this.get('indexedDb');\nlet ajax = this.get('ajax')\n\najax.request('/items').then((items) => {\n indexedDB.add('item', items);\n});\n\n// Later, fetch them again\nindexedDb.findAll('item').then((items) => {\n // Here are the JSONAPI-payloads again!\n});\n```\n\nIf you do not use JSONAPI, you should convert it to the JSONAPI format before calling `indexedDB.add('item', items);`."
+            "description": "## Querying & Inserting data\n\nYou can now work with IndexedDB!\nFor example, let's image you query some items from a server:\n\n```js\nlet { indexedDB, ajax } = this;\n\najax.request('/items').then((items) => {\n indexedDB.add('item', items);\n});\n\n// Later, fetch them again\nindexedDb.findAll('item').then((items) => {\n // Here are the JSONAPI-payloads again!\n});\n```\n\nIf you do not use JSONAPI, you should convert it to the JSONAPI format before calling `indexedDB.add('item', items);`."
         },
         {
             "displayName": "Services",
@@ -39,12 +40,17 @@ YUI.add("yuidoc-meta", function(Y) {
         {
             "displayName": "Setup",
             "name": "Setup",
-            "description": "## Setup\n\nAfter installing the addon, you'll need to setup the database on application start.\nFor this, you should add the following to your application/route.js:\n\n```js\n// application/route.js or routes/application.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n indexedDb: Ember.inject.service(),\n\n beforeModel() {\n   this._super(...arguments);\n\n   return this.get('indexedDb').setup();\n }\n});\n```\n\nThis returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.\n\nNow, you just need to define your database tables by extending the indexed-db-configuration service."
+            "description": "## Setup\n\nAfter installing the addon, you'll need to setup the database on application start.\nFor this, you should add the following to your application/route.js:\n\n```js\n// application/route.js or routes/application.js\nimport Route from '@ember/routing/route';\nimport { inject as service } from '@ember/service';\n\nexport default Ember.Route.extend({\n indexedDb: service(),\n\n beforeModel() {\n   this._super(...arguments);\n\n   return this.indexedDb.setupTask.perform();\n }\n});\n```\n\nThis returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.\n\nNow, you just need to define your database tables by extending the indexed-db-configuration service."
+        },
+        {
+            "displayName": "Test Helpers",
+            "name": "Test Helpers",
+            "description": "## Test Helpers\n\nThis test helper can be used to interact with the database in your tests.\nIt works with the new test syntax, and can be used in all styles of tests (e.g. acceptance, integration, unit).\n\n```js\nimport { setupIndexedDb } from 'ember-indexeddb/test-support/helpers/indexed-db';\n\nmodule('Acceptance | my test', function(hooks) {\n setupApplicationTest(hooks);\n setupIndexedDb(hooks);\n\n  // add your actual tests here\n});\n```\n\nThis will setup & open a randomly named database for this test, and close & delete it again after the test."
         },
         {
             "displayName": "Usage",
             "name": "Usage",
-            "description": "## Installation\n```shell\nember install ember-indexeddb\n```\n\n## Changelog\nChangelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)\n\n\n## Looking for help?\nIf it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues)."
+            "description": "This addon provides utilities to work with IndexedDB based on [Dexie](http://dexie.org/).\n It provides:\n* A service to configure the database & migrations/upgrades\n * A service to interact with the database\n * An ember-data adapter for IndexedDB\n * Test helpers\nThis set of utilities makes it possible to query data from an API, put it into IndexedDB,\n and work with a local database for full offline capabilities.\n## Installation\n ```shell\n ember install ember-indexeddb\n ```\n## Changelog\n Changelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)\n\n## Looking for help?\n If it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues)."
         }
     ],
     "elements": []

@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.0.1" target="_blank">
-                                  Tag: v1.0.1
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.0" target="_blank">
+                                  Tag: v1.1.0
                                 </a>
                             </h4>
                         </div>
@@ -76,6 +76,9 @@
                                         </li>
                                         <li>
                                             <a href="../modules/Services.html">Services</a>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Test Helpers.html">Test Helpers</a>
                                         </li>
                                         <li>
                                             <a href="../modules/Usage.html">Usage</a>
@@ -127,7 +130,7 @@
 
 <div class="page-header">
     <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> Querying &amp; Inserting data Module
-              <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v1.0.1/addon\index.js#L120" target="_blank">
+              <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v1.1.0/addon\index.js#L133" target="_blank">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               </a>
     </h1>
@@ -137,7 +140,7 @@
 
 
         <div class="foundat">
-            Defined in: <a href="https://github.com/mydea/ember-indexeddb/blob/v1.0.1/addon\index.js#L120">addon\index.js:120</a>
+            Defined in: <a href="https://github.com/mydea/ember-indexeddb/blob/v1.1.0/addon\index.js#L133">addon\index.js:133</a>
         </div>
 
 </div>
@@ -147,8 +150,7 @@
     <h2>Querying &amp; Inserting data</h2>
 <p>You can now work with IndexedDB!
 For example, let's image you query some items from a server:</p>
-<pre class="code prettyprint"><code class="language-js">let indexedDB = this.get('indexedDb');
-let ajax = this.get('ajax')
+<pre class="code prettyprint"><code class="language-js">let { indexedDB, ajax } = this;
 
 ajax.request('/items').then((items) =&gt; {
  indexedDB.add('item', items);
