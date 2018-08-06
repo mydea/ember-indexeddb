@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.0
+
+* Add `setupIndexedDb` test helper (import from `ember-indexeddb/test-support/helpers/indexed-db`)
+* [BUGFIX] Fix issue where `setup()` would create a second database if called twice
+* [INTERNAL] Use ember-concurrency tasks for some async processes
+
 ## v1.0.1
 
 * Remove unnecessary bower install of Dexie in install blueprint
