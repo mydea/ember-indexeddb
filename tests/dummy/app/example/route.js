@@ -69,7 +69,7 @@ export default Route.extend({
     yield get(indexedDb, 'setupTask').linked().perform();
     store.unloadAll();
 
-    return this.refresh();
+    yield this.refresh();
   }),
 
   _trySyncServer() {

@@ -125,6 +125,11 @@ export default Service.extend({
       return get(this, 'db');
     }
 
+    let testWaiter = function() {
+      return false;
+    };
+    registerWaiter(testWaiter);
+
     let db = new window.Dexie(get(this, 'databaseName'));
 
     let dbConfiguration = get(this, 'indexedDbConfiguration');
@@ -132,11 +137,10 @@ export default Service.extend({
 
     set(this, 'db', db);
 
-    // Sometimes, it does not open immediately,
-    // In this case, we want to try again
-    while (!db.isOpen()) {
-      yield db.open();
-    }
+    yield openDb(db);
+
+    unregisterWaiter(testWaiter);
+
     return db;
   }),
 
@@ -343,9 +347,7 @@ export default Service.extend({
    * @public
    */
   dropDatabase() {
-    let promise = get(this, 'dropDatabaseTask').perform();
-    this._addToPromiseQueue(promise);
-    return promise;
+    return get(this, 'dropDatabaseTask').perform();
   },
   dropDatabaseTask: task(function* () {
     let db = get(this, 'db');
@@ -354,10 +356,21 @@ export default Service.extend({
       return;
     }
 
+    let testWaiter = function() {
+      return false;
+    };
+    registerWaiter(testWaiter);
+
+    // Ensure the db is open
+    yield openDb(db);
     yield get(this, 'waitForQueueTask').perform();
+    yield timeout(100);
     yield db.delete();
+    yield closeDb(db);
 
     set(this, 'db', null);
+
+    unregisterWaiter(testWaiter);
   }),
 
   /**
@@ -386,7 +399,7 @@ export default Service.extend({
     };
 
     // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
-    yield db.open();
+    yield openDb(db);
 
     // Save the last version number
     set(config, 'version', db.verno);
@@ -460,7 +473,7 @@ export default Service.extend({
     db.version(version).stores(stores);
 
     _log('Opening database...');
-    yield db.open();
+    yield openDb(db);
 
     let tables = Object.keys(data);
     while (tables.length) {
@@ -468,6 +481,9 @@ export default Service.extend({
       _log(`Importing ${data[table].length} rows for ${table}...`);
       yield db[table].bulkPut(data[table]);
     }
+
+    // This is closed here, don't forget to call 'setup' again, to do eventually necessary migrations
+    yield closeDb(db);
 
     _log('Database import done!');
   }),
@@ -668,3 +684,17 @@ export default Service.extend({
   }
 
 });
+
+async function openDb(db) {
+  while (!db.isOpen()) {
+    await db.open();
+  }
+  return db;
+}
+
+async function closeDb(db) {
+  while (db.isOpen()) {
+    await db.close();
+  }
+  return db;
+}
