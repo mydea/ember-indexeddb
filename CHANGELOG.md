@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.1
+
+* Improve drop/import/export tasks for tests
+
 ## v1.1.0
 
 * Add `setupIndexedDb` test helper (import from `ember-indexeddb/test-support/helpers/indexed-db`)
