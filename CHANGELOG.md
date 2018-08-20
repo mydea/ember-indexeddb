@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.1.2
+
+* [BUGFIX] Fix major issue with new test waiter usage when building in production environment
+
 ## v1.1.1
 
 * Improve drop/import/export tasks for tests
