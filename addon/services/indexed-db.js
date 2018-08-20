@@ -5,13 +5,9 @@ import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
 import { A as array } from '@ember/array';
-import Ember from 'ember';
 import { registerWaiter, unregisterWaiter } from 'ember-indexeddb/utils/test-waiter';
 import { task, timeout } from 'ember-concurrency';
-
-const {
-  testing
-} = Ember;
+import { log } from 'ember-indexeddb/utils/log';
 
 /**
  * This service allows interacting with an IndexedDB database.
@@ -454,38 +450,30 @@ export default Service.extend({
       data
     } = config;
 
-    let _log = (message) => {
-      if (!testing) {
-        /* eslint-disable no-console */
-        console.log(message);
-        /* eslint-disable no-console */
-      }
-    };
+    log('====================================');
+    log('Importing database dump!');
 
-    _log('====================================');
-    _log('Importing database dump!');
-
-    _log('Dropping existing database...');
+    log('Dropping existing database...');
     yield get(this, 'dropDatabaseTask').perform();
 
-    _log(`Setting up database ${databaseName} in version ${version}...`);
+    log(`Setting up database ${databaseName} in version ${version}...`);
     let db = new Dexie(databaseName);
     db.version(version).stores(stores);
 
-    _log('Opening database...');
+    log('Opening database...');
     yield openDb(db);
 
     let tables = Object.keys(data);
     while (tables.length) {
       let table = tables.shift();
-      _log(`Importing ${data[table].length} rows for ${table}...`);
+      log(`Importing ${data[table].length} rows for ${table}...`);
       yield db[table].bulkPut(data[table]);
     }
 
     // This is closed here, don't forget to call 'setup' again, to do eventually necessary migrations
     yield closeDb(db);
 
-    _log('Database import done!');
+    log('Database import done!');
   }),
 
   /**
