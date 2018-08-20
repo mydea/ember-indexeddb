@@ -6,7 +6,7 @@ import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
 import { A as array } from '@ember/array';
 import Ember from 'ember';
-import { registerWaiter, unregisterWaiter } from '@ember/test';
+import { registerWaiter, unregisterWaiter } from 'ember-indexeddb/utils/test-waiter';
 import { task, timeout } from 'ember-concurrency';
 
 const {
@@ -14,7 +14,7 @@ const {
 } = Ember;
 
 /**
- * This service allows interacting with an IndexedDB databse.
+ * This service allows interacting with an IndexedDB database.
  *
  * @module Services
  * @class IndexedDb
@@ -646,9 +646,6 @@ export default Service.extend({
    * @private
    */
   _registerTestWaiter() {
-    if (!testing) {
-      return;
-    }
     let testWaiter = () => {
       return get(this, '_promiseQueue.length') === 0;
     };
@@ -663,9 +660,6 @@ export default Service.extend({
    * @private
    */
   _unregisterTestWaiter() {
-    if (!testing) {
-      return;
-    }
     let testWaiter = get(this, '_testWaiter');
     unregisterWaiter(testWaiter);
   },
