@@ -168,20 +168,23 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
 /**
  * ## Usage with Ember Data
  *
- * The real power of this utility comes together with the provided ember-data adapter. Just extend from it instead of from the default adapter:
-
- ```js
- import IndexedDbAdapter from 'ember-indexeddb/adapters/indexed-db';
-
- export default IndexedDbAdapter.extend();
- ```
-
- Now, you can simply use the normal ember-data store with functions like `store.query('item', { isNew: true })`.
- Note that it will also persist data to IndexedDB when calling e.g. `createRecord()` or `save()`.
- If you want to persist data back to an API, you need to handle this yourself.
- This works with the default JSONAPISerializer.
-
- Note that `query` and `queryRecord` will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).
+ * The real power of this utility comes together with the provided ember-data adapter.
+ * Once the database can been configured (see @{link IndexedDbConfiguration}),
+ * just extend your application's adapter from @{link IndexedDbAdapter} instead of from the default adapter:
+ *
+ * ```js
+ * // app/adapters/application.js
+ * import IndexedDbAdapter from 'ember-indexeddb/adapters/indexed-db';
+ *
+ * export default IndexedDbAdapter.extend();
+ * ```
+ *
+ * Now, you can simply use the normal ember-data store with functions like `store.query('item', { isNew: true })`.
+ * Note that it will also persist data to IndexedDB when calling e.g. `createRecord()` or `save()`.
+ * If you want to persist data back to an API, you need to handle this yourself.
+ * This works with the default JSONAPISerializer.
+ *
+ * Note that `query` and `queryRecord` will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).
  *
  * @module Ember Data
  * @public
