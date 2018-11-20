@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.0" target="_blank">
-                                  Tag: v1.1.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.3" target="_blank">
+                                  Tag: v1.1.3
                                 </a>
                             </h4>
                         </div>
@@ -139,16 +139,12 @@ import { Promise } from &#x27;rsvp&#x27;;
 import { later } from &#x27;@ember/runloop&#x27;;
 import { typeOf as getTypeOf } from &#x27;@ember/utils&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
-import Ember from &#x27;ember&#x27;;
-import { registerWaiter, unregisterWaiter } from &#x27;@ember/test&#x27;;
+import { registerWaiter, unregisterWaiter } from &#x27;ember-indexeddb/utils/test-waiter&#x27;;
 import { task, timeout } from &#x27;ember-concurrency&#x27;;
-
-const {
-  testing
-} = Ember;
+import { log } from &#x27;ember-indexeddb/utils/log&#x27;;
 
 /**
- * This service allows interacting with an IndexedDB databse.
+ * This service allows interacting with an IndexedDB database.
  *
  * @module Services
  * @class IndexedDb
@@ -259,6 +255,11 @@ export default Service.extend({
       return get(this, &#x27;db&#x27;);
     }
 
+    let testWaiter = function() {
+      return false;
+    };
+    registerWaiter(testWaiter);
+
     let db = new window.Dexie(get(this, &#x27;databaseName&#x27;));
 
     let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
@@ -266,11 +267,10 @@ export default Service.extend({
 
     set(this, &#x27;db&#x27;, db);
 
-    // Sometimes, it does not open immediately,
-    // In this case, we want to try again
-    while (!db.isOpen()) {
-      yield db.open();
-    }
+    yield openDb(db);
+
+    unregisterWaiter(testWaiter);
+
     return db;
   }),
 
@@ -426,7 +426,7 @@ export default Service.extend({
 
     let queue = get(saveQueue, type);
     if (!queue) {
-      queue = [];
+      queue = array();
       saveQueue[type] = queue;
     }
 
@@ -477,9 +477,7 @@ export default Service.extend({
    * @public
    */
   dropDatabase() {
-    let promise = get(this, &#x27;dropDatabaseTask&#x27;).perform();
-    this._addToPromiseQueue(promise);
-    return promise;
+    return get(this, &#x27;dropDatabaseTask&#x27;).perform();
   },
   dropDatabaseTask: task(function* () {
     let db = get(this, &#x27;db&#x27;);
@@ -488,10 +486,21 @@ export default Service.extend({
       return;
     }
 
+    let testWaiter = function() {
+      return false;
+    };
+    registerWaiter(testWaiter);
+
+    // Ensure the db is open
+    yield openDb(db);
     yield get(this, &#x27;waitForQueueTask&#x27;).perform();
+    yield timeout(100);
     yield db.delete();
+    yield closeDb(db);
 
     set(this, &#x27;db&#x27;, null);
+
+    unregisterWaiter(testWaiter);
   }),
 
   /**
@@ -520,12 +529,12 @@ export default Service.extend({
     };
 
     // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
-    yield db.open();
+    yield openDb(db);
 
     // Save the last version number
     set(config, &#x27;version&#x27;, db.verno);
 
-    let promises = [];
+    let promises = array();
 
     db.tables.forEach(function(table) {
       let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
@@ -538,7 +547,7 @@ export default Service.extend({
       let promise = table.each((object) =&gt; {
         let arr = get(config.data, table.name);
         if (!arr) {
-          arr = [];
+          arr = array();
           set(config.data, table.name, arr);
         }
 
@@ -575,35 +584,30 @@ export default Service.extend({
       data
     } = config;
 
-    let _log = (message) =&gt; {
-      if (!testing) {
-        /* eslint-disable no-console */
-        console.log(message);
-        /* eslint-disable no-console */
-      }
-    };
+    log(&#x27;====================================&#x27;);
+    log(&#x27;Importing database dump!&#x27;);
 
-    _log(&#x27;====================================&#x27;);
-    _log(&#x27;Importing database dump!&#x27;);
-
-    _log(&#x27;Dropping existing database...&#x27;);
+    log(&#x27;Dropping existing database...&#x27;);
     yield get(this, &#x27;dropDatabaseTask&#x27;).perform();
 
-    _log(&#x60;Setting up database ${databaseName} in version ${version}...&#x60;);
+    log(&#x60;Setting up database ${databaseName} in version ${version}...&#x60;);
     let db = new Dexie(databaseName);
     db.version(version).stores(stores);
 
-    _log(&#x27;Opening database...&#x27;);
-    yield db.open();
+    log(&#x27;Opening database...&#x27;);
+    yield openDb(db);
 
     let tables = Object.keys(data);
     while (tables.length) {
       let table = tables.shift();
-      _log(&#x60;Importing ${data[table].length} rows for ${table}...&#x60;);
+      log(&#x60;Importing ${data[table].length} rows for ${table}...&#x60;);
       yield db[table].bulkPut(data[table]);
     }
 
-    _log(&#x27;Database import done!&#x27;);
+    // This is closed here, don&#x27;t forget to call &#x27;setup&#x27; again, to do eventually necessary migrations
+    yield closeDb(db);
+
+    log(&#x27;Database import done!&#x27;);
   }),
 
   /**
@@ -634,10 +638,10 @@ export default Service.extend({
   _bulkSave() {
     let saveQueue = get(this, &#x27;_saveQueue&#x27;);
 
-    let promises = [];
+    let promises = array();
     for (let i in saveQueue) {
       promises.push(this.add(i, saveQueue[i]));
-      saveQueue[i] = [];
+      saveQueue[i] = array();
     }
 
     return Promise.all(promises, &#x27;indexedDb/_bulkSave&#x27;);
@@ -705,7 +709,7 @@ export default Service.extend({
       // If a multi index is found, use it
       if (multiIndex) {
         let keyPath = get(multiIndex, &#x27;keyPath&#x27;);
-        let compareValues = [];
+        let compareValues = array();
         keyPath.forEach((key) =&gt; {
           compareValues.push(query[key]);
         });
@@ -764,9 +768,6 @@ export default Service.extend({
    * @private
    */
   _registerTestWaiter() {
-    if (!testing) {
-      return;
-    }
     let testWaiter = () =&gt; {
       return get(this, &#x27;_promiseQueue.length&#x27;) === 0;
     };
@@ -781,9 +782,6 @@ export default Service.extend({
    * @private
    */
   _unregisterTestWaiter() {
-    if (!testing) {
-      return;
-    }
     let testWaiter = get(this, &#x27;_testWaiter&#x27;);
     unregisterWaiter(testWaiter);
   },
@@ -791,7 +789,7 @@ export default Service.extend({
   init() {
     this._super(...arguments);
     set(this, &#x27;_saveQueue&#x27;, {});
-    set(this, &#x27;_promiseQueue&#x27;, array([]));
+    set(this, &#x27;_promiseQueue&#x27;, array());
 
     this._registerTestWaiter();
   },
@@ -802,6 +800,20 @@ export default Service.extend({
   }
 
 });
+
+async function openDb(db) {
+  while (!db.isOpen()) {
+    await db.open();
+  }
+  return db;
+}
+
+async function closeDb(db) {
+  while (db.isOpen()) {
+    await db.close();
+  }
+  return db;
+}
 
     </pre>
 </div>

@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.0" target="_blank">
-                                  Tag: v1.1.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.3" target="_blank">
+                                  Tag: v1.1.3
                                 </a>
                             </h4>
                         </div>
@@ -206,9 +206,16 @@ export default Mixin.create({
   _markAsSaved() {
     // TODO: Note that this uses internal functions
     try {
-      this._internalModel.send(&#x27;willCommit&#x27;);
-      this._internalModel._attributes = {};
-      this._internalModel.send(&#x27;didCommit&#x27;);
+      // In Ember Data 3.5+, this works a bit different
+      // We differentiate by the existence of _recordData
+      if (this._internalModel._recordData) {
+        this._internalModel.adapterWillCommit();
+        this._internalModel.adapterDidCommit();
+      } else {
+        this._internalModel.send(&#x27;willCommit&#x27;);
+        this._internalModel._attributes = {};
+        this._internalModel.send(&#x27;didCommit&#x27;);
+      }
     } catch(e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an &quot;Attempted to handle event &#x60;didCommit&#x60; on ...&quot; error could occur
