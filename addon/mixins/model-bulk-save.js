@@ -72,9 +72,16 @@ export default Mixin.create({
   _markAsSaved() {
     // TODO: Note that this uses internal functions
     try {
-      this._internalModel.send('willCommit');
-      this._internalModel._attributes = {};
-      this._internalModel.send('didCommit');
+      // In Ember Data 3.5+, this works a bit different
+      // We differentiate by the existence of _recordData
+      if (this._internalModel._recordData) {
+        this._internalModel.adapterWillCommit();
+        this._internalModel.adapterDidCommit();
+      } else {
+        this._internalModel.send('willCommit');
+        this._internalModel._attributes = {};
+        this._internalModel.send('didCommit');
+      }
     } catch(e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an "Attempted to handle event `didCommit` on ..." error could occur
