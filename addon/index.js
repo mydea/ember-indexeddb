@@ -176,6 +176,45 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
  export default IndexedDbAdapter.extend();
  ```
 
+ The next step is to setup your database for your Ember Data models.
+ See {{#crossLink "IndexedDbConfiguration"}}IndexedDbConfiguration{{/crossLink}} for more details.
+
+ A basic setup, without any special database-level querying, would look like this:
+
+ ```js
+ import IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';
+ import { computed, get } from '@ember/object';
+
+ export default IndexedDbConfigurationService.extend({
+  currentVersion: 1,
+
+  version1: computed(function() {
+    return {
+      stores: {
+        'item': '&id,*isRead,*isSynced'
+      }
+    };
+  }),
+
+  mapTable: computed(function() {
+    return {
+      'model-a': (item) => {
+        return {
+          id: this._toString(get(item, 'id')),
+          json: this._cleanObject(item)
+        };
+      },
+       'model-b': (item) => {
+        return {
+          id: this._toString(get(item, 'id')),
+          json: this._cleanObject(item)
+        };
+      }
+    };
+  })
+});
+ ```
+
  Now, you can simply use the normal ember-data store with functions like `store.query('item', { isNew: true })`.
  Note that it will also persist data to IndexedDB when calling e.g. `createRecord()` or `save()`.
  If you want to persist data back to an API, you need to handle this yourself.
