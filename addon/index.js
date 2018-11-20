@@ -191,24 +191,8 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
   version1: computed(function() {
     return {
       stores: {
-        'item': '&id,*isRead,*isSynced'
-      }
-    };
-  }),
-
-  mapTable: computed(function() {
-    return {
-      'model-a': (item) => {
-        return {
-          id: this._toString(get(item, 'id')),
-          json: this._cleanObject(item)
-        };
-      },
-       'model-b': (item) => {
-        return {
-          id: this._toString(get(item, 'id')),
-          json: this._cleanObject(item)
-        };
+        'model-a': '&id',
+        'model-b': '&id'
       }
     };
   })
