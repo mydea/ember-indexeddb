@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.1.3
+
+* [BUGFIX] Fix model-bulk-save mixin in Ember Data 3.5
+* [BUGFIX] Ensure it works without array prototypes
+* [INTERNAL] Stop destructing `Ember.testing`
+* [INTERNAL] Update dependencies
+* [INTERNAL] Update linting setup
+ 
 ## v1.1.2
 
 * [BUGFIX] Fix major issue with new test waiter usage when building in production environment
