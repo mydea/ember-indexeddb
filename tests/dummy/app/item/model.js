@@ -1,11 +1,12 @@
 import DS from 'ember-data';
+import ModelBulkSaveMixin from 'ember-indexeddb/mixins/model-bulk-save';
 
 const {
   Model,
   attr
 } = DS;
 
-export default Model.extend({
+export default Model.extend(ModelBulkSaveMixin, {
 
   title: attr('string'),
 

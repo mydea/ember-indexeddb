@@ -54,4 +54,29 @@ module('Acceptance | example', function(hooks) {
     // Clean the database
     await click('#reset-db');
   });
+
+  test('model-bulk-save mixin works', async function(assert) {
+    await visit('/example');
+
+    // Manually create some models
+    let store = this.owner.lookup('service:store');
+    let item = store.createRecord('item', { title: 'item a' });
+    let item2 = store.createRecord('item', { title: 'item b' });
+
+    assert.equal(item.currentState.stateName, 'root.loaded.created.uncommitted', 'state of item 1 is correct before saving');
+    assert.equal(item2.currentState.stateName, 'root.loaded.created.uncommitted', 'state of item 2 is correct before saving');
+    assert.deepEqual(Object.keys(item.changedAttributes()), ['title'], 'changedAttributes of item 1 are correct before saving');
+    assert.deepEqual(Object.keys(item2.changedAttributes()), ['title'], 'changedAttributes of item 2 are correct before saving');
+
+    item.saveBulk();
+    await item2.saveBulk();
+
+    assert.equal(item.currentState.stateName, 'root.loaded.saved', 'state of item 1 is correct after saving');
+    assert.equal(item2.currentState.stateName, 'root.loaded.saved', 'state of item 2 is correct after saving');
+    assert.deepEqual(Object.keys(item.changedAttributes()), [], 'changedAttributes of item 1 are correct after saving');
+    assert.deepEqual(Object.keys(item2.changedAttributes()), [], 'changedAttributes of item 2 are correct after saving');
+
+    // Clean the database
+    await click('#reset-db');
+  });
 });
