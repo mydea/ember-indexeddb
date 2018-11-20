@@ -1,20 +1,23 @@
-/bower_components
 /config/ember-try.js
 /dist
 /tests
 /tmp
 **/.gitkeep
-.bowerrc
 .editorconfig
 .ember-cli
 .eslintrc.js
 .gitignore
 .watchmanconfig
 .travis.yml
-bower.json
 ember-cli-build.js
 testem.js
 yarn.lock
+/.idea
+/docs
+yuidoc.json
+.npmrc
+.yarnrc
+.eslintignore
 
 # ember-try
 .node_modules.ember-try/
