@@ -1,19 +1,16 @@
+/* eslint-disable ember-suave/no-direct-property-access */
 import { registerWaiter as registerWaiterFunc, unregisterWaiter as unregisterWaiterFunc } from '@ember/test';
 import Ember from 'ember';
 
-const {
-  testing
-} = Ember;
-
 // Wrap these, so they are only called when testing
 export function registerWaiter() {
-  if (testing) {
+  if (Ember.testing) {
     return registerWaiterFunc(...arguments);
   }
 }
 
 export function unregisterWaiter() {
-  if (testing) {
+  if (Ember.testing) {
     return unregisterWaiterFunc(...arguments);
   }
 }
