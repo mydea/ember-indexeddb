@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v1.1.3" target="_blank">
-                                  Tag: v1.1.3
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/54a9fbc9" target="_blank">
+                                  Tag: 1.1.3.54a9fbc9
                                 </a>
                             </h4>
                         </div>
@@ -136,6 +136,7 @@ import Service from &#x27;@ember/service&#x27;;
 import { get, computed } from &#x27;@ember/object&#x27;;
 import { typeOf as getTypeOf, isNone } from &#x27;@ember/utils&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
+import { assert } from &#x27;@ember/debug&#x27;;
 
 /**
  * This service should be overwritten to configure IndexedDB.
@@ -177,7 +178,7 @@ export default Service.extend({
    *      &#x27;task-item&#x27;: &#x27;&amp;id,*isNew&#x27;
    *    },
    *    upgrade: (transaction) =&gt; {
-     *     transaction[&#x27;task-item&#x27;].each((taskItem, cursor) =&gt; {
+   *     transaction[&#x27;task-item&#x27;].each((taskItem, cursor) =&gt; {
            taskItem.isNew = 0;
            cursor.update(taskItem);
           });
@@ -289,9 +290,7 @@ export default Service.extend({
   setupDatabase(db) {
     let currentVersion = get(this, &#x27;currentVersion&#x27;);
 
-    if (!currentVersion) {
-      throw new Error(&#x27;You need to override services/indexed-db-configuration.js and provide at least one version.&#x27;);
-    }
+    assert(&#x27;You need to override services/indexed-db-configuration.js and provide at least one version.&#x27;, currentVersion);
 
     for (let v = 1; v &lt;= currentVersion; v++) {
       let version = get(this, &#x60;version${v}&#x60;);
@@ -305,7 +304,6 @@ export default Service.extend({
       } else if (upgrade) {
         db.version(v).upgrade(upgrade);
       }
-
     }
 
     return db;

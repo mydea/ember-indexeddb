@@ -2,7 +2,7 @@
     "project": {
         "name": "ember-indexeddb",
         "description": "A utility for using IndexedDB with ember & ember-data",
-        "version": "v1.1.3",
+        "version": "1.1.3.54a9fbc9",
         "indexModule": "Usage",
         "url": "https://github.com/mydea/ember-indexeddb"
     },
@@ -91,7 +91,7 @@
             "tag": "module",
             "file": "addon\\serializers\\indexed-db.js",
             "line": 7,
-            "description": "## Usage with Ember Data\n\nThe real power of this utility comes together with the provided ember-data adapter. Just extend from it instead of from the default adapter:\n\n```js\nimport IndexedDbAdapter from 'ember-indexeddb/adapters/indexed-db';\n\nexport default IndexedDbAdapter.extend();\n```\n\nThe next step is to setup your database for your Ember Data models.\nSee {{#crossLink \"IndexedDbConfiguration\"}}IndexedDbConfiguration{{/crossLink}} for more details.\n\nA basic setup, without any special database-level querying, would look like this:\n\n```js\nimport IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';\nimport { computed, get } from '@ember/object';\n\nexport default IndexedDbConfigurationService.extend({\n currentVersion: 1,\n\n version1: computed(function() {\n   return {\n     stores: {\n       'item': '&id,*isRead,*isSynced'\n     }\n   };\n }),\n\n mapTable: computed(function() {\n   return {\n     'model-a': (item) => {\n       return {\n         id: this._toString(get(item, 'id')),\n         json: this._cleanObject(item)\n       };\n     },\n      'model-b': (item) => {\n       return {\n         id: this._toString(get(item, 'id')),\n         json: this._cleanObject(item)\n       };\n     }\n   };\n })\n});\n```\n\nNow, you can simply use the normal ember-data store with functions like `store.query('item', { isNew: true })`.\nNote that it will also persist data to IndexedDB when calling e.g. `createRecord()` or `save()`.\nIf you want to persist data back to an API, you need to handle this yourself.\nThis works with the default JSONAPISerializer.\n\nNote that `query` and `queryRecord` will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).",
+            "description": "## Usage with Ember Data\n\nThe real power of this utility comes together with the provided ember-data adapter. Just extend from it instead of from the default adapter:\n\n```js\nimport IndexedDbAdapter from 'ember-indexeddb/adapters/indexed-db';\n\nexport default IndexedDbAdapter.extend();\n```\n\nThe next step is to setup your database for your Ember Data models.\nSee {{#crossLink \"IndexedDbConfiguration\"}}IndexedDbConfiguration{{/crossLink}} for more details.\n\nA basic setup, without any special database-level querying, would look like this:\n\n```js\nimport IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';\nimport { computed, get } from '@ember/object';\n\nexport default IndexedDbConfigurationService.extend({\n currentVersion: 1,\n\n version1: computed(function() {\n   return {\n     stores: {\n       'model-a': '&id',\n       'model-b': '&id'\n     }\n   };\n })\n});\n```\n\nNow, you can simply use the normal ember-data store with functions like `store.query('item', { isNew: true })`.\nNote that it will also persist data to IndexedDB when calling e.g. `createRecord()` or `save()`.\nIf you want to persist data back to an API, you need to handle this yourself.\nThis works with the default JSONAPISerializer.\n\nNote that `query` and `queryRecord` will try to do actual querying on the database layer. This will, of course, only work if the indices have been setup correctly. If you try to query by something for which no query exists, it will fall back to filtering via JS (which works, but is _much_ slower).",
             "extends": "DS.JSONAPIAdapter",
             "access": "public",
             "tagname": ""
@@ -249,7 +249,7 @@
             "module": "Services",
             "namespace": "",
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 6,
+            "line": 7,
             "description": "This service should be overwritten to configure IndexedDB.\nOverwrite the `mapTable` property & add `versionX` properties to fit your application."
         },
         "IndexedDb": {
@@ -695,7 +695,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 17,
+            "line": 18,
             "description": "Increment this whenever you do a new database version.\nSet it to 1 on your initial version.\n\nFor every version, you should provide a `versionX` property.\nEach of these properties should be an object with \"stores\" and/or \"upgrade\" properties.\n\nstores should be an object where the keys are dasherized, singular model names (e.g. task-item),\nand the value is a string with the indexedable fields.\nSee https://github.com/dfahlander/Dexie.js/wiki/Version.stores() for detailed options.\n\nupgrade is a function that gets a transaction as parameter, which can be used to run database migrations.\nSee https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade() for detailed options/examples.\n\nAn example would be:\n\n```js\nversion1: {\n   stores: {\n     'task': '&id*,isRead',\n     'task-item': '&id'\n   }\n},\n\nversion2: {\n   stores: {\n     'task-item': '&id,*isNew'\n   },\n   upgrade: (transaction) => {\n    transaction['task-item'].each((taskItem, cursor) => {\n          taskItem.isNew = 0;\n          cursor.update(taskItem);\n         });\n   }\n}\n```\n\nThe\nYou can also use upgrade/store without using the other option.",
             "itemtype": "property",
             "name": "currentVersion",
@@ -707,7 +707,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 63,
+            "line": 64,
             "description": "The map functions for the tables.\nThis should be an object with one key per table\nwhere the value is a function that takes an object and returns an object to save in IndexedDB.\n\nThis object NEEDS to contain at least the properties id & json.\nIt should also contain one property per queryable property on the database table.\n\nThere are a few things to note here:\n\n  1. Always convert your IDs to strings. You can use the provided `this._toString(val)` function for this.\n  2. Always clean up your json. You can use the provided `this._cleanObject(item)` for this.\n  3. IndexedDB doesn't work with boolean queries. You need to convert booleans to 1/0 when inserting it into the Database.\n     You can use the provided `this._toZeroOne(val)` for this.\n\nFor example, the following table config:\n\n```js\n{\n   task: '++id,isRead,status,[isRead+status]'\n}\n```\n\nshould look something like this:\n\n```js\nreturn {\n   task: (item) => {\n     return {\n       id: this._toString(get(item, 'id')),\n       json: this._cleanObject(item),\n       isRead: this._toZeroOne(get(item, 'attributes.isRead')),\n       status: get(item, 'attributes.status')\n     };\n   }\n};\n```\n\nNote that if you do not specify anything here, it will default to\n\n```js\nreturn {\n   id: this._toString(get(item, 'id')),\n   json: this._cleanObject(item)\n};\n```",
             "itemtype": "property",
             "name": "mapTable",
@@ -719,7 +719,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 118,
+            "line": 119,
             "description": "Map a payload to a database table.\nThis will use the function provided in mapTable to get a payload to insert into IndexedDB.\nReturns null if no map function is found for the type.",
             "itemtype": "method",
             "name": "mapItem",
@@ -746,7 +746,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 147,
+            "line": 148,
             "description": "Setup the database and do all necessary database migrations.",
             "itemtype": "method",
             "name": "setupDatabase",
@@ -768,7 +768,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 180,
+            "line": 178,
             "description": "Cleanup a json object.\nThis will convert array-like structures to actual arrays for saving.\nIt will strip out meta properties etc.",
             "itemtype": "method",
             "name": "_cleanObject",
@@ -790,7 +790,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 236,
+            "line": 234,
             "description": "Convert a property to a string.",
             "itemtype": "method",
             "name": "_toString",
@@ -812,7 +812,7 @@
         },
         {
             "file": "addon\\services\\indexed-db-configuration.js",
-            "line": 248,
+            "line": 246,
             "description": "Convert a boolean to 1/0.\nOptionally, you can specify the value that should be used if the given value does not exist in the payload.\nFor example, if you want that a given value should be 1 if not found in the payload, use `this._toZeroOne(value, 1)`.",
             "itemtype": "method",
             "name": "_toZeroOne",
