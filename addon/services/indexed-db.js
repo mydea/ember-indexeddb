@@ -292,7 +292,7 @@ export default Service.extend({
 
     let queue = get(saveQueue, type);
     if (!queue) {
-      queue = [];
+      queue = array()
       saveQueue[type] = queue;
     }
 
@@ -504,10 +504,10 @@ export default Service.extend({
   _bulkSave() {
     let saveQueue = get(this, '_saveQueue');
 
-    let promises = [];
+    let promises = array();
     for (let i in saveQueue) {
       promises.push(this.add(i, saveQueue[i]));
-      saveQueue[i] = [];
+      saveQueue[i] = array();
     }
 
     return Promise.all(promises, 'indexedDb/_bulkSave');
@@ -575,7 +575,7 @@ export default Service.extend({
       // If a multi index is found, use it
       if (multiIndex) {
         let keyPath = get(multiIndex, 'keyPath');
-        let compareValues = [];
+        let compareValues = array();
         keyPath.forEach((key) => {
           compareValues.push(query[key]);
         });
@@ -655,7 +655,7 @@ export default Service.extend({
   init() {
     this._super(...arguments);
     set(this, '_saveQueue', {});
-    set(this, '_promiseQueue', array([]));
+    set(this, '_promiseQueue', array());
 
     this._registerTestWaiter();
   },
