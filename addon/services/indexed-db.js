@@ -292,7 +292,7 @@ export default Service.extend({
 
     let queue = get(saveQueue, type);
     if (!queue) {
-      queue = array()
+      queue = array();
       saveQueue[type] = queue;
     }
 
@@ -400,7 +400,7 @@ export default Service.extend({
     // Save the last version number
     set(config, 'version', db.verno);
 
-    let promises = [];
+    let promises = array();
 
     db.tables.forEach(function(table) {
       let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
@@ -413,7 +413,7 @@ export default Service.extend({
       let promise = table.each((object) => {
         let arr = get(config.data, table.name);
         if (!arr) {
-          arr = [];
+          arr = array();
           set(config.data, table.name, arr);
         }
 
