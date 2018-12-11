@@ -19,18 +19,18 @@
   </thead>
   <tbody>
     {{#each model as |item|}}
-      <tr class="item">
+      <tr class="item" data-test-row>
         <td>
           {{item.date}}
         </td>
-        <td>
+        <td data-test-is-read>
           {{item.isRead}}
         </td>
-        <td>
+        <td data-test-is-synced>
           {{item.isSynced}}
         </td>
         <td>
-          <button {{action 'markAsRead' item}}>
+          <button {{action 'markAsRead' item}} data-test-mark-as-read>
             Mark as read
           </button>
         </td>

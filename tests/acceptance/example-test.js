@@ -51,6 +51,10 @@ module('Acceptance | example', function(hooks) {
       'items have correct dates'
     );
 
+    await click('[data-test-row]:nth-child(1) [data-test-mark-as-read]');
+
+    assert.dom('[data-test-row]:nth-child(1) [data-test-is-read]').hasText('true');
+
     // Clean the database
     await click('#reset-db');
   });
