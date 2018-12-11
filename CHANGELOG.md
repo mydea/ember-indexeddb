@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0
+
+* [FEATURE] Stop using `$.extend()` to stop depending on jQuery
+* [FEATURE] Generate a basic `indexed-db-configuration` service on addon install
+* [DOCS] Improve documentation 
+
 ## v1.1.3
 
 * [BUGFIX] Fix model-bulk-save mixin in Ember Data 3.5
