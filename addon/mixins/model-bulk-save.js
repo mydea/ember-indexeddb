@@ -44,7 +44,7 @@ export default Mixin.create({
    * @method saveBulk
    * @param modelName
    * @param model
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   saveBulk() {

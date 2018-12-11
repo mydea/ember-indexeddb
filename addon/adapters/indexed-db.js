@@ -1,6 +1,6 @@
 import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
-import RSVP from 'rsvp';
+import { Promise } from 'rsvp';
 import { A as array } from '@ember/array';
 import DS from 'ember-data';
 import { cloneDeep } from 'ember-indexeddb/utils/clone-deep';
@@ -66,7 +66,7 @@ export default JSONAPIAdapter.extend({
    * @method findAll
    * @param store
    * @param type
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findAll(store, type) {
@@ -74,7 +74,7 @@ export default JSONAPIAdapter.extend({
     let { modelName } = type;
 
     this._logDuration(`findAll ${modelName}`);
-    return new RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       indexedDB.findAll(modelName).then((records) => {
         this._logDuration(`findAll ${modelName}`, true);
         let data = this._normalizeArray(records);
@@ -90,7 +90,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {String} id
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findRecord(store, type, id) {
@@ -98,7 +98,7 @@ export default JSONAPIAdapter.extend({
     let { modelName } = type;
 
     this._logDuration(`findRecord ${modelName}/${id}`);
-    return new RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       indexedDB.find(modelName, id).then((record) => {
         this._logDuration(`findRecord ${modelName}/${id}`, true);
         let data = this._normalizeSingle(record);
@@ -118,7 +118,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {Array} ids
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findMany(store, type, ids) {
@@ -126,7 +126,7 @@ export default JSONAPIAdapter.extend({
     let { modelName } = type;
 
     this._logDuration(`findMany ${modelName}/${ids.join(',')}`);
-    return new RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       indexedDB.find(modelName, ids).then((records) => {
         this._logDuration(`findMany ${modelName}/${ids.join(',')}`, true);
         let data = this._normalizeArray(records);
@@ -143,7 +143,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {Object} query
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   query(store, type, query) {
@@ -152,7 +152,7 @@ export default JSONAPIAdapter.extend({
     let queryString = JSON.stringify(query);
 
     this._logDuration(`query ${modelName} ${queryString}`);
-    return new RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       indexedDB.query(modelName, query).then((records) => {
         this._logDuration(`query ${modelName} ${queryString}`, true);
         let data = this._normalizeArray(records);
@@ -169,7 +169,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {Object} query
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   queryRecord(store, type, query) {
@@ -177,7 +177,7 @@ export default JSONAPIAdapter.extend({
     let { modelName } = type;
 
     this._logDuration(`queryRecord ${modelName}`);
-    return new RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       indexedDB.queryRecord(modelName, query).then((record) => {
         this._logDuration(`queryRecord ${modelName}`, true);
         let data = this._normalizeSingle(record);
@@ -199,7 +199,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   updateRecord(store, type, snapshot) {
@@ -213,7 +213,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   deleteRecord(store, type, snapshot) {
@@ -222,7 +222,7 @@ export default JSONAPIAdapter.extend({
     let id = get(snapshot, 'id');
 
     this._logDuration(`deleteRecord ${modelName}/${id}`);
-    return new RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       indexedDB.delete(modelName, id).then(() => {
         this._logDuration(`deleteRecord ${modelName}/${id}`, true);
         resolve(null);
@@ -237,7 +237,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   createRecord(store, type, snapshot) {
@@ -251,7 +251,7 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @private
    */
   _save(store, type, snapshot) {
@@ -259,7 +259,7 @@ export default JSONAPIAdapter.extend({
     let { modelName } = type;
 
     this._logDuration(`_save ${modelName}/${get(snapshot, 'id')}`);
-    return new RSVP.Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let data = {};
       let serializer = store.serializerFor(modelName);
       serializer.serializeIntoHash(data, type, snapshot, { includeId: true });

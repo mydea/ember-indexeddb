@@ -68,7 +68,7 @@ export default Service.extend({
    * All bulkSave() operations use and return the same promise, which is cached here.
    *
    * @property _savePromise
-   * @type {RSVP.Promise}
+   * @type {Promise}
    * @private
    */
   _savePromise: null,
@@ -78,7 +78,7 @@ export default Service.extend({
    * This is used to check if there are running transactions.
    *
    * @property _promiseQueue
-   * @type {RSVP.Promise[]}
+   * @type {Promise[]}
    * @private
    */
   _promiseQueue: null,
@@ -110,7 +110,7 @@ export default Service.extend({
    * Also available as a task: `indexedDb.setupTask.perform()`
    *
    * @method setup
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   setup() {
@@ -148,7 +148,7 @@ export default Service.extend({
    * @method query
    * @param {String} type The model type to query
    * @param {Object} query The query data
-   * @return {RSVP.Promise[]}
+   * @return {Promise[]}
    * @public
    */
   query(type, query) {
@@ -167,7 +167,7 @@ export default Service.extend({
    * @method queryRecord
    * @param {String} type The model type to query
    * @param {Object} query The query data
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   queryRecord(type, query) {
@@ -186,7 +186,7 @@ export default Service.extend({
    * @method find
    * @param {String} type The model type to find
    * @param {String|String[]} id One or multiple ids to fetch
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   find(type, id) {
@@ -205,7 +205,7 @@ export default Service.extend({
    *
    * @method findAll
    * @param {String} type The model type to find.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findAll(type) {
@@ -222,7 +222,7 @@ export default Service.extend({
    * @method add
    * @param {String} type The model type to add
    * @param {Object|Object[]} items One or multiple objects to add to the database.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   add(type, items) {
@@ -250,7 +250,7 @@ export default Service.extend({
    * @param {String} type The model type of the object
    * @param {String} id The id of the object
    * @param {Object} item The serialized object to save.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   save(type, id, item) {
@@ -269,7 +269,7 @@ export default Service.extend({
    * @method saveBulk
    * @param {String} type The model type to save
    * @param {Object} item The data to save
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   saveBulk(type, item) {
@@ -305,7 +305,7 @@ export default Service.extend({
    *
    * @method clear
    * @param {String} type The model type to clear.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   clear(type) {
@@ -322,7 +322,7 @@ export default Service.extend({
    * @method delete
    * @param {String} type The model type to delete
    * @param {String} id The id of the entry to delete
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   delete(type, id) {
@@ -339,7 +339,7 @@ export default Service.extend({
    * Also available as a task: `indexedDb.dropDatabaseTask.perform()`
    *
    * @method dropDatabase
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   dropDatabase() {
@@ -376,7 +376,7 @@ export default Service.extend({
    * Also available as a task: `indexedDb.exportDatabaseTask.perform()`
    *
    * @method exportDatabase
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   exportDatabase() {
@@ -434,7 +434,7 @@ export default Service.extend({
    *
    * @method importDatabase
    * @param {Object} config A configuration object as created by this.exportDatabase()
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   importDatabase(config) {
@@ -483,7 +483,7 @@ export default Service.extend({
    * Also available as a task: `indexedDb.waitForQueueTask.perform()`
    *
    * @method waitForQueue
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   waitForQueue() {
@@ -611,8 +611,8 @@ export default Service.extend({
    * When the promise resolves or rejects, it will be removed from the promise queue.
    *
    * @method _addToPromiseQueue
-   * @param {RSVP.Promise} promise
-   * @return {RSVP.Promise}
+   * @param {Promise} promise
+   * @return {Promise}
    * @private
    */
   _addToPromiseQueue(promise) {
