@@ -3,7 +3,7 @@ import { get } from '@ember/object';
 import RSVP from 'rsvp';
 import { A as array } from '@ember/array';
 import DS from 'ember-data';
-import $ from 'jquery';
+import { cloneDeep } from 'ember-indexeddb/utils/clone-deep';
 
 const {
   JSONAPIAdapter
@@ -263,7 +263,8 @@ export default JSONAPIAdapter.extend({
       let data = {};
       let serializer = store.serializerFor(modelName);
       serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
-      let record = $.extend(true, {}, data.data);
+      // We need to make a deep clone of the data, as the data is mutated by the store later
+      let record = cloneDeep(data.data);
 
       indexedDB.save(modelName, record.id, record).then(() => {
         this._logDuration(`_save ${modelName}/${get(snapshot, 'id')}`, true);
