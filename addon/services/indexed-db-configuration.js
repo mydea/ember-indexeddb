@@ -204,29 +204,22 @@ export default Service.extend({
       return getTypeOf(item) === 'array' || (getTypeOf(item) === 'instance' && getTypeOf(item.toArray) === 'function');
     };
 
-    for (let i in attributes) {
-      if (!attributes.hasOwnProperty(i)) {
-        continue;
-      }
-
+    Object.keys(attributes).forEach((prop) => {
       // Convert array-like structures to real arrays
-      if (isArray(attributes[i])) {
-        obj.attributes[i] = array(attributes[i]).toArray();
+      if (isArray(attributes[prop])) {
+        obj.attributes[prop] = array(attributes[prop]).toArray();
       } else {
-        obj.attributes[i] = attributes[i];
+        obj.attributes[prop] = attributes[prop];
       }
-    }
+    });
 
-    for (let i in relationships) {
-      if (!relationships.hasOwnProperty(i)) {
-        continue;
-      }
-      if (isArray(relationships[i].data)) {
-        obj.relationships[i] = { data: array(relationships[i].data).toArray() };
+    Object.keys(relationships).forEach((prop) => {
+      if (isArray(relationships[prop].data)) {
+        obj.relationships[prop] = { data: array(relationships[prop].data).toArray() };
       } else {
-        obj.relationships[i] = relationships[i];
+        obj.relationships[prop] = relationships[prop];
       }
-    }
+    });
 
     return obj;
   },
