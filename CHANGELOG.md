@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.3.0
+
+* [BUGFIX] Ensure `super` is correctly called for `included()` hook
+* [INTERNAL] Update ember-concurrency@1.0.0
+* [INTERNAL] Update ember-cli-babel@7.7.3
+* [INTERNAL] Update dev dependencies
+
 ## v1.2.0
 
 * [FEATURE] Stop using `$.extend()` to stop depending on jQuery
