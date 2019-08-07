@@ -8,8 +8,8 @@ const path = require('path');
 module.exports = {
   name: 'ember-indexeddb',
 
-  included(app) {
-    this._super.included(app);
+  included() {
+    this._super.included.apply(this, arguments);
     this._ensureThisImport();
 
     this.import('vendor/dexie/dexie.js');
