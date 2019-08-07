@@ -15,8 +15,7 @@ module.exports = {
   env: {
     browser: true
   },
-  rules: {
-  },
+  rules: {},
   overrides: [
     // node files
     {
@@ -47,6 +46,12 @@ module.exports = {
       rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
         // add your custom rules and overrides for node files here
       })
+    },
+    {
+      files: ['tests/**/*.js'],
+      rules: {
+        'ember/avoid-leaking-state-in-ember-objects': 'off'
+      }
     }
   ]
 };

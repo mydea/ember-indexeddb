@@ -5,6 +5,7 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import DS from 'ember-data';
+import IndexedDbConfigurationService from 'dummy/services/indexed-db-configuration';
 
 const {
   PromiseArray
@@ -37,13 +38,15 @@ const createMockDb = function() {
   };
 };
 
-module('Unit | Service | indexed db configuration', function(hooks) {
+module('Unit | Service | indexed-db-configuration', function(hooks) {
   setupTest(hooks);
 
   test('mapItem() uses the default function if no mapTable is given', function(assert) {
-    let service = this.owner.factoryFor('service:indexed-db-configuration').create({
+    let ExtendedService = IndexedDbConfigurationService.extend({
       mapTable: {}
     });
+    this.owner.register('service:indexed-db-configuration', ExtendedService);
+    let service = this.owner.lookup('service:indexed-db-configuration');
 
     let payload = {
       id: 'test-1',
@@ -59,7 +62,7 @@ module('Unit | Service | indexed db configuration', function(hooks) {
   });
 
   test('mapItem() uses the function from mapTable if available', function(assert) {
-    let service = this.owner.factoryFor('service:indexed-db-configuration').create({
+    let ExtendedService = IndexedDbConfigurationService.extend({
       mapTable: {
         item: (payload) => {
           return {
@@ -71,6 +74,8 @@ module('Unit | Service | indexed db configuration', function(hooks) {
         }
       }
     });
+    this.owner.register('service:indexed-db-configuration', ExtendedService);
+    let service = this.owner.lookup('service:indexed-db-configuration');
 
     let payload = {
       id: 'test-1',
@@ -86,7 +91,11 @@ module('Unit | Service | indexed db configuration', function(hooks) {
   });
 
   test('cleanObject works', function(assert) {
-    let service = this.owner.factoryFor('service:indexed-db-configuration').create({});
+    let ExtendedService = IndexedDbConfigurationService.extend({
+      mapTable: {}
+    });
+    this.owner.register('service:indexed-db-configuration', ExtendedService);
+    let service = this.owner.lookup('service:indexed-db-configuration');
 
     let data = null;
     let result = service._cleanObject(data);
@@ -206,13 +215,16 @@ module('Unit | Service | indexed db configuration', function(hooks) {
     let upgrade = function() {
     };
 
-    let service = this.owner.factoryFor('service:indexed-db-configuration').create({
+    let ExtendedService = IndexedDbConfigurationService.extend({
       currentVersion: 1,
       version1: {
         stores,
         upgrade
       }
     });
+    this.owner.register('service:indexed-db-configuration', ExtendedService);
+    let service = this.owner.lookup('service:indexed-db-configuration');
+
     let mockDb = createMockDb();
     let result = service.setupDatabase(mockDb);
     assert.deepEqual(result._versions, [1], 'it works with just one version');
@@ -229,7 +241,7 @@ module('Unit | Service | indexed db configuration', function(hooks) {
     let upgrade2 = function() {
     };
 
-    let service = this.owner.factoryFor('service:indexed-db-configuration').create({
+    let ExtendedService = IndexedDbConfigurationService.extend({
       currentVersion: 3,
       version1: {
         stores: stores1
@@ -242,6 +254,9 @@ module('Unit | Service | indexed db configuration', function(hooks) {
         upgrade: upgrade2
       }
     });
+    this.owner.register('service:indexed-db-configuration', ExtendedService);
+    let service = this.owner.lookup('service:indexed-db-configuration');
+
     let mockDb = createMockDb();
     let result = service.setupDatabase(mockDb);
     assert.deepEqual(result._versions, [1, 2, 3], 'it works with multiple versions');

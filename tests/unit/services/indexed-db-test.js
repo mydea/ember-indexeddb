@@ -32,7 +32,7 @@ const createMockDb = function() {
   };
 };
 
-module('Unit | Service | indexed db', function(hooks) {
+module('Unit | Service | indexed-db', function(hooks) {
   setupTest(hooks);
   setupIndexedDb(hooks);
 
