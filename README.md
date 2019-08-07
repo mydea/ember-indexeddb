@@ -21,3 +21,10 @@ The documentation shows how to setup & use ember-indexeddb.
 [View Documentation](https://mydea.github.io/ember-indexeddb/docs/)
 
 For an example implementation, look at the [example route](https://github.com/mydea/ember-indexeddb/blob/master/tests/dummy/app/example/route.js) in the dummy app. See the example configuration of the [indexed-db-configuration service](https://github.com/mydea/ember-indexeddb/blob/master/tests/dummy/app/services/indexed-db-configuration.js) there as well.
+
+Compatibility
+------------------------------------------------------------------------------
+
+* Ember.js v3.4 or above
+* Ember CLI v2.13 or above
+* Node.js v8 or above
