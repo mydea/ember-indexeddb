@@ -2,6 +2,9 @@
 /dist/
 /tmp/
 
+# ignore .git folder on npm install as dependency
+/.git/
+
 # dependencies
 /bower_components/
 
