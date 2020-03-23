@@ -40,13 +40,13 @@ import { computed } from '@ember/object';
 export default IndexedDbConfigurationService.extend({
   currentVersion: 1,
 
-  version1: computed(function() {
+  version1: computed(function () {
     return {
       stores: {
         // Add your tables here, like this: 'item': '&id'
         // When using the ember data adapter, add one entry per model, where the key is your model name
         // For example, if you have a model named "my-item", add an entry: `'my-item': '&id'
-      }
+      },
     };
-  })
+  }),
 });

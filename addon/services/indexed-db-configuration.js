@@ -14,7 +14,6 @@ import { assert } from '@ember/debug';
  * @public
  */
 export default Service.extend({
-
   /**
    * Increment this whenever you do a new database version.
    * Set it to 1 on your initial version.
@@ -112,7 +111,7 @@ export default Service.extend({
    * @type {Object}
    * @protected
    */
-  mapTable: computed(function() {
+  mapTable: computed(function () {
     return {};
   }),
 
@@ -138,7 +137,7 @@ export default Service.extend({
     if (!mapFunc) {
       return {
         id: this._toString(get(item, 'id')),
-        json: this._cleanObject(item)
+        json: this._cleanObject(item),
       };
     }
 
@@ -156,7 +155,10 @@ export default Service.extend({
   setupDatabase(db) {
     let currentVersion = get(this, 'currentVersion');
 
-    assert('You need to override services/indexed-db-configuration.js and provide at least one version.', currentVersion);
+    assert(
+      'You need to override services/indexed-db-configuration.js and provide at least one version.',
+      currentVersion
+    );
 
     for (let v = 1; v <= currentVersion; v++) {
       let version = get(this, `version${v}`);
@@ -194,14 +196,18 @@ export default Service.extend({
       id: get(data, 'id'),
       type: get(data, 'type'),
       attributes: {},
-      relationships: {}
+      relationships: {},
     };
 
     let attributes = get(data, 'attributes') || {};
     let relationships = get(data, 'relationships') || {};
 
     let isArray = (item) => {
-      return getTypeOf(item) === 'array' || (getTypeOf(item) === 'instance' && getTypeOf(item.toArray) === 'function');
+      return (
+        getTypeOf(item) === 'array' ||
+        (getTypeOf(item) === 'instance' &&
+          getTypeOf(item.toArray) === 'function')
+      );
     };
 
     Object.keys(attributes).forEach((prop) => {
@@ -215,7 +221,9 @@ export default Service.extend({
 
     Object.keys(relationships).forEach((prop) => {
       if (isArray(relationships[prop].data)) {
-        obj.relationships[prop] = { data: array(relationships[prop].data).toArray() };
+        obj.relationships[prop] = {
+          data: array(relationships[prop].data).toArray(),
+        };
       } else {
         obj.relationships[prop] = relationships[prop];
       }
@@ -252,6 +260,5 @@ export default Service.extend({
       return noneValue;
     }
     return val ? 1 : 0;
-  }
-
+  },
 });

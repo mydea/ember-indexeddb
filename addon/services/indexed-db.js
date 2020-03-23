@@ -4,7 +4,10 @@ import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
 import { A as array } from '@ember/array';
-import { registerWaiter, unregisterWaiter } from 'ember-indexeddb/utils/test-waiter';
+import {
+  registerWaiter,
+  unregisterWaiter,
+} from 'ember-indexeddb/utils/test-waiter';
 import { task, timeout } from 'ember-concurrency';
 import { log } from 'ember-indexeddb/utils/log';
 import Dexie from 'dexie';
@@ -18,7 +21,6 @@ import Dexie from 'dexie';
  * @public
  */
 export default Service.extend({
-
   store: service(),
   indexedDbConfiguration: service(),
 
@@ -92,10 +94,10 @@ export default Service.extend({
    * @readOnly
    * @private
    */
-  _supportsCompoundIndices: computed(function() {
+  _supportsCompoundIndices: computed(function () {
     try {
       window.IDBKeyRange.only([1]);
-    } catch(e) {
+    } catch (e) {
       return false;
     }
 
@@ -121,7 +123,7 @@ export default Service.extend({
       return get(this, 'db');
     }
 
-    let testWaiter = function() {
+    let testWaiter = function () {
       return false;
     };
     registerWaiter(testWaiter);
@@ -153,7 +155,10 @@ export default Service.extend({
    */
   query(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new Promise((resolve, reject) => queryPromise.toArray().then(resolve, reject), 'indexedDb/query');
+    let promise = new Promise(
+      (resolve, reject) => queryPromise.toArray().then(resolve, reject),
+      'indexedDb/query'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -172,7 +177,10 @@ export default Service.extend({
    */
   queryRecord(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new Promise((resolve, reject) => queryPromise.first().then(resolve, reject), 'indexedDb/queryRecord');
+    let promise = new Promise(
+      (resolve, reject) => queryPromise.first().then(resolve, reject),
+      'indexedDb/queryRecord'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -194,7 +202,11 @@ export default Service.extend({
     if (getTypeOf(id) === 'array') {
       return db[type].where('id').anyOf(id.map(this._toString)).toArray();
     }
-    let promise = new Promise((resolve, reject) => db[type].get(this._toString(id)).then(resolve, reject), 'indexedDb/find');
+    let promise = new Promise(
+      (resolve, reject) =>
+        db[type].get(this._toString(id)).then(resolve, reject),
+      'indexedDb/find'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -210,7 +222,10 @@ export default Service.extend({
    */
   findAll(type) {
     let db = get(this, 'db');
-    let promise = new Promise((resolve, reject) => db[type].toArray().then(resolve, reject), 'indexedDb/findAll');
+    let promise = new Promise(
+      (resolve, reject) => db[type].toArray().then(resolve, reject),
+      'indexedDb/findAll'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -237,7 +252,10 @@ export default Service.extend({
       return this._mapItem(type, item);
     });
 
-    let promise = new Promise((resolve, reject) => db[type].bulkPut(data).then(resolve, reject), 'indexedDb/add');
+    let promise = new Promise(
+      (resolve, reject) => db[type].bulkPut(data).then(resolve, reject),
+      'indexedDb/add'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -257,7 +275,10 @@ export default Service.extend({
     let db = get(this, 'db');
 
     let data = this._mapItem(type, item);
-    let promise = new Promise((resolve, reject) => db[type].put(data).then(resolve, reject), 'indexedDb/save');
+    let promise = new Promise(
+      (resolve, reject) => db[type].put(data).then(resolve, reject),
+      'indexedDb/save'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -279,12 +300,16 @@ export default Service.extend({
     // If no save promise exists, create a new one
     if (!savePromise) {
       savePromise = new Promise((resolve, reject) => {
-        later(this, () => {
-          this._bulkSave().then((val) => {
-            set(this, '_savePromise', null);
-            resolve(val);
-          }, reject);
-        }, 100);
+        later(
+          this,
+          () => {
+            this._bulkSave().then((val) => {
+              set(this, '_savePromise', null);
+              resolve(val);
+            }, reject);
+          },
+          100
+        );
       }, 'indexedDb/saveBulk');
       set(this, '_savePromise', savePromise);
       this._addToPromiseQueue(savePromise);
@@ -310,7 +335,10 @@ export default Service.extend({
    */
   clear(type) {
     let db = get(this, 'db');
-    let promise = new Promise((resolve, reject) => db[type].clear().then(resolve, reject), 'indexedDb/clear');
+    let promise = new Promise(
+      (resolve, reject) => db[type].clear().then(resolve, reject),
+      'indexedDb/clear'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -327,7 +355,10 @@ export default Service.extend({
    */
   delete(type, id) {
     let db = get(this, 'db');
-    let promise = new Promise((resolve, reject) => db[type].delete(id).then(resolve, reject), 'indexedDb/delete');
+    let promise = new Promise(
+      (resolve, reject) => db[type].delete(id).then(resolve, reject),
+      'indexedDb/delete'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
@@ -352,7 +383,7 @@ export default Service.extend({
       return;
     }
 
-    let testWaiter = function() {
+    let testWaiter = function () {
       return false;
     };
     registerWaiter(testWaiter);
@@ -391,7 +422,7 @@ export default Service.extend({
       databaseName: get(this, 'databaseName'),
       version: get(this, 'currentVersion'),
       stores: {},
-      data: {}
+      data: {},
     };
 
     // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
@@ -402,11 +433,15 @@ export default Service.extend({
 
     let promises = array();
 
-    db.tables.forEach(function(table) {
-      let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
-      let schemaSyntax = primKeyAndIndexes.map(function(index) {
-        return index.src;
-      }).join(',');
+    db.tables.forEach(function (table) {
+      let primKeyAndIndexes = [table.schema.primKey].concat(
+        table.schema.indexes
+      );
+      let schemaSyntax = primKeyAndIndexes
+        .map(function (index) {
+          return index.src;
+        })
+        .join(',');
 
       set(config.stores, table.name, schemaSyntax);
 
@@ -443,12 +478,7 @@ export default Service.extend({
     return promise;
   },
   importDatabaseTask: task(function* (config) {
-    let {
-      databaseName,
-      version,
-      stores,
-      data
-    } = config;
+    let { databaseName, version, stores, data } = config;
 
     log('====================================');
     log('Importing database dump!');
@@ -564,7 +594,11 @@ export default Service.extend({
         let keyPath = get(index, 'keyPath');
 
         // If keyPath is not set, not an array or not the same length as the keys, it's not the correct one
-        if (!keyPath || getTypeOf(keyPath) !== 'array' || keyPath.length !== keys.length) {
+        if (
+          !keyPath ||
+          getTypeOf(keyPath) !== 'array' ||
+          keyPath.length !== keys.length
+        ) {
           return false;
         }
 
@@ -663,8 +697,7 @@ export default Service.extend({
   willDestroy() {
     this._unregisterTestWaiter();
     this._super(...arguments);
-  }
-
+  },
 });
 
 async function openDb(db) {

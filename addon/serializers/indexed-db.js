@@ -1,8 +1,6 @@
 import DS from 'ember-data';
 
-const {
-  JSONAPISerializer
-} = DS;
+const { JSONAPISerializer } = DS;
 
 /**
  *

@@ -7,11 +7,9 @@ import { setupTest } from 'ember-qunit';
 import DS from 'ember-data';
 import IndexedDbConfigurationService from 'dummy/services/indexed-db-configuration';
 
-const {
-  PromiseArray
-} = DS;
+const { PromiseArray } = DS;
 
-const createMockDb = function() {
+const createMockDb = function () {
   return {
     _versions: [],
     _stores: [],
@@ -25,25 +23,24 @@ const createMockDb = function() {
         stores(s) {
           _this._stores.push(s);
           return obj;
-
         },
         upgrade(u) {
           _this._upgrades.push(u);
           return obj;
-        }
+        },
       };
 
       return obj;
-    }
+    },
   };
 };
 
-module('Unit | Service | indexed-db-configuration', function(hooks) {
+module('Unit | Service | indexed-db-configuration', function (hooks) {
   setupTest(hooks);
 
-  test('mapItem() uses the default function if no mapTable is given', function(assert) {
+  test('mapItem() uses the default function if no mapTable is given', function (assert) {
     let ExtendedService = IndexedDbConfigurationService.extend({
-      mapTable: {}
+      mapTable: {},
     });
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
@@ -53,15 +50,15 @@ module('Unit | Service | indexed-db-configuration', function(hooks) {
       type: 'item',
       attributes: {
         name: 'test-name',
-        'other-attribute': 'value'
+        'other-attribute': 'value',
       },
-      relationships: {}
+      relationships: {},
     };
     let result = service.mapItem('item', payload);
     assert.deepEqual(result, { id: 'test-1', json: payload });
   });
 
-  test('mapItem() uses the function from mapTable if available', function(assert) {
+  test('mapItem() uses the function from mapTable if available', function (assert) {
     let ExtendedService = IndexedDbConfigurationService.extend({
       mapTable: {
         item: (payload) => {
@@ -69,10 +66,10 @@ module('Unit | Service | indexed-db-configuration', function(hooks) {
             id: get(payload, 'id'),
             json: payload,
             staticProp: 2,
-            idCopy: get(payload, 'id')
+            idCopy: get(payload, 'id'),
           };
-        }
-      }
+        },
+      },
     });
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
@@ -82,17 +79,22 @@ module('Unit | Service | indexed-db-configuration', function(hooks) {
       type: 'item',
       attributes: {
         name: 'test-name',
-        'other-attribute': 'value'
+        'other-attribute': 'value',
       },
-      relationships: {}
+      relationships: {},
     };
     let result = service.mapItem('item', payload);
-    assert.deepEqual(result, { id: 'test-1', json: payload, staticProp: 2, idCopy: 'test-1' });
+    assert.deepEqual(result, {
+      id: 'test-1',
+      json: payload,
+      staticProp: 2,
+      idCopy: 'test-1',
+    });
   });
 
-  test('cleanObject works', function(assert) {
+  test('cleanObject works', function (assert) {
     let ExtendedService = IndexedDbConfigurationService.extend({
-      mapTable: {}
+      mapTable: {},
     });
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
@@ -109,28 +111,28 @@ module('Unit | Service | indexed-db-configuration', function(hooks) {
         attr2: 1,
         attr3: true,
         attr4: null,
-        attr5: array([1, 2, 3])
+        attr5: array([1, 2, 3]),
       },
       relationships: {
         relationship1: {
           data: {
             type: 'my-other-type',
-            id: 'rel-id-1'
-          }
+            id: 'rel-id-1',
+          },
         },
         relationship2: {
           data: array([
             {
               type: 'my-type',
-              id: 'rel-id-2'
+              id: 'rel-id-2',
             },
             {
               type: 'my-type',
-              id: 'rel-id-3'
-            }
-          ])
-        }
-      }
+              id: 'rel-id-3',
+            },
+          ]),
+        },
+      },
     };
 
     result = service._cleanObject(data);
@@ -146,81 +148,84 @@ module('Unit | Service | indexed-db-configuration', function(hooks) {
           attr3: true,
           attr4: null,
           attr5: PromiseArray.create({
-            promise: RSVP.Promise.resolve([1, 2, 3])
-          })
+            promise: RSVP.Promise.resolve([1, 2, 3]),
+          }),
         },
         relationships: {
           relationship1: {
             data: {
               type: 'my-other-type',
-              id: 'rel-id-1'
-            }
+              id: 'rel-id-1',
+            },
           },
           relationship2: {
             data: PromiseArray.create({
               promise: RSVP.Promise.resolve([
                 {
                   type: 'my-type',
-                  id: 'rel-id-2'
+                  id: 'rel-id-2',
                 },
                 {
                   type: 'my-type',
-                  id: 'rel-id-3'
-                }
-              ])
-            })
-          }
-        }
+                  id: 'rel-id-3',
+                },
+              ]),
+            }),
+          },
+        },
       };
     });
 
     result = service._cleanObject(data);
 
-    assert.deepEqual(result, {
-      id: 'test-2',
-      type: 'my-type',
-      attributes: {
-        attr1: 'test',
-        attr2: 1,
-        attr3: true,
-        attr4: null,
-        attr5: [1, 2, 3]
-      },
-      relationships: {
-        relationship1: {
-          data: {
-            type: 'my-other-type',
-            id: 'rel-id-1'
-          }
+    assert.deepEqual(
+      result,
+      {
+        id: 'test-2',
+        type: 'my-type',
+        attributes: {
+          attr1: 'test',
+          attr2: 1,
+          attr3: true,
+          attr4: null,
+          attr5: [1, 2, 3],
         },
-        relationship2: {
-          data: [
-            {
-              type: 'my-type',
-              id: 'rel-id-2'
+        relationships: {
+          relationship1: {
+            data: {
+              type: 'my-other-type',
+              id: 'rel-id-1',
             },
-            {
-              type: 'my-type',
-              id: 'rel-id-3'
-            }
-          ]
-        }
-      }
-    }, 'it correctly cleans objects with promise arrays');
+          },
+          relationship2: {
+            data: [
+              {
+                type: 'my-type',
+                id: 'rel-id-2',
+              },
+              {
+                type: 'my-type',
+                id: 'rel-id-3',
+              },
+            ],
+          },
+        },
+      },
+      'it correctly cleans objects with promise arrays'
+    );
   });
 
-  test('setupDatabase() works with one version', function(assert) {
+  test('setupDatabase() works with one version', function (assert) {
     // Basic example with just one version
     let stores = {};
-    let upgrade = function() {
-    };
+    let upgrade = function () {};
 
     let ExtendedService = IndexedDbConfigurationService.extend({
       currentVersion: 1,
       version1: {
         stores,
-        upgrade
-      }
+        upgrade,
+      },
     });
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
@@ -228,39 +233,57 @@ module('Unit | Service | indexed-db-configuration', function(hooks) {
     let mockDb = createMockDb();
     let result = service.setupDatabase(mockDb);
     assert.deepEqual(result._versions, [1], 'it works with just one version');
-    assert.deepEqual(result._stores, [stores], 'stores are correctly given to db');
-    assert.deepEqual(result._upgrades, [upgrade], 'upgrade is correctly given to db');
+    assert.deepEqual(
+      result._stores,
+      [stores],
+      'stores are correctly given to db'
+    );
+    assert.deepEqual(
+      result._upgrades,
+      [upgrade],
+      'upgrade is correctly given to db'
+    );
   });
 
-  test('setupDatabase() works with multiple versions', function(assert) {
+  test('setupDatabase() works with multiple versions', function (assert) {
     // Example with multiple versions
     let stores1 = {};
     let stores2 = {};
-    let upgrade1 = function() {
-    };
-    let upgrade2 = function() {
-    };
+    let upgrade1 = function () {};
+    let upgrade2 = function () {};
 
     let ExtendedService = IndexedDbConfigurationService.extend({
       currentVersion: 3,
       version1: {
-        stores: stores1
+        stores: stores1,
       },
       version2: {
         stores: stores2,
-        upgrade: upgrade1
+        upgrade: upgrade1,
       },
       version3: {
-        upgrade: upgrade2
-      }
+        upgrade: upgrade2,
+      },
     });
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
 
     let mockDb = createMockDb();
     let result = service.setupDatabase(mockDb);
-    assert.deepEqual(result._versions, [1, 2, 3], 'it works with multiple versions');
-    assert.deepEqual(result._stores, [stores1, stores2], 'stores are correctly given to db for multiple versions');
-    assert.deepEqual(result._upgrades, [upgrade1, upgrade2], 'upgrades are correctly given to db for multiple versions');
+    assert.deepEqual(
+      result._versions,
+      [1, 2, 3],
+      'it works with multiple versions'
+    );
+    assert.deepEqual(
+      result._stores,
+      [stores1, stores2],
+      'stores are correctly given to db for multiple versions'
+    );
+    assert.deepEqual(
+      result._upgrades,
+      [upgrade1, upgrade2],
+      'upgrades are correctly given to db for multiple versions'
+    );
   });
 });

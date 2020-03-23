@@ -25,13 +25,13 @@ import wait from 'ember-test-helpers/wait';
  * @public
  */
 export function setupIndexedDb(hooks) {
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let indexedDb = this.owner.lookup('service:indexed-db');
-    set(indexedDb, 'databaseName', `test-indexed-db-${+(new Date)}`);
+    set(indexedDb, 'databaseName', `test-indexed-db-${+new Date()}`);
     return get(indexedDb, 'setupTask').perform();
   });
 
-  hooks.afterEach(async function() {
+  hooks.afterEach(async function () {
     let indexedDb = this.owner.lookup('service:indexed-db');
     await wait();
     await run(() => get(indexedDb, 'waitForQueueTask').perform());

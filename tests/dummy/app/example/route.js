@@ -5,7 +5,6 @@ import RSVP from 'rsvp';
 import { task } from 'ember-concurrency';
 
 export default Route.extend({
-
   indexedDb: service(),
   store: service(),
 
@@ -20,12 +19,14 @@ export default Route.extend({
   },
 
   actions: {
-
     fetchItems() {
       return new RSVP.Promise((resolve, reject) => {
-        this._fetchFromAPI().then(() => {
-          return this.refresh();
-        }).then(resolve).catch(reject);
+        this._fetchFromAPI()
+          .then(() => {
+            return this.refresh();
+          })
+          .then(resolve)
+          .catch(reject);
       });
     },
 
@@ -43,9 +44,9 @@ export default Route.extend({
       let store = get(this, 'store');
       let item = store.createRecord('item', {
         title: 'Item',
-        date: (new Date()).toISOString().split('.')[0],
+        date: new Date().toISOString().split('.')[0],
         isSynced: false,
-        isRead: false
+        isRead: false,
       });
 
       item.save().then(() => this.refresh());
@@ -57,8 +58,7 @@ export default Route.extend({
 
     resetDb() {
       return get(this, 'resetDbTask').perform();
-    }
-
+    },
   },
 
   resetDbTask: task(function* () {
@@ -99,7 +99,7 @@ export default Route.extend({
     return indexedDb.add('item', [
       this._createItemPayload(),
       this._createItemPayload(),
-      this._createItemPayload()
+      this._createItemPayload(),
     ]);
   },
 
@@ -109,14 +109,13 @@ export default Route.extend({
       type: 'item',
       attributes: {
         title: 'Item ',
-        date: (new Date()).toISOString().split('.')[0],
-        'is-read': false
-      }
+        date: new Date().toISOString().split('.')[0],
+        'is-read': false,
+      },
     };
   },
 
   _guid() {
-    return `${+new Date}-${Math.random()}`;
-  }
-
+    return `${+new Date()}-${Math.random()}`;
+  },
 });

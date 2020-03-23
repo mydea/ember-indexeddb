@@ -33,7 +33,6 @@ import Mixin from '@ember/object/mixin';
  * @public
  */
 export default Mixin.create({
-
   indexedDb: service(),
 
   // ---------------------------------------------------------------------------------------------------------
@@ -55,11 +54,14 @@ export default Mixin.create({
     // TODO: Note that this uses internal functions
     let { modelName } = this.constructor;
     let promise = indexedDB.saveBulk(modelName, get(record, 'data'));
-    promise.then(() => {
-      this._markAsSaved();
-    }, () => {
-      this._markAsError();
-    });
+    promise.then(
+      () => {
+        this._markAsSaved();
+      },
+      () => {
+        this._markAsError();
+      }
+    );
 
     return promise;
   },
@@ -83,11 +85,10 @@ export default Mixin.create({
         this._internalModel._attributes = {};
         this._internalModel.send('didCommit');
       }
-    } catch(e) {
+    } catch (e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an "Attempted to handle event `didCommit` on ..." error could occur
     }
-
   },
 
   /**
@@ -101,10 +102,9 @@ export default Mixin.create({
     try {
       this._internalModel.send('becameInvalid');
       this._internalModel.send('becameError');
-    } catch(e) {
+    } catch (e) {
       // Ignore if an error occurs, since this is quite hacky behavior anyhow
       // Especially an "Attempted to handle event `didCommit` on ..." error could occur
     }
-  }
-
+  },
 });

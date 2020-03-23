@@ -5,9 +5,7 @@ import { A as array } from '@ember/array';
 import DS from 'ember-data';
 import { cloneDeep } from 'ember-indexeddb/utils/clone-deep';
 
-const {
-  JSONAPIAdapter
-} = DS;
+const { JSONAPIAdapter } = DS;
 
 /**
  *
@@ -19,7 +17,6 @@ const {
  * @public
  */
 export default JSONAPIAdapter.extend({
-
   /**
    * The indexedDb service.
    *
@@ -271,7 +268,6 @@ export default JSONAPIAdapter.extend({
 
         resolve(data);
       }, reject);
-
     }, 'indexedDbAdapter/_save');
   },
 
@@ -286,7 +282,7 @@ export default JSONAPIAdapter.extend({
   _normalizeArray(records) {
     if (!records) {
       return {
-        data: []
+        data: [],
       };
     }
 
@@ -294,7 +290,7 @@ export default JSONAPIAdapter.extend({
     data = array(data).mapBy('json');
 
     return {
-      data
+      data,
     };
   },
 
@@ -312,7 +308,7 @@ export default JSONAPIAdapter.extend({
     }
 
     return {
-      data: get(record, 'json')
+      data: get(record, 'json'),
     };
   },
 
@@ -336,5 +332,5 @@ export default JSONAPIAdapter.extend({
       console.time(str);
     }
     /* eslint-enable no-console */
-  }
+  },
 });
