@@ -48,7 +48,7 @@ export default Mixin.create({
    * @public
    */
   saveBulk() {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let record = this.serialize({ includeId: true });
 
     // TODO: Note that this uses internal functions

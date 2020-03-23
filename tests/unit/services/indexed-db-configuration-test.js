@@ -39,9 +39,10 @@ module('Unit | Service | indexed-db-configuration', function (hooks) {
   setupTest(hooks);
 
   test('mapItem() uses the default function if no mapTable is given', function (assert) {
-    let ExtendedService = IndexedDbConfigurationService.extend({
-      mapTable: {},
-    });
+    class ExtendedService extends IndexedDbConfigurationService {
+      mapTable = {};
+    }
+
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
 
@@ -59,8 +60,8 @@ module('Unit | Service | indexed-db-configuration', function (hooks) {
   });
 
   test('mapItem() uses the function from mapTable if available', function (assert) {
-    let ExtendedService = IndexedDbConfigurationService.extend({
-      mapTable: {
+    class ExtendedService extends IndexedDbConfigurationService {
+      mapTable = {
         item: (payload) => {
           return {
             id: get(payload, 'id'),
@@ -69,8 +70,9 @@ module('Unit | Service | indexed-db-configuration', function (hooks) {
             idCopy: get(payload, 'id'),
           };
         },
-      },
-    });
+      };
+    }
+
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
 
@@ -93,9 +95,10 @@ module('Unit | Service | indexed-db-configuration', function (hooks) {
   });
 
   test('cleanObject works', function (assert) {
-    let ExtendedService = IndexedDbConfigurationService.extend({
-      mapTable: {},
-    });
+    class ExtendedService extends IndexedDbConfigurationService {
+      mapTable = {};
+    }
+
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
 
@@ -220,13 +223,14 @@ module('Unit | Service | indexed-db-configuration', function (hooks) {
     let stores = {};
     let upgrade = function () {};
 
-    let ExtendedService = IndexedDbConfigurationService.extend({
-      currentVersion: 1,
-      version1: {
+    class ExtendedService extends IndexedDbConfigurationService {
+      currentVersion = 1;
+      version1 = {
         stores,
         upgrade,
-      },
-    });
+      };
+    }
+
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
 
@@ -252,19 +256,22 @@ module('Unit | Service | indexed-db-configuration', function (hooks) {
     let upgrade1 = function () {};
     let upgrade2 = function () {};
 
-    let ExtendedService = IndexedDbConfigurationService.extend({
-      currentVersion: 3,
-      version1: {
+    class ExtendedService extends IndexedDbConfigurationService {
+      currentVersion = 3;
+      version1 = {
         stores: stores1,
-      },
-      version2: {
+      };
+
+      version2 = {
         stores: stores2,
         upgrade: upgrade1,
-      },
-      version3: {
+      };
+
+      version3 = {
         upgrade: upgrade2,
-      },
-    });
+      };
+    }
+
     this.owner.register('service:indexed-db-configuration', ExtendedService);
     let service = this.owner.lookup('service:indexed-db-configuration');
 

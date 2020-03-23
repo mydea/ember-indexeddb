@@ -1,6 +1,4 @@
-import DS from 'ember-data';
-
-const { JSONAPISerializer } = DS;
+import JSONAPISerializer from '@ember-data/serializer/json-api';
 
 /**
  *
@@ -11,4 +9,4 @@ const { JSONAPISerializer } = DS;
  * @extends DS.JSONAPISerializer
  * @public
  */
-export default JSONAPISerializer.extend({});
+export default class IndexedDbSerializer extends JSONAPISerializer {}

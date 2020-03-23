@@ -1,67 +1,70 @@
 import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
-import { get, set } from '@ember/object';
+import { get, set, action } from '@ember/object';
 import RSVP from 'rsvp';
 import { task } from 'ember-concurrency';
 
-export default Route.extend({
-  indexedDb: service(),
-  store: service(),
+export default class extends Route {
+  @service indexedDb;
+  @service store;
 
   beforeModel() {
     let indexedDb = get(this, 'indexedDb');
     return get(indexedDb, 'setupTask').perform();
-  },
+  }
 
   model() {
     let store = get(this, 'store');
     return store.findAll('item');
-  },
+  }
 
-  actions: {
-    fetchItems() {
-      return new RSVP.Promise((resolve, reject) => {
-        this._fetchFromAPI()
-          .then(() => {
-            return this.refresh();
-          })
-          .then(resolve)
-          .catch(reject);
-      });
-    },
+  @action
+  fetchItems() {
+    return new RSVP.Promise((resolve, reject) => {
+      this._fetchFromAPI()
+        .then(() => {
+          return this.refresh();
+        })
+        .then(resolve)
+        .catch(reject);
+    });
+  }
 
-    markAsRead(item) {
-      // This marks the items as old locally only
-      set(item, 'isRead', true);
-      set(item, 'isSynced', false); // Set this to false, so we know this needs to be synced
+  @action
+  markAsRead(item) {
+    // This marks the items as old locally only
+    set(item, 'isRead', true);
+    set(item, 'isSynced', false); // Set this to false, so we know this needs to be synced
 
-      item.save();
-    },
+    item.save();
+  }
 
-    // This creates one item and saves it in the LS
-    // In the real world, this would not be synced with the API yet
-    addItem() {
-      let store = get(this, 'store');
-      let item = store.createRecord('item', {
-        title: 'Item',
-        date: new Date().toISOString().split('.')[0],
-        isSynced: false,
-        isRead: false,
-      });
+  // This creates one item and saves it in the LS
+  // In the real world, this would not be synced with the API yet
+  @action
+  addItem() {
+    let store = get(this, 'store');
+    let item = store.createRecord('item', {
+      title: 'Item',
+      date: new Date().toISOString().split('.')[0],
+      isSynced: false,
+      isRead: false,
+    });
 
-      item.save().then(() => this.refresh());
-    },
+    item.save().then(() => this.refresh());
+  }
 
-    syncItems() {
-      this._trySyncServer();
-    },
+  @action
+  syncItems() {
+    this._trySyncServer();
+  }
 
-    resetDb() {
-      return get(this, 'resetDbTask').perform();
-    },
-  },
+  @action
+  resetDb() {
+    return get(this, 'resetDbTask').perform();
+  }
 
-  resetDbTask: task(function* () {
+  @task(function* () {
     let indexedDb = get(this, 'indexedDb');
     let store = get(this, 'store');
 
@@ -70,7 +73,8 @@ export default Route.extend({
     store.unloadAll();
 
     yield this.refresh();
-  }),
+  })
+  resetDbTask;
 
   _trySyncServer() {
     let store = get(this, 'store');
@@ -89,7 +93,7 @@ export default Route.extend({
         item.save();
       });
     });
-  },
+  }
 
   // In the real world, this would e.g. fetch data from the API
   // In this example, we just create dummy payloads to add
@@ -101,7 +105,7 @@ export default Route.extend({
       this._createItemPayload(),
       this._createItemPayload(),
     ]);
-  },
+  }
 
   _createItemPayload() {
     return {
@@ -113,9 +117,9 @@ export default Route.extend({
         'is-read': false,
       },
     };
-  },
+  }
 
   _guid() {
     return `${+new Date()}-${Math.random()}`;
-  },
-});
+  }
+}

@@ -1,5 +1,5 @@
 import Service from '@ember/service';
-import { get, computed } from '@ember/object';
+import { get } from '@ember/object';
 import { typeOf as getTypeOf, isNone } from '@ember/utils';
 import { A as array } from '@ember/array';
 import { assert } from '@ember/debug';
@@ -13,7 +13,7 @@ import { assert } from '@ember/debug';
  * @extends Ember.Service
  * @public
  */
-export default Service.extend({
+export default class IndexedDbConfigurationService extends Service {
   /**
    * Increment this whenever you do a new database version.
    * Set it to 1 on your initial version.
@@ -58,7 +58,7 @@ export default Service.extend({
    * @type {Number}
    * @public
    */
-  currentVersion: 0,
+  currentVersion = 0;
 
   /**
    * The map functions for the tables.
@@ -111,9 +111,7 @@ export default Service.extend({
    * @type {Object}
    * @protected
    */
-  mapTable: computed(function () {
-    return {};
-  }),
+  mapTable = {};
 
   /**
    * Map a payload to a database table.
@@ -127,7 +125,7 @@ export default Service.extend({
    * @public
    */
   mapItem(type, item) {
-    let tables = get(this, 'mapTable');
+    let tables = this.mapTable;
     let mapFunc = get(tables, type);
 
     if (!item) {
@@ -142,7 +140,7 @@ export default Service.extend({
     }
 
     return mapFunc(item);
-  },
+  }
 
   /**
    * Setup the database and do all necessary database migrations.
@@ -153,7 +151,7 @@ export default Service.extend({
    * @public
    */
   setupDatabase(db) {
-    let currentVersion = get(this, 'currentVersion');
+    let currentVersion = this.currentVersion;
 
     assert(
       'You need to override services/indexed-db-configuration.js and provide at least one version.',
@@ -175,7 +173,7 @@ export default Service.extend({
     }
 
     return db;
-  },
+  }
 
   /**
    * Cleanup a json object.
@@ -230,7 +228,7 @@ export default Service.extend({
     });
 
     return obj;
-  },
+  }
 
   /**
    * Convert a property to a string.
@@ -242,7 +240,7 @@ export default Service.extend({
    */
   _toString(val) {
     return `${val}`;
-  },
+  }
 
   /**
    * Convert a boolean to 1/0.
@@ -260,5 +258,5 @@ export default Service.extend({
       return noneValue;
     }
     return val ? 1 : 0;
-  },
-});
+  }
+}

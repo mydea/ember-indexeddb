@@ -2,10 +2,8 @@ import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
 import { Promise } from 'rsvp';
 import { A as array } from '@ember/array';
-import DS from 'ember-data';
 import { cloneDeep } from 'ember-indexeddb/utils/clone-deep';
-
-const { JSONAPIAdapter } = DS;
+import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
 /**
  *
@@ -16,15 +14,8 @@ const { JSONAPIAdapter } = DS;
  * @extends DS.JSONAPIAdapter
  * @public
  */
-export default JSONAPIAdapter.extend({
-  /**
-   * The indexedDb service.
-   *
-   * @property indexedDb
-   * @type {IndexedDb}
-   * @protected
-   */
-  indexedDb: service(),
+export default class IndexedDbAdapter extends JSONAPIAdapter {
+  @service indexedDb;
 
   /**
    * Coalesce all find requests.
@@ -34,7 +25,7 @@ export default JSONAPIAdapter.extend({
    * @default true
    * @protected
    */
-  coalesceFindRequests: true,
+  coalesceFindRequests = true;
 
   /**
    * Set this to true to log durations of IndexedDB operations to the console.
@@ -44,7 +35,7 @@ export default JSONAPIAdapter.extend({
    * @default false
    * @private
    */
-  _shouldLogDurations: false,
+  _shouldLogDurations = false;
 
   /**
    * This function will generate a GUID to be used in IndexedDB.
@@ -55,7 +46,7 @@ export default JSONAPIAdapter.extend({
    */
   generateIdForRecord() {
     return Math.random().toString(32).slice(2).substr(0, 8);
-  },
+  }
 
   /**
    * Fetch all records of a given type from IndexedDB.
@@ -67,7 +58,7 @@ export default JSONAPIAdapter.extend({
    * @public
    */
   findAll(store, type) {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(`findAll ${modelName}`);
@@ -78,7 +69,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, 'indexedDbAdapter/findAll');
-  },
+  }
 
   /**
    * Find a record of a given type & ID from IndexedDB.
@@ -91,7 +82,7 @@ export default JSONAPIAdapter.extend({
    * @public
    */
   findRecord(store, type, id) {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(`findRecord ${modelName}/${id}`);
@@ -106,7 +97,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, 'indexedDbAdapter/findRecord');
-  },
+  }
 
   /**
    * Find many records for a given type by multiple IDs.
@@ -119,7 +110,7 @@ export default JSONAPIAdapter.extend({
    * @public
    */
   findMany(store, type, ids) {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(`findMany ${modelName}/${ids.join(',')}`);
@@ -130,7 +121,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, 'indexedDbAdapter/findMany');
-  },
+  }
 
   /**
    * Query a type from IndexedDB.
@@ -144,7 +135,7 @@ export default JSONAPIAdapter.extend({
    * @public
    */
   query(store, type, query) {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
     let queryString = JSON.stringify(query);
 
@@ -156,7 +147,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, 'indexedDbAdapter/query');
-  },
+  }
 
   /**
    * Query a single item from IndexedDB.
@@ -170,7 +161,7 @@ export default JSONAPIAdapter.extend({
    * @public
    */
   queryRecord(store, type, query) {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(`queryRecord ${modelName}`);
@@ -187,7 +178,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, 'indexedDbAdapter/queryRecord');
-  },
+  }
 
   /**
    * Update a given record in IndexedDB.
@@ -201,7 +192,7 @@ export default JSONAPIAdapter.extend({
    */
   updateRecord(store, type, snapshot) {
     return this._save(store, type, snapshot);
-  },
+  }
 
   /**
    * Delete a record from IndexedDB.
@@ -214,7 +205,7 @@ export default JSONAPIAdapter.extend({
    * @public
    */
   deleteRecord(store, type, snapshot) {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
     let id = get(snapshot, 'id');
 
@@ -225,7 +216,7 @@ export default JSONAPIAdapter.extend({
         resolve(null);
       }, reject);
     }, 'indexedDbAdapter/deleteRecord');
-  },
+  }
 
   /**
    * Create a new record in IndexedDB.
@@ -239,7 +230,7 @@ export default JSONAPIAdapter.extend({
    */
   createRecord(store, type, snapshot) {
     return this._save(store, type, snapshot);
-  },
+  }
 
   /**
    * This function is called under the hood by both `createRecord` and `updateRecord`.
@@ -252,7 +243,7 @@ export default JSONAPIAdapter.extend({
    * @private
    */
   _save(store, type, snapshot) {
-    let indexedDB = get(this, 'indexedDb');
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(`_save ${modelName}/${get(snapshot, 'id')}`);
@@ -269,7 +260,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, 'indexedDbAdapter/_save');
-  },
+  }
 
   /**
    * This is used to normalize the response of IndexedDB for array responses.
@@ -292,7 +283,7 @@ export default JSONAPIAdapter.extend({
     return {
       data,
     };
-  },
+  }
 
   /**
    * This is used to normalize a single record response.
@@ -310,7 +301,7 @@ export default JSONAPIAdapter.extend({
     return {
       data: get(record, 'json'),
     };
-  },
+  }
 
   /**
    * This function is used to log durations of operations to the console, if `_shouldLogDurations` is set.
@@ -321,7 +312,7 @@ export default JSONAPIAdapter.extend({
    * @private
    */
   _logDuration(str, isEnd = false) {
-    if (!get(this, '_shouldLogDurations')) {
+    if (!this._shouldLogDurations) {
       return;
     }
 
@@ -332,5 +323,5 @@ export default JSONAPIAdapter.extend({
       console.time(str);
     }
     /* eslint-enable no-console */
-  },
-});
+  }
+}
