@@ -3,7 +3,7 @@ import { set, get } from '@ember/object';
 import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
-import { A as array } from '@ember/array';
+import { A as array, isArray } from '@ember/array';
 import {
   registerWaiter,
   unregisterWaiter,
@@ -11,6 +11,7 @@ import {
 import { task, timeout } from 'ember-concurrency';
 import { log } from 'ember-indexeddb/utils/log';
 import Dexie from 'dexie';
+import { assert } from '@ember/debug';
 
 /**
  * This service allows interacting with an IndexedDB database.
@@ -477,7 +478,7 @@ export default class IndexedDbService extends Service {
   }
 
   @task(function* (config) {
-    let { databaseName, version, stores, data } = config;
+    let {databaseName, version, stores, data} = config;
 
     log('====================================');
     log('Importing database dump!');
@@ -577,15 +578,15 @@ export default class IndexedDbService extends Service {
       }
     }
 
-    // Only one, then do a simple where
-    if (keys.length === 1) {
-      let key = keys[0];
-      return db[type].where(key).equals(query[key]);
-    }
-
     // Order of query params is important!
-    let { schema } = db[type];
-    let { indexes } = schema;
+    let {schema} = db[type];
+    let {indexes} = schema;
+    let indexMap = indexes.reduce((acc, index) => {
+      let keyPath = get(index, 'keyPath');
+      acc[keyPath] = index;
+
+      return acc;
+    }, {});
 
     // try to find a fitting multi index
     // only if the client supports compound indices!
@@ -609,10 +610,7 @@ export default class IndexedDbService extends Service {
       // If a multi index is found, use it
       if (multiIndex) {
         let keyPath = get(multiIndex, 'keyPath');
-        let compareValues = array();
-        keyPath.forEach((key) => {
-          compareValues.push(query[key]);
-        });
+        let compareValues = keyPath.map((key) => query[key]);
 
         let keyName = get(multiIndex, 'name');
         return db[type].where(keyName).equals(compareValues);
@@ -620,15 +618,28 @@ export default class IndexedDbService extends Service {
     }
 
     // Else, filter manually
-    Object.keys(query).forEach((i) => {
-      if (!promise) {
-        promise = db[type].where(i).equals(query[i]);
-      } else {
-        promise = promise.and((item) => get(item, i) === query[i]);
-      }
-    });
+    return Object.entries(query)
+      .reduce(
+        (query, [queryKey, queryValue], i) => {
+          let index = indexMap[queryKey];
 
-    return promise;
+          assert(index, `You are attempting to query ${queryKey} which is not a valid index for ${type}`);
+
+          let isMulti = index.multi && isArray(queryValue);
+          let first = i === 0;
+
+          if (first) {
+            return isMulti
+              ? query.where(queryKey).anyOf(...queryValue)
+              : query.where(queryKey).equals(queryValue);
+          } else {
+            let predicate = isMulti
+              ? (item) => get(item, queryKey).any(_ => queryValue.includes(_))
+              : (item) => get(item, queryKey) === queryValue;
+
+            return query.and(predicate);
+          }
+        }, db[type]);
   }
 
   _mapItem(type, item) {
