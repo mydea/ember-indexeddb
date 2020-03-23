@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>ModelBulkSave - ember-indexeddb</title>
+    <title>ModelBulkSaver - ember-indexeddb</title>
     <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
@@ -135,8 +135,8 @@
 
 
 <div class="page-header">
-    <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> ModelBulkSave Class
-            <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/mixins/model-bulk-save.js#L7" target="_blank">
+    <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> ModelBulkSaver Class
+            <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/utils/model-bulk-saver.js#L4" target="_blank">
               <i class="fa fa-pencil" aria-hidden="true"></i>
             </a>
     </h1>
@@ -146,29 +146,30 @@
 <div class="content-meta">
 
 
-            Module: <a href="../modules/Ember Data.html">Ember Data</a>
+            Module: <a href="../modules/Utils.html">Utils</a>
 
 
         <div class="foundat">
-            Defined In: <a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/mixins/model-bulk-save.js#L7">addon/mixins/model-bulk-save.js:7</a>
+            Defined In: <a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/utils/model-bulk-saver.js#L4">addon/utils/model-bulk-saver.js:4</a>
         </div>
 </div>
 
 
 
   <div class="class-description">
-  <p>This mixin can be used on a DS.Model to add a <code>saveBulk</code> function.
-Saving a lot of data at the same time can be quite inefficient. To solve this issue, you can use the provided <code>model-bulk-save</code> mixin on your ember-data models:</p>
-<pre class="code prettyprint"><code class="language-js">import DS from 'ember-data';
-import ModelBulkSaveMixin from 'ember-indexeddb/mixins/model-bulk-save';
+  <p>This class can be used on a DS.Model to add a <code>saveBulk</code> functionality.</p>
+<p>Saving a lot of data at the same time can be quite inefficient. To solve this issue, you can use the provided <code>model-bulk-save</code> mixin on your ember-data models:</p>
+<pre class="code prettyprint"><code class="language-js">import Model, { attr } from '@ember-data/model';
+import { ModelBulkSaver } from 'ember-indexeddb/utils/model-bulk-saver';
 
-export default DS.Model.extend(ModelBulkSaveMixin, {
-  name: DS.attr('string')
-});
+export default class extends Model {
+  @attr('string') title;
+  modelBulkSaver = new ModelBulkSaver(this);
+}
 </code></pre>
-<p>Now, this model will have a new function <code>bulkSave()</code>:</p>
-<pre class="code prettyprint"><code class="language-js">let promise1 = model1.saveBulk();
-let promise2 = model2.saveBulk();
+<p>Now, you can bulk save this model like this:</p>
+<pre class="code prettyprint"><code class="language-js">let promise1 = model1.modelBulkSaver.saveBulk();
+let promise2 = model2.modelBulkSaver.saveBulk();
 </code></pre>
 <p>In the above example, <code>promise1</code> and <code>promise2</code> would actually be the same promise, and both of these items would be saved in one transaction. This waits for 100ms before resolving,  * so every model that calls <code>saveBulk</code> in this time period will be saved in the same transactions. Note that this function will resolve with all the saved objects.</p>
 
@@ -179,6 +180,7 @@ let promise2 = model2.saveBulk();
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
           <li role="presentation" class="active"><a href="#tab_index" aria-controls="tab_index" role="tab" data-toggle="tab">Index</a></li>
+            <li role="presentation"><a href="#tab_methods" aria-controls="tab_methods" role="tab" data-toggle="tab">Methods</a></li>
 
 
 
@@ -211,11 +213,242 @@ let promise2 = model2.saveBulk();
               </form>
 
           <div id="tab_index" role="tabpanel" class="tab-pane active" >
+                  <div class="index-section methods">
+                      <h3>Methods</h3>
+
+                      <ul class="index-list methods">
+                              <li class="index-item method private">
+                                  <a href="#method__markAsError">_markAsError</a>
+
+                              </li>
+                              <li class="index-item method private">
+                                  <a href="#method__markAsSaved">_markAsSaved</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_cloneDeep">cloneDeep</a>
+
+                              </li>
+                              <li class="index-item method public">
+                                  <a href="#method_saveBulk">saveBulk</a>
+
+                              </li>
+                      </ul>
+                  </div>
 
 
 
           </div>
 
+              <div id="tab_methods" role="tabpanel" class="tab-pane">
+                  <div class="item-list">
+  <div id="method__markAsError" class="method item private">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method__markAsError"></a>
+  		_markAsError
+  	</span>
+  
+  		<span class="paren">()</span>
+  	</span>
+  
+  
+  
+  		<span class="flag private">private</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/utils/model-bulk-saver.js#L106">addon/utils/model-bulk-saver.js:106</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Manually mark the model as having an error.</p>
+  </div>
+  
+  
+  
+  </div>
+  <div id="method__markAsSaved" class="method item private">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method__markAsSaved"></a>
+  		_markAsSaved
+  	</span>
+  
+  		<span class="paren">()</span>
+  	</span>
+  
+  
+  
+  		<span class="flag private">private</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/utils/model-bulk-saver.js#L81">addon/utils/model-bulk-saver.js:81</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Manually mark the model as saved.</p>
+  </div>
+  
+  
+  
+  </div>
+  <div id="method_cloneDeep" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_cloneDeep"></a>
+  		cloneDeep
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>obj</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  					<p>Provided by the <a href="../modules/Services.html">Services</a> module.</p>
+  				<p>
+  				Defined in
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/utils/clone-deep.js#L15">addon/utils/clone-deep.js:15</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Deep-clone an object.</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">obj</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  					<div class="param-description"><p>An object to clone deeply</p>
+  </div>
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
+  					<p>The cloned object</p>
+  
+  			</div>
+  		</div>
+  
+  </div>
+  <div id="method_saveBulk" class="method item public">
+  	<span class="method-signature">
+  	<span class="name anchorable-toc">
+  		<a class="fa fa-link toc-anchor" href="#method_saveBulk"></a>
+  		saveBulk
+  	</span>
+  
+  		<div class="args">
+  			<span class="paren">(</span><ul class="args-list inline commas">
+  				<li class="arg">
+  						<code>modelName</code>
+  				</li>
+  				<li class="arg">
+  						<code>model</code>
+  				</li>
+  			</ul><span class="paren">)</span>
+  		</div>
+  		<span class="returns-inline">
+  			<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>
+  		</span>
+  	</span>
+  
+  
+  
+  		<span class="flag public">public</span>
+  
+  
+  
+  
+  	<div class="meta">
+  				<p>
+  				Defined in
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/utils/model-bulk-saver.js#L53">addon/utils/model-bulk-saver.js:53</a>
+  		</p>
+  
+  
+  
+  	</div>
+  
+  	<div class="description"><p>Save this model, but try to save it together with other objects</p>
+  </div>
+  
+  		<div class="params">
+  			<h4>Parameters:</h4>
+  
+  			<ul class="params-list">
+  				<li class="param">
+  						<code class="param-name">modelName</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  
+  				</li>
+  				<li class="param">
+  						<code class="param-name">model</code>
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+  
+  
+  
+  				</li>
+  			</ul>
+  		</div>
+  
+  		<div class="returns">
+  			<h4>Returns:</h4>
+  
+  			<div class="returns-description">
+  						<span class="type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" class="crosslink external" target="_blank">Promise</a></span>
+  			</div>
+  		</div>
+  
+  </div>
+                  </div>
+              </div>
 
 
 

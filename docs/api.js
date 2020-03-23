@@ -5,7 +5,8 @@ YUI.add("yuidoc-meta", function(Y) {
         "IndexedDbAdapter",
         "IndexedDbConfiguration",
         "IndexedDbSerializer",
-        "ModelBulkSave"
+        "ModelBulkSave",
+        "ModelBulkSaver"
     ],
     "modules": [
         "Configuring your database",
@@ -14,7 +15,8 @@ YUI.add("yuidoc-meta", function(Y) {
         "Services",
         "Setup",
         "Test Helpers",
-        "Usage"
+        "Usage",
+        "Utils"
     ],
     "allModules": [
         {
@@ -51,6 +53,11 @@ YUI.add("yuidoc-meta", function(Y) {
             "displayName": "Usage",
             "name": "Usage",
             "description": "This addon provides utilities to work with IndexedDB based on [Dexie](http://dexie.org/).\n It provides:\n* A service to configure the database & migrations/upgrades\n * A service to interact with the database\n * An ember-data adapter for IndexedDB\n * Test helpers\nThis set of utilities makes it possible to query data from an API, put it into IndexedDB,\n and work with a local database for full offline capabilities.\n## Installation\n ```shell\n ember install ember-indexeddb\n ```\n## Changelog\n Changelog can be found [here](https://github.com/mydea/ember-indexeddb/blob/master/CHANGELOG.md)\n\n## Looking for help?\n If it is a bug [please open an issue on GitHub](http://github.com/mydea/ember-indexeddb/issues)."
+        },
+        {
+            "displayName": "Utils",
+            "name": "Utils",
+            "description": "This class can be used on a DS.Model to add a `saveBulk` functionality.\n\nSaving a lot of data at the same time can be quite inefficient. To solve this issue, you can use the provided `model-bulk-save` mixin on your ember-data models:\n\n```js\nimport Model, { attr } from '@ember-data/model';\nimport { ModelBulkSaver } from 'ember-indexeddb/utils/model-bulk-saver';\n\nexport default class extends Model {\n  @attr('string') title;\n  modelBulkSaver = new ModelBulkSaver(this);\n}\n```\n\nNow, you can bulk save this model like this:\n\n```js\nlet promise1 = model1.modelBulkSaver.saveBulk();\nlet promise2 = model2.modelBulkSaver.saveBulk();\n```\n\nIn the above example, `promise1` and `promise2` would actually be the same promise, and both of these items would be saved in one transaction. This waits for 100ms before resolving,  * so every model that calls `saveBulk` in this time period will be saved in the same transactions. Note that this function will resolve with all the saved objects."
         }
     ],
     "elements": []

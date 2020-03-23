@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>addon\serializers\indexed-db.js - ember-indexeddb</title>
+    <title>addon/serializers/indexed-db.js - ember-indexeddb</title>
     <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/54a9fbc9" target="_blank">
-                                  Tag: 1.1.3.54a9fbc9
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
+                                  Tag: v2.0.0
                                 </a>
                             </h4>
                         </div>
@@ -85,6 +85,9 @@
                                                     <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
                                                     <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
                                                     <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Utils.html">Utils</a>
                                         </li>
                                 </ol>
                         </div>
@@ -117,6 +120,9 @@
                                     <li>
                                         <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
                                     </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSaver.html">ModelBulkSaver</a>
+                                    </li>
                             </ol>
                         </div>
                     </div>
@@ -132,11 +138,7 @@
 
 <div class="file">
     <pre class="prettyprint linenums">
-import DS from &#x27;ember-data&#x27;;
-
-const {
-  JSONAPISerializer
-} = DS;
+import JSONAPISerializer from &#x27;@ember-data/serializer/json-api&#x27;;
 
 /**
  *
@@ -147,7 +149,7 @@ const {
  * @extends DS.JSONAPISerializer
  * @public
  */
-export default JSONAPISerializer.extend({});
+export default class IndexedDbSerializer extends JSONAPISerializer {}
 
     </pre>
 </div>

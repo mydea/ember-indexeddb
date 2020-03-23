@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>addon\adapters\indexed-db.js - ember-indexeddb</title>
+    <title>addon/adapters/indexed-db.js - ember-indexeddb</title>
     <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/54a9fbc9" target="_blank">
-                                  Tag: 1.1.3.54a9fbc9
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
+                                  Tag: v2.0.0
                                 </a>
                             </h4>
                         </div>
@@ -85,6 +85,9 @@
                                                     <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
                                                     <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
                                                     <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Utils.html">Utils</a>
                                         </li>
                                 </ol>
                         </div>
@@ -117,6 +120,9 @@
                                     <li>
                                         <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
                                     </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSaver.html">ModelBulkSaver</a>
+                                    </li>
                             </ol>
                         </div>
                     </div>
@@ -134,14 +140,10 @@
     <pre class="prettyprint linenums">
 import { inject as service } from &#x27;@ember/service&#x27;;
 import { get } from &#x27;@ember/object&#x27;;
-import RSVP from &#x27;rsvp&#x27;;
+import { Promise } from &#x27;rsvp&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
-import DS from &#x27;ember-data&#x27;;
-import $ from &#x27;jquery&#x27;;
-
-const {
-  JSONAPIAdapter
-} = DS;
+import { cloneDeep } from &#x27;ember-indexeddb/utils/clone-deep&#x27;;
+import JSONAPIAdapter from &#x27;@ember-data/adapter/json-api&#x27;;
 
 /**
  *
@@ -152,16 +154,8 @@ const {
  * @extends DS.JSONAPIAdapter
  * @public
  */
-export default JSONAPIAdapter.extend({
-
-  /**
-   * The indexedDb service.
-   *
-   * @property indexedDb
-   * @type {IndexedDb}
-   * @protected
-   */
-  indexedDb: service(),
+export default class IndexedDbAdapter extends JSONAPIAdapter {
+  @service indexedDb;
 
   /**
    * Coalesce all find requests.
@@ -171,7 +165,7 @@ export default JSONAPIAdapter.extend({
    * @default true
    * @protected
    */
-  coalesceFindRequests: true,
+  coalesceFindRequests = true;
 
   /**
    * Set this to true to log durations of IndexedDB operations to the console.
@@ -181,7 +175,7 @@ export default JSONAPIAdapter.extend({
    * @default false
    * @private
    */
-  _shouldLogDurations: false,
+  _shouldLogDurations = false;
 
   /**
    * This function will generate a GUID to be used in IndexedDB.
@@ -192,7 +186,7 @@ export default JSONAPIAdapter.extend({
    */
   generateIdForRecord() {
     return Math.random().toString(32).slice(2).substr(0, 8);
-  },
+  }
 
   /**
    * Fetch all records of a given type from IndexedDB.
@@ -200,22 +194,22 @@ export default JSONAPIAdapter.extend({
    * @method findAll
    * @param store
    * @param type
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findAll(store, type) {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(&#x60;findAll ${modelName}&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
       indexedDB.findAll(modelName).then((records) =&gt; {
         this._logDuration(&#x60;findAll ${modelName}&#x60;, true);
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
     }, &#x27;indexedDbAdapter/findAll&#x27;);
-  },
+  }
 
   /**
    * Find a record of a given type &amp; ID from IndexedDB.
@@ -224,15 +218,15 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {String} id
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findRecord(store, type, id) {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(&#x60;findRecord ${modelName}/${id}&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
       indexedDB.find(modelName, id).then((record) =&gt; {
         this._logDuration(&#x60;findRecord ${modelName}/${id}&#x60;, true);
         let data = this._normalizeSingle(record);
@@ -243,7 +237,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, &#x27;indexedDbAdapter/findRecord&#x27;);
-  },
+  }
 
   /**
    * Find many records for a given type by multiple IDs.
@@ -252,22 +246,22 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {Array} ids
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findMany(store, type, ids) {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(&#x60;findMany ${modelName}/${ids.join(&#x27;,&#x27;)}&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
       indexedDB.find(modelName, ids).then((records) =&gt; {
         this._logDuration(&#x60;findMany ${modelName}/${ids.join(&#x27;,&#x27;)}&#x60;, true);
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
     }, &#x27;indexedDbAdapter/findMany&#x27;);
-  },
+  }
 
   /**
    * Query a type from IndexedDB.
@@ -277,23 +271,23 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {Object} query
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   query(store, type, query) {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
     let queryString = JSON.stringify(query);
 
     this._logDuration(&#x60;query ${modelName} ${queryString}&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
       indexedDB.query(modelName, query).then((records) =&gt; {
         this._logDuration(&#x60;query ${modelName} ${queryString}&#x60;, true);
         let data = this._normalizeArray(records);
         resolve(data);
       }, reject);
     }, &#x27;indexedDbAdapter/query&#x27;);
-  },
+  }
 
   /**
    * Query a single item from IndexedDB.
@@ -303,15 +297,15 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param {Object} query
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   queryRecord(store, type, query) {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(&#x60;queryRecord ${modelName}&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
       indexedDB.queryRecord(modelName, query).then((record) =&gt; {
         this._logDuration(&#x60;queryRecord ${modelName}&#x60;, true);
         let data = this._normalizeSingle(record);
@@ -324,7 +318,7 @@ export default JSONAPIAdapter.extend({
         resolve(data);
       }, reject);
     }, &#x27;indexedDbAdapter/queryRecord&#x27;);
-  },
+  }
 
   /**
    * Update a given record in IndexedDB.
@@ -333,12 +327,12 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   updateRecord(store, type, snapshot) {
     return this._save(store, type, snapshot);
-  },
+  }
 
   /**
    * Delete a record from IndexedDB.
@@ -347,22 +341,22 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   deleteRecord(store, type, snapshot) {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
     let id = get(snapshot, &#x27;id&#x27;);
 
     this._logDuration(&#x60;deleteRecord ${modelName}/${id}&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
       indexedDB.delete(modelName, id).then(() =&gt; {
         this._logDuration(&#x60;deleteRecord ${modelName}/${id}&#x60;, true);
         resolve(null);
       }, reject);
     }, &#x27;indexedDbAdapter/deleteRecord&#x27;);
-  },
+  }
 
   /**
    * Create a new record in IndexedDB.
@@ -371,12 +365,12 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   createRecord(store, type, snapshot) {
     return this._save(store, type, snapshot);
-  },
+  }
 
   /**
    * This function is called under the hood by both &#x60;createRecord&#x60; and &#x60;updateRecord&#x60;.
@@ -385,28 +379,28 @@ export default JSONAPIAdapter.extend({
    * @param store
    * @param type
    * @param snapshot
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @private
    */
   _save(store, type, snapshot) {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
+    let indexedDB = this.indexedDb;
     let { modelName } = type;
 
     this._logDuration(&#x60;_save ${modelName}/${get(snapshot, &#x27;id&#x27;)}&#x60;);
-    return new RSVP.Promise((resolve, reject) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
       let data = {};
       let serializer = store.serializerFor(modelName);
       serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
-      let record = $.extend(true, {}, data.data);
+      // We need to make a deep clone of the data, as the data is mutated by the store later
+      let record = cloneDeep(data.data);
 
       indexedDB.save(modelName, record.id, record).then(() =&gt; {
         this._logDuration(&#x60;_save ${modelName}/${get(snapshot, &#x27;id&#x27;)}&#x60;, true);
 
         resolve(data);
       }, reject);
-
     }, &#x27;indexedDbAdapter/_save&#x27;);
-  },
+  }
 
   /**
    * This is used to normalize the response of IndexedDB for array responses.
@@ -419,7 +413,7 @@ export default JSONAPIAdapter.extend({
   _normalizeArray(records) {
     if (!records) {
       return {
-        data: []
+        data: [],
       };
     }
 
@@ -427,9 +421,9 @@ export default JSONAPIAdapter.extend({
     data = array(data).mapBy(&#x27;json&#x27;);
 
     return {
-      data
+      data,
     };
-  },
+  }
 
   /**
    * This is used to normalize a single record response.
@@ -445,9 +439,9 @@ export default JSONAPIAdapter.extend({
     }
 
     return {
-      data: get(record, &#x27;json&#x27;)
+      data: get(record, &#x27;json&#x27;),
     };
-  },
+  }
 
   /**
    * This function is used to log durations of operations to the console, if &#x60;_shouldLogDurations&#x60; is set.
@@ -458,7 +452,7 @@ export default JSONAPIAdapter.extend({
    * @private
    */
   _logDuration(str, isEnd = false) {
-    if (!get(this, &#x27;_shouldLogDurations&#x27;)) {
+    if (!this._shouldLogDurations) {
       return;
     }
 
@@ -470,7 +464,7 @@ export default JSONAPIAdapter.extend({
     }
     /* eslint-enable no-console */
   }
-});
+}
 
     </pre>
 </div>

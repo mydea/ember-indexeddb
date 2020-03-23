@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>addon\mixins\model-bulk-save.js - ember-indexeddb</title>
+    <title>addon/mixins/model-bulk-save.js - ember-indexeddb</title>
     <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/54a9fbc9" target="_blank">
-                                  Tag: 1.1.3.54a9fbc9
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
+                                  Tag: v2.0.0
                                 </a>
                             </h4>
                         </div>
@@ -85,6 +85,9 @@
                                                     <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
                                                     <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
                                                     <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Utils.html">Utils</a>
                                         </li>
                                 </ol>
                         </div>
@@ -117,6 +120,9 @@
                                     <li>
                                         <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
                                     </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSaver.html">ModelBulkSaver</a>
+                                    </li>
                             </ol>
                         </div>
                     </div>
@@ -132,9 +138,11 @@
 
 <div class="file">
     <pre class="prettyprint linenums">
+/* eslint-disable ember/no-new-mixins */
 import { inject as service } from &#x27;@ember/service&#x27;;
-import { get } from &#x27;@ember/object&#x27;;
 import Mixin from &#x27;@ember/object/mixin&#x27;;
+import { ModelBulkSaver } from &#x27;ember-indexeddb/utils/model-bulk-saver&#x27;;
+import { deprecate } from &#x27;@ember/debug&#x27;;
 
 /**
  *
@@ -163,83 +171,38 @@ import Mixin from &#x27;@ember/object/mixin&#x27;;
  * @module Ember Data
  * @class ModelBulkSave
  * @extends Ember.Mixin
- * @public
+ * @private
  */
 export default Mixin.create({
-
   indexedDb: service(),
 
-  // ---------------------------------------------------------------------------------------------------------
-  // Methods
+  init() {
+    this._super(...arguments);
 
-  /**
-   * Save this model, but try to save it together with other objects
-   *
-   * @method saveBulk
-   * @param modelName
-   * @param model
-   * @return {RSVP.Promise}
-   * @public
-   */
+    this.modelBulkSaver = new ModelBulkSaver(this);
+
+    deprecate(
+      &#x60;ModelBulkSave mixin is deprecated, please use ModelBulkSaver class directly, like this:
+
+import Model from &#x27;@ember-data/model&#x27;;
+import { ModelBulkSaver } from &#x27;ember-indexeddb/utils/model-bulk-saver&#x27;;
+import { inject as service } from &#x27;@ember/service&#x27;;
+
+export default class extends Model {
+  @service indexedDb;
+  modelBulkSaver = new ModelBulkSaver(this);
+}
+
+// Save: model.modelBulkSaver.saveBulk();
+&#x60;,
+      false,
+      { id: &#x27;ember-indexeddb.mixin&#x27;, until: &#x27;3.0.0&#x27; }
+    );
+  },
+
   saveBulk() {
-    let indexedDB = get(this, &#x27;indexedDb&#x27;);
-    let record = this.serialize({ includeId: true });
-
-    // TODO: Note that this uses internal functions
-    let { modelName } = this.constructor;
-    let promise = indexedDB.saveBulk(modelName, get(record, &#x27;data&#x27;));
-    promise.then(() =&gt; {
-      this._markAsSaved();
-    }, () =&gt; {
-      this._markAsError();
-    });
-
-    return promise;
+    return this.modelBulkSaver.saveBulk(...arguments);
   },
-
-  /**
-   * Manually mark the model as saved.
-   *
-   * @method _markAsSaved
-   * @private
-   */
-  _markAsSaved() {
-    // TODO: Note that this uses internal functions
-    try {
-      // In Ember Data 3.5+, this works a bit different
-      // We differentiate by the existence of _recordData
-      if (this._internalModel._recordData) {
-        this._internalModel.adapterWillCommit();
-        this._internalModel.adapterDidCommit();
-      } else {
-        this._internalModel.send(&#x27;willCommit&#x27;);
-        this._internalModel._attributes = {};
-        this._internalModel.send(&#x27;didCommit&#x27;);
-      }
-    } catch(e) {
-      // Ignore if an error occurs, since this is quite hacky behavior anyhow
-      // Especially an &quot;Attempted to handle event &#x60;didCommit&#x60; on ...&quot; error could occur
-    }
-
-  },
-
-  /**
-   * Manually mark the model as having an error.
-   *
-   * @method _markAsError
-   * @private
-   */
-  _markAsError() {
-    // TODO: Note that this uses internal functions
-    try {
-      this._internalModel.send(&#x27;becameInvalid&#x27;);
-      this._internalModel.send(&#x27;becameError&#x27;);
-    } catch(e) {
-      // Ignore if an error occurs, since this is quite hacky behavior anyhow
-      // Especially an &quot;Attempted to handle event &#x60;didCommit&#x60; on ...&quot; error could occur
-    }
-  }
-
 });
 
     </pre>

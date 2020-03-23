@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>addon\services\indexed-db.js - ember-indexeddb</title>
+    <title>addon/services/indexed-db.js - ember-indexeddb</title>
     <meta name="description" content="A utility for using IndexedDB with ember &amp; ember-data">
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/54a9fbc9" target="_blank">
-                                  Tag: 1.1.3.54a9fbc9
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
+                                  Tag: v2.0.0
                                 </a>
                             </h4>
                         </div>
@@ -85,6 +85,9 @@
                                                     <li class="sub"><a href="../modules/Setup.html">Setup</a></li>
                                                     <li class="sub"><a href="../modules/Configuring your database.html">Configuring your database</a></li>
                                                     <li class="sub"><a href="../modules/Querying &amp; Inserting data.html">Querying &amp; Inserting data</a></li>
+                                        </li>
+                                        <li>
+                                            <a href="../modules/Utils.html">Utils</a>
                                         </li>
                                 </ol>
                         </div>
@@ -117,6 +120,9 @@
                                     <li>
                                         <a href="../classes/ModelBulkSave.html">ModelBulkSave</a>
                                     </li>
+                                    <li>
+                                        <a href="../classes/ModelBulkSaver.html">ModelBulkSaver</a>
+                                    </li>
                             </ol>
                         </div>
                     </div>
@@ -132,16 +138,19 @@
 
 <div class="file">
     <pre class="prettyprint linenums">
-/* global Dexie */
 import Service, { inject as service } from &#x27;@ember/service&#x27;;
-import { computed, set, get } from &#x27;@ember/object&#x27;;
+import { set, get } from &#x27;@ember/object&#x27;;
 import { Promise } from &#x27;rsvp&#x27;;
 import { later } from &#x27;@ember/runloop&#x27;;
 import { typeOf as getTypeOf } from &#x27;@ember/utils&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
-import { registerWaiter, unregisterWaiter } from &#x27;ember-indexeddb/utils/test-waiter&#x27;;
+import {
+  registerWaiter,
+  unregisterWaiter,
+} from &#x27;ember-indexeddb/utils/test-waiter&#x27;;
 import { task, timeout } from &#x27;ember-concurrency&#x27;;
 import { log } from &#x27;ember-indexeddb/utils/log&#x27;;
+import Dexie from &#x27;dexie&#x27;;
 
 /**
  * This service allows interacting with an IndexedDB database.
@@ -151,10 +160,9 @@ import { log } from &#x27;ember-indexeddb/utils/log&#x27;;
  * @extends Ember.Service
  * @public
  */
-export default Service.extend({
-
-  store: service(),
-  indexedDbConfiguration: service(),
+export default class IndexedDbService extends Service {
+  @service store;
+  @service indexedDbConfiguration;
 
   /**
    * The actual Dexie database.
@@ -163,7 +171,7 @@ export default Service.extend({
    * @type {Dexie}
    * @public
    */
-  db: null,
+  db;
 
   /**
    * The database name to use.
@@ -174,7 +182,7 @@ export default Service.extend({
    * @default &#x27;ember-indexeddb&#x27;
    * @public
    */
-  databaseName: &#x27;ember-indexeddb&#x27;,
+  databaseName = &#x27;ember-indexeddb&#x27;;
 
   /**
    * This is an object with an array per model type.
@@ -185,7 +193,7 @@ export default Service.extend({
    * @type {Object}
    * @private
    */
-  _saveQueue: null,
+  _saveQueue = {};
 
   /**
    * This is the test waiter used to ensure all promises are resolved in tests.
@@ -195,27 +203,27 @@ export default Service.extend({
    * @type {Function}
    * @private
    */
-  _testWaiter: null,
+  _testWaiter;
 
   /**
    * This is a promise that is used for bulk saving.
    * All bulkSave() operations use and return the same promise, which is cached here.
    *
    * @property _savePromise
-   * @type {RSVP.Promise}
+   * @type {Promise}
    * @private
    */
-  _savePromise: null,
+  _savePromise;
 
   /**
    * All currently running promises are temporarily saved here.
    * This is used to check if there are running transactions.
    *
    * @property _promiseQueue
-   * @type {RSVP.Promise[]}
+   * @type {Promise[]}
    * @private
    */
-  _promiseQueue: null,
+  _promiseQueue = array();
 
   /**
    * e.g. MS Edge doesn&#x27;t support compound indices.
@@ -226,15 +234,7 @@ export default Service.extend({
    * @readOnly
    * @private
    */
-  _supportsCompoundIndices: computed(function() {
-    try {
-      window.IDBKeyRange.only([1]);
-    } catch(e) {
-      return false;
-    }
-
-    return true;
-  }),
+  _supportsCompoundIndices = true;
 
   /**
    * Call this and wait until it resolves before doing anything with IndexedDB!
@@ -244,23 +244,24 @@ export default Service.extend({
    * Also available as a task: &#x60;indexedDb.setupTask.perform()&#x60;
    *
    * @method setup
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   setup() {
-    return get(this, &#x27;setupTask&#x27;).perform();
-  },
-  setupTask: task(function* () {
+    this.setupTask.perform();
+  }
+
+  @task(function* () {
     if (get(this, &#x27;db&#x27;)) {
       return get(this, &#x27;db&#x27;);
     }
 
-    let testWaiter = function() {
+    let testWaiter = function () {
       return false;
     };
     registerWaiter(testWaiter);
 
-    let db = new window.Dexie(get(this, &#x27;databaseName&#x27;));
+    let db = new Dexie(get(this, &#x27;databaseName&#x27;));
 
     let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
     dbConfiguration.setupDatabase(db);
@@ -272,7 +273,8 @@ export default Service.extend({
     unregisterWaiter(testWaiter);
 
     return db;
-  }),
+  })
+  setupTask;
 
   /**
    * Query indexedDB.
@@ -282,16 +284,19 @@ export default Service.extend({
    * @method query
    * @param {String} type The model type to query
    * @param {Object} query The query data
-   * @return {RSVP.Promise[]}
+   * @return {Promise[]}
    * @public
    */
   query(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new Promise((resolve, reject) =&gt; queryPromise.toArray().then(resolve, reject), &#x27;indexedDb/query&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt; queryPromise.toArray().then(resolve, reject),
+      &#x27;indexedDb/query&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Query indexedDB.
@@ -301,16 +306,19 @@ export default Service.extend({
    * @method queryRecord
    * @param {String} type The model type to query
    * @param {Object} query The query data
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   queryRecord(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new Promise((resolve, reject) =&gt; queryPromise.first().then(resolve, reject), &#x27;indexedDb/queryRecord&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt; queryPromise.first().then(resolve, reject),
+      &#x27;indexedDb/queryRecord&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Find one or multiple items by id.
@@ -320,7 +328,7 @@ export default Service.extend({
    * @method find
    * @param {String} type The model type to find
    * @param {String|String[]} id One or multiple ids to fetch
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   find(type, id) {
@@ -328,27 +336,34 @@ export default Service.extend({
     if (getTypeOf(id) === &#x27;array&#x27;) {
       return db[type].where(&#x27;id&#x27;).anyOf(id.map(this._toString)).toArray();
     }
-    let promise = new Promise((resolve, reject) =&gt; db[type].get(this._toString(id)).then(resolve, reject), &#x27;indexedDb/find&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt;
+        db[type].get(this._toString(id)).then(resolve, reject),
+      &#x27;indexedDb/find&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Find all of a given type.
    *
    * @method findAll
    * @param {String} type The model type to find.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   findAll(type) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = new Promise((resolve, reject) =&gt; db[type].toArray().then(resolve, reject), &#x27;indexedDb/findAll&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt; db[type].toArray().then(resolve, reject),
+      &#x27;indexedDb/findAll&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Add one or multiple items to the database.
@@ -356,7 +371,7 @@ export default Service.extend({
    * @method add
    * @param {String} type The model type to add
    * @param {Object|Object[]} items One or multiple objects to add to the database.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   add(type, items) {
@@ -371,11 +386,14 @@ export default Service.extend({
       return this._mapItem(type, item);
     });
 
-    let promise = new Promise((resolve, reject) =&gt; db[type].bulkPut(data).then(resolve, reject), &#x27;indexedDb/add&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt; db[type].bulkPut(data).then(resolve, reject),
+      &#x27;indexedDb/add&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Save/update an item.
@@ -384,18 +402,21 @@ export default Service.extend({
    * @param {String} type The model type of the object
    * @param {String} id The id of the object
    * @param {Object} item The serialized object to save.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   save(type, id, item) {
     let db = get(this, &#x27;db&#x27;);
 
     let data = this._mapItem(type, item);
-    let promise = new Promise((resolve, reject) =&gt; db[type].put(data).then(resolve, reject), &#x27;indexedDb/save&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt; db[type].put(data).then(resolve, reject),
+      &#x27;indexedDb/save&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * This will wait for 10ms and try to build a queue, and save everything at once if possible.
@@ -403,7 +424,7 @@ export default Service.extend({
    * @method saveBulk
    * @param {String} type The model type to save
    * @param {Object} item The data to save
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   saveBulk(type, item) {
@@ -413,12 +434,16 @@ export default Service.extend({
     // If no save promise exists, create a new one
     if (!savePromise) {
       savePromise = new Promise((resolve, reject) =&gt; {
-        later(this, () =&gt; {
-          this._bulkSave().then((val) =&gt; {
-            set(this, &#x27;_savePromise&#x27;, null);
-            resolve(val);
-          }, reject);
-        }, 100);
+        later(
+          this,
+          () =&gt; {
+            this._bulkSave().then((val) =&gt; {
+              set(this, &#x27;_savePromise&#x27;, null);
+              resolve(val);
+            }, reject);
+          },
+          100
+        );
       }, &#x27;indexedDb/saveBulk&#x27;);
       set(this, &#x27;_savePromise&#x27;, savePromise);
       this._addToPromiseQueue(savePromise);
@@ -432,23 +457,26 @@ export default Service.extend({
 
     queue.pushObject(item);
     return savePromise;
-  },
+  }
 
   /**
    * Clear a database table.
    *
    * @method clear
    * @param {String} type The model type to clear.
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   clear(type) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = new Promise((resolve, reject) =&gt; db[type].clear().then(resolve, reject), &#x27;indexedDb/clear&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt; db[type].clear().then(resolve, reject),
+      &#x27;indexedDb/clear&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Delete one item.
@@ -456,16 +484,19 @@ export default Service.extend({
    * @method delete
    * @param {String} type The model type to delete
    * @param {String} id The id of the entry to delete
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   delete(type, id) {
     let db = get(this, &#x27;db&#x27;);
-    let promise = new Promise((resolve, reject) =&gt; db[type].delete(id).then(resolve, reject), &#x27;indexedDb/delete&#x27;);
+    let promise = new Promise(
+      (resolve, reject) =&gt; db[type].delete(id).then(resolve, reject),
+      &#x27;indexedDb/delete&#x27;
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Drop the entire database.
@@ -473,20 +504,21 @@ export default Service.extend({
    * Also available as a task: &#x60;indexedDb.dropDatabaseTask.perform()&#x60;
    *
    * @method dropDatabase
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   dropDatabase() {
     return get(this, &#x27;dropDatabaseTask&#x27;).perform();
-  },
-  dropDatabaseTask: task(function* () {
+  }
+
+  @task(function* () {
     let db = get(this, &#x27;db&#x27;);
 
     if (!db) {
       return;
     }
 
-    let testWaiter = function() {
+    let testWaiter = function () {
       return false;
     };
     registerWaiter(testWaiter);
@@ -501,7 +533,8 @@ export default Service.extend({
     set(this, &#x27;db&#x27;, null);
 
     unregisterWaiter(testWaiter);
-  }),
+  })
+  dropDatabaseTask;
 
   /**
    * Export a complete dump of the current database.
@@ -510,22 +543,23 @@ export default Service.extend({
    * Also available as a task: &#x60;indexedDb.exportDatabaseTask.perform()&#x60;
    *
    * @method exportDatabase
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   exportDatabase() {
     let promise = get(this, &#x27;exportDatabaseTask&#x27;).perform();
     this._addToPromiseQueue(promise);
     return promise;
-  },
-  exportDatabaseTask: task(function* () {
+  }
+
+  @task(function* () {
     let db = get(this, &#x27;db&#x27;);
 
     let config = {
       databaseName: get(this, &#x27;databaseName&#x27;),
       version: get(this, &#x27;currentVersion&#x27;),
       stores: {},
-      data: {}
+      data: {},
     };
 
     // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
@@ -536,11 +570,15 @@ export default Service.extend({
 
     let promises = array();
 
-    db.tables.forEach(function(table) {
-      let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
-      let schemaSyntax = primKeyAndIndexes.map(function(index) {
-        return index.src;
-      }).join(&#x27;,&#x27;);
+    db.tables.forEach(function (table) {
+      let primKeyAndIndexes = [table.schema.primKey].concat(
+        table.schema.indexes
+      );
+      let schemaSyntax = primKeyAndIndexes
+        .map(function (index) {
+          return index.src;
+        })
+        .join(&#x27;,&#x27;);
 
       set(config.stores, table.name, schemaSyntax);
 
@@ -559,7 +597,8 @@ export default Service.extend({
 
     yield Promise.all(promises);
     return config;
-  }),
+  })
+  exportDatabaseTask;
 
   /**
    * Import a complete database dump as created by this.exportDatabase()
@@ -568,21 +607,17 @@ export default Service.extend({
    *
    * @method importDatabase
    * @param {Object} config A configuration object as created by this.exportDatabase()
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   importDatabase(config) {
     let promise = get(this, &#x27;importDatabaseTask&#x27;).perform(config);
     this._addToPromiseQueue(promise);
     return promise;
-  },
-  importDatabaseTask: task(function* (config) {
-    let {
-      databaseName,
-      version,
-      stores,
-      data
-    } = config;
+  }
+
+  @task(function* (config) {
+    let { databaseName, version, stores, data } = config;
 
     log(&#x27;====================================&#x27;);
     log(&#x27;Importing database dump!&#x27;);
@@ -608,7 +643,8 @@ export default Service.extend({
     yield closeDb(db);
 
     log(&#x27;Database import done!&#x27;);
-  }),
+  })
+  importDatabaseTask;
 
   /**
    * Wait for all queued objects ot be resolved.
@@ -617,17 +653,19 @@ export default Service.extend({
    * Also available as a task: &#x60;indexedDb.waitForQueueTask.perform()&#x60;
    *
    * @method waitForQueue
-   * @return {RSVP.Promise}
+   * @return {Promise}
    * @public
    */
   waitForQueue() {
     return get(this, &#x27;waitForQueueTask&#x27;).perform();
-  },
-  waitForQueueTask: task(function* () {
+  }
+
+  @task(function* () {
     while (get(this, &#x27;_promiseQueue.length&#x27;) || get(this, &#x27;_savePromise&#x27;)) {
       yield timeout(100);
     }
-  }),
+  })
+  waitForQueueTask;
 
   /**
    * Get the queue and save everything in it in bulk.
@@ -645,7 +683,7 @@ export default Service.extend({
     }
 
     return Promise.all(promises, &#x27;indexedDb/_bulkSave&#x27;);
-  },
+  }
 
   /**
    * Build a query for Dexie.
@@ -681,9 +719,7 @@ export default Service.extend({
 
     // Only one, then do a simple where
     if (keys.length === 1) {
-      /* eslint-disable ember-suave/prefer-destructuring */
       let key = keys[0];
-      /* eslint-enable ember-suave/prefer-destructuring */
       return db[type].where(key).equals(query[key]);
     }
 
@@ -698,7 +734,11 @@ export default Service.extend({
         let keyPath = get(index, &#x27;keyPath&#x27;);
 
         // If keyPath is not set, not an array or not the same length as the keys, it&#x27;s not the correct one
-        if (!keyPath || getTypeOf(keyPath) !== &#x27;array&#x27; || keyPath.length !== keys.length) {
+        if (
+          !keyPath ||
+          getTypeOf(keyPath) !== &#x27;array&#x27; ||
+          keyPath.length !== keys.length
+        ) {
           return false;
         }
 
@@ -729,24 +769,24 @@ export default Service.extend({
     });
 
     return promise;
-  },
+  }
 
   _mapItem(type, item) {
     let dbConfiguration = get(this, &#x27;indexedDbConfiguration&#x27;);
     return dbConfiguration.mapItem(type, item);
-  },
+  }
 
   _toString(val) {
     return &#x60;${val}&#x60;;
-  },
+  }
 
   /**
    * Add a promise to the promise queue.
    * When the promise resolves or rejects, it will be removed from the promise queue.
    *
    * @method _addToPromiseQueue
-   * @param {RSVP.Promise} promise
-   * @return {RSVP.Promise}
+   * @param {Promise} promise
+   * @return {Promise}
    * @private
    */
   _addToPromiseQueue(promise) {
@@ -758,7 +798,7 @@ export default Service.extend({
     };
     promise.finally(removeObject);
     return promise;
-  },
+  }
 
   /**
    * Register the test waiter.
@@ -773,7 +813,7 @@ export default Service.extend({
     };
     registerWaiter(testWaiter);
     set(this, &#x27;_testWaiter&#x27;, testWaiter);
-  },
+  }
 
   /**
    * This removes the test waiter.
@@ -784,22 +824,24 @@ export default Service.extend({
   _unregisterTestWaiter() {
     let testWaiter = get(this, &#x27;_testWaiter&#x27;);
     unregisterWaiter(testWaiter);
-  },
+  }
 
-  init() {
-    this._super(...arguments);
-    set(this, &#x27;_saveQueue&#x27;, {});
-    set(this, &#x27;_promiseQueue&#x27;, array());
+  constructor() {
+    super(...arguments);
+
+    try {
+      window.IDBKeyRange.only([1]);
+    } catch (e) {
+      this._supportsCompoundIndices = false;
+    }
 
     this._registerTestWaiter();
-  },
+  }
 
   willDestroy() {
     this._unregisterTestWaiter();
-    this._super(...arguments);
   }
-
-});
+}
 
 async function openDb(db) {
   while (!db.isOpen()) {
