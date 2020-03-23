@@ -19,8 +19,9 @@
     "build": "ember build",
     "lint:js": "eslint .",
     "start": "ember serve",
-    "test": "ember test",
-    "test:all": "ember try:each"
+    "test:ember": "ember test",
+    "test:ember-compatibility": "ember try:each",
+    "test:ember-one": "ember try:one"
   },
   "dependencies": {
     "broccoli-funnel": "^2.0.1",
@@ -63,6 +64,10 @@
   },
   "engines": {
     "node": "8.* || >= 10.*"
+  },
+  "volta": {
+    "node": "12.16.1",
+    "yarn": "1.22.4"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config",
