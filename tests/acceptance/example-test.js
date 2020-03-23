@@ -86,8 +86,8 @@ module('Acceptance | example', function (hooks) {
       'changedAttributes of item 2 are correct before saving'
     );
 
-    item.saveBulk();
-    await item2.saveBulk();
+    item.modelBulkSaver.saveBulk();
+    await item2.modelBulkSaver.saveBulk();
 
     assert.equal(
       item.currentState.stateName,

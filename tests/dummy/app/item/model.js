@@ -1,7 +1,10 @@
 import Model, { attr } from '@ember-data/model';
-import ModelBulkSaveMixin from 'ember-indexeddb/mixins/model-bulk-save';
+import { ModelBulkSaver } from 'ember-indexeddb/utils/model-bulk-saver';
+import { inject as service } from '@ember/service';
 
-export default class extends Model.extend(ModelBulkSaveMixin) {
+export default class extends Model {
+  @service indexedDb;
+
   @attr('string') title;
   @attr('string') date;
   @attr('boolean', { defaultValue: false }) isRead;
@@ -10,4 +13,6 @@ export default class extends Model.extend(ModelBulkSaveMixin) {
   // We keep this here to have this in the indexed db, and so we can query by it
 
   @attr('boolean', { defaultValue: true }) isSynced;
+
+  modelBulkSaver = new ModelBulkSaver(this);
 }
