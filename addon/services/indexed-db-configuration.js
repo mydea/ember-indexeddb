@@ -1,5 +1,5 @@
 import Service from '@ember/service';
-import { get, computed } from '@ember/object';
+import { get } from '@ember/object';
 import { typeOf as getTypeOf, isNone } from '@ember/utils';
 import { A as array } from '@ember/array';
 import { assert } from '@ember/debug';
@@ -13,8 +13,7 @@ import { assert } from '@ember/debug';
  * @extends Ember.Service
  * @public
  */
-export default Service.extend({
-
+export default class IndexedDbConfigurationService extends Service {
   /**
    * Increment this whenever you do a new database version.
    * Set it to 1 on your initial version.
@@ -59,7 +58,7 @@ export default Service.extend({
    * @type {Number}
    * @public
    */
-  currentVersion: 0,
+  currentVersion = 0;
 
   /**
    * The map functions for the tables.
@@ -112,9 +111,7 @@ export default Service.extend({
    * @type {Object}
    * @protected
    */
-  mapTable: computed(function() {
-    return {};
-  }),
+  mapTable = {};
 
   /**
    * Map a payload to a database table.
@@ -128,7 +125,7 @@ export default Service.extend({
    * @public
    */
   mapItem(type, item) {
-    let tables = get(this, 'mapTable');
+    let tables = this.mapTable;
     let mapFunc = get(tables, type);
 
     if (!item) {
@@ -138,12 +135,12 @@ export default Service.extend({
     if (!mapFunc) {
       return {
         id: this._toString(get(item, 'id')),
-        json: this._cleanObject(item)
+        json: this._cleanObject(item),
       };
     }
 
     return mapFunc(item);
-  },
+  }
 
   /**
    * Setup the database and do all necessary database migrations.
@@ -154,9 +151,12 @@ export default Service.extend({
    * @public
    */
   setupDatabase(db) {
-    let currentVersion = get(this, 'currentVersion');
+    let currentVersion = this.currentVersion;
 
-    assert('You need to override services/indexed-db-configuration.js and provide at least one version.', currentVersion);
+    assert(
+      'You need to override services/indexed-db-configuration.js and provide at least one version.',
+      currentVersion
+    );
 
     for (let v = 1; v <= currentVersion; v++) {
       let version = get(this, `version${v}`);
@@ -173,7 +173,7 @@ export default Service.extend({
     }
 
     return db;
-  },
+  }
 
   /**
    * Cleanup a json object.
@@ -194,14 +194,18 @@ export default Service.extend({
       id: get(data, 'id'),
       type: get(data, 'type'),
       attributes: {},
-      relationships: {}
+      relationships: {},
     };
 
     let attributes = get(data, 'attributes') || {};
     let relationships = get(data, 'relationships') || {};
 
     let isArray = (item) => {
-      return getTypeOf(item) === 'array' || (getTypeOf(item) === 'instance' && getTypeOf(item.toArray) === 'function');
+      return (
+        getTypeOf(item) === 'array' ||
+        (getTypeOf(item) === 'instance' &&
+          getTypeOf(item.toArray) === 'function')
+      );
     };
 
     Object.keys(attributes).forEach((prop) => {
@@ -215,14 +219,16 @@ export default Service.extend({
 
     Object.keys(relationships).forEach((prop) => {
       if (isArray(relationships[prop].data)) {
-        obj.relationships[prop] = { data: array(relationships[prop].data).toArray() };
+        obj.relationships[prop] = {
+          data: array(relationships[prop].data).toArray(),
+        };
       } else {
         obj.relationships[prop] = relationships[prop];
       }
     });
 
     return obj;
-  },
+  }
 
   /**
    * Convert a property to a string.
@@ -234,7 +240,7 @@ export default Service.extend({
    */
   _toString(val) {
     return `${val}`;
-  },
+  }
 
   /**
    * Convert a boolean to 1/0.
@@ -253,5 +259,4 @@ export default Service.extend({
     }
     return val ? 1 : 0;
   }
-
-});
+}

@@ -1,0 +1,26 @@
+name: Build & Deploy
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: volta-cli/action@v1
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
+    - name: Run tests
+      run: yarn test:ember
+    - name: Build
+      run: yarn build
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: dist # The folder the action should deploy.

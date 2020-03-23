@@ -5,7 +5,7 @@ import { setupTest } from 'ember-qunit';
 import { setupIndexedDb } from 'ember-indexeddb/test-support/helpers/indexed-db';
 import { run } from '@ember/runloop';
 
-const createMockDb = function() {
+const createMockDb = function () {
   return {
     _versions: [],
     _stores: [],
@@ -19,26 +19,25 @@ const createMockDb = function() {
         stores(s) {
           _this._stores.push(s);
           return obj;
-
         },
         upgrade(u) {
           _this._upgrades.push(u);
           return obj;
-        }
+        },
       };
 
       return obj;
-    }
+    },
   };
 };
 
-module('Unit | Service | indexed-db', function(hooks) {
+module('Unit | Service | indexed-db', function (hooks) {
   setupTest(hooks);
   setupIndexedDb(hooks);
 
   // service.setup() is hard to test as it relies on the global Dexie
 
-  test('add works', function(assert) {
+  test('add works', function (assert) {
     let done = assert.async();
     assert.expect(6);
     let db = createMockDb();
@@ -52,16 +51,16 @@ module('Unit | Service | indexed-db', function(hooks) {
         let promise = RSVP.Promise.resolve(items);
         promises.push(promise);
         return promise;
-      }
+      },
     };
 
     let service = this.owner.factoryFor('service:indexed-db').create({
-      db
+      db,
     });
 
     let item = {
       id: 'TEST-1',
-      type: 'items'
+      type: 'items',
     };
     let promise1 = service.add('items', item);
 
@@ -69,25 +68,27 @@ module('Unit | Service | indexed-db', function(hooks) {
       {
         id: 'TEST-1',
         json: {
-          id: 'TEST-1', attributes: {}, relationships: {}, type: 'items'
-        }
-      }
+          id: 'TEST-1',
+          attributes: {},
+          relationships: {},
+          type: 'items',
+        },
+      },
     ];
-    assert.deepEqual(putItems,
-      [
-        response1
-      ],
-      'adding one items works'
-    );
+    assert.deepEqual(putItems, [response1], 'adding one items works');
 
     promise1.then((data) => {
-      assert.deepEqual(data, response1, 'promise 1 resolves with array of data');
+      assert.deepEqual(
+        data,
+        response1,
+        'promise 1 resolves with array of data'
+      );
     });
 
     putItems = [];
     let item2 = {
       id: 'TEST-2',
-      type: 'items'
+      type: 'items',
     };
     let promise2 = service.add('items', [item, item2]);
 
@@ -95,28 +96,37 @@ module('Unit | Service | indexed-db', function(hooks) {
       {
         id: 'TEST-1',
         json: {
-          id: 'TEST-1', attributes: {}, relationships: {}, type: 'items'
-        }
+          id: 'TEST-1',
+          attributes: {},
+          relationships: {},
+          type: 'items',
+        },
       },
       {
         id: 'TEST-2',
         json: {
-          id: 'TEST-2', attributes: {}, relationships: {}, type: 'items'
-        }
-      }
+          id: 'TEST-2',
+          attributes: {},
+          relationships: {},
+          type: 'items',
+        },
+      },
     ];
-    assert.deepEqual(putItems,
-      [
-        response2
-      ],
-      'adding two items works'
-    );
+    assert.deepEqual(putItems, [response2], 'adding two items works');
 
     let promiseQueue = get(service, '_promiseQueue');
-    assert.equal(get(promiseQueue, 'length'), 2, 'there are two items in the promise queue');
+    assert.equal(
+      get(promiseQueue, 'length'),
+      2,
+      'there are two items in the promise queue'
+    );
 
     promise2.then((data) => {
-      assert.deepEqual(data, response2, 'promise 2 resolves with array of data');
+      assert.deepEqual(
+        data,
+        response2,
+        'promise 2 resolves with array of data'
+      );
     });
 
     RSVP.all([promise1, promise2]).then(() => {
@@ -125,7 +135,7 @@ module('Unit | Service | indexed-db', function(hooks) {
     });
   });
 
-  test('it does not open multiple db instances on setup', async function(assert) {
+  test('it does not open multiple db instances on setup', async function (assert) {
     let service = this.owner.lookup('service:indexed-db');
 
     await run(() => service.setup());
@@ -136,5 +146,4 @@ module('Unit | Service | indexed-db', function(hooks) {
     let db2 = service.db;
     assert.equal(db2, db, 'db is not overwritten');
   });
-
 });

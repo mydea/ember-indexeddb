@@ -1,13 +1,16 @@
-/* global Dexie */
 import Service, { inject as service } from '@ember/service';
-import { computed, set, get } from '@ember/object';
+import { set, get } from '@ember/object';
 import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
 import { A as array } from '@ember/array';
-import { registerWaiter, unregisterWaiter } from 'ember-indexeddb/utils/test-waiter';
+import {
+  registerWaiter,
+  unregisterWaiter,
+} from 'ember-indexeddb/utils/test-waiter';
 import { task, timeout } from 'ember-concurrency';
 import { log } from 'ember-indexeddb/utils/log';
+import Dexie from 'dexie';
 
 /**
  * This service allows interacting with an IndexedDB database.
@@ -17,10 +20,9 @@ import { log } from 'ember-indexeddb/utils/log';
  * @extends Ember.Service
  * @public
  */
-export default Service.extend({
-
-  store: service(),
-  indexedDbConfiguration: service(),
+export default class IndexedDbService extends Service {
+  @service store;
+  @service indexedDbConfiguration;
 
   /**
    * The actual Dexie database.
@@ -29,7 +31,7 @@ export default Service.extend({
    * @type {Dexie}
    * @public
    */
-  db: null,
+  db;
 
   /**
    * The database name to use.
@@ -40,7 +42,7 @@ export default Service.extend({
    * @default 'ember-indexeddb'
    * @public
    */
-  databaseName: 'ember-indexeddb',
+  databaseName = 'ember-indexeddb';
 
   /**
    * This is an object with an array per model type.
@@ -51,7 +53,7 @@ export default Service.extend({
    * @type {Object}
    * @private
    */
-  _saveQueue: null,
+  _saveQueue = {};
 
   /**
    * This is the test waiter used to ensure all promises are resolved in tests.
@@ -61,7 +63,7 @@ export default Service.extend({
    * @type {Function}
    * @private
    */
-  _testWaiter: null,
+  _testWaiter;
 
   /**
    * This is a promise that is used for bulk saving.
@@ -71,7 +73,7 @@ export default Service.extend({
    * @type {Promise}
    * @private
    */
-  _savePromise: null,
+  _savePromise;
 
   /**
    * All currently running promises are temporarily saved here.
@@ -81,7 +83,7 @@ export default Service.extend({
    * @type {Promise[]}
    * @private
    */
-  _promiseQueue: null,
+  _promiseQueue = array();
 
   /**
    * e.g. MS Edge doesn't support compound indices.
@@ -92,15 +94,7 @@ export default Service.extend({
    * @readOnly
    * @private
    */
-  _supportsCompoundIndices: computed(function() {
-    try {
-      window.IDBKeyRange.only([1]);
-    } catch(e) {
-      return false;
-    }
-
-    return true;
-  }),
+  _supportsCompoundIndices = true;
 
   /**
    * Call this and wait until it resolves before doing anything with IndexedDB!
@@ -114,19 +108,20 @@ export default Service.extend({
    * @public
    */
   setup() {
-    return get(this, 'setupTask').perform();
-  },
-  setupTask: task(function* () {
+    this.setupTask.perform();
+  }
+
+  @task(function* () {
     if (get(this, 'db')) {
       return get(this, 'db');
     }
 
-    let testWaiter = function() {
+    let testWaiter = function () {
       return false;
     };
     registerWaiter(testWaiter);
 
-    let db = new window.Dexie(get(this, 'databaseName'));
+    let db = new Dexie(get(this, 'databaseName'));
 
     let dbConfiguration = get(this, 'indexedDbConfiguration');
     dbConfiguration.setupDatabase(db);
@@ -138,7 +133,8 @@ export default Service.extend({
     unregisterWaiter(testWaiter);
 
     return db;
-  }),
+  })
+  setupTask;
 
   /**
    * Query indexedDB.
@@ -153,11 +149,14 @@ export default Service.extend({
    */
   query(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new Promise((resolve, reject) => queryPromise.toArray().then(resolve, reject), 'indexedDb/query');
+    let promise = new Promise(
+      (resolve, reject) => queryPromise.toArray().then(resolve, reject),
+      'indexedDb/query'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Query indexedDB.
@@ -172,11 +171,14 @@ export default Service.extend({
    */
   queryRecord(type, query) {
     let queryPromise = this._buildQuery(type, query);
-    let promise = new Promise((resolve, reject) => queryPromise.first().then(resolve, reject), 'indexedDb/queryRecord');
+    let promise = new Promise(
+      (resolve, reject) => queryPromise.first().then(resolve, reject),
+      'indexedDb/queryRecord'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Find one or multiple items by id.
@@ -194,11 +196,15 @@ export default Service.extend({
     if (getTypeOf(id) === 'array') {
       return db[type].where('id').anyOf(id.map(this._toString)).toArray();
     }
-    let promise = new Promise((resolve, reject) => db[type].get(this._toString(id)).then(resolve, reject), 'indexedDb/find');
+    let promise = new Promise(
+      (resolve, reject) =>
+        db[type].get(this._toString(id)).then(resolve, reject),
+      'indexedDb/find'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Find all of a given type.
@@ -210,11 +216,14 @@ export default Service.extend({
    */
   findAll(type) {
     let db = get(this, 'db');
-    let promise = new Promise((resolve, reject) => db[type].toArray().then(resolve, reject), 'indexedDb/findAll');
+    let promise = new Promise(
+      (resolve, reject) => db[type].toArray().then(resolve, reject),
+      'indexedDb/findAll'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Add one or multiple items to the database.
@@ -237,11 +246,14 @@ export default Service.extend({
       return this._mapItem(type, item);
     });
 
-    let promise = new Promise((resolve, reject) => db[type].bulkPut(data).then(resolve, reject), 'indexedDb/add');
+    let promise = new Promise(
+      (resolve, reject) => db[type].bulkPut(data).then(resolve, reject),
+      'indexedDb/add'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Save/update an item.
@@ -257,11 +269,14 @@ export default Service.extend({
     let db = get(this, 'db');
 
     let data = this._mapItem(type, item);
-    let promise = new Promise((resolve, reject) => db[type].put(data).then(resolve, reject), 'indexedDb/save');
+    let promise = new Promise(
+      (resolve, reject) => db[type].put(data).then(resolve, reject),
+      'indexedDb/save'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * This will wait for 10ms and try to build a queue, and save everything at once if possible.
@@ -279,12 +294,16 @@ export default Service.extend({
     // If no save promise exists, create a new one
     if (!savePromise) {
       savePromise = new Promise((resolve, reject) => {
-        later(this, () => {
-          this._bulkSave().then((val) => {
-            set(this, '_savePromise', null);
-            resolve(val);
-          }, reject);
-        }, 100);
+        later(
+          this,
+          () => {
+            this._bulkSave().then((val) => {
+              set(this, '_savePromise', null);
+              resolve(val);
+            }, reject);
+          },
+          100
+        );
       }, 'indexedDb/saveBulk');
       set(this, '_savePromise', savePromise);
       this._addToPromiseQueue(savePromise);
@@ -298,7 +317,7 @@ export default Service.extend({
 
     queue.pushObject(item);
     return savePromise;
-  },
+  }
 
   /**
    * Clear a database table.
@@ -310,11 +329,14 @@ export default Service.extend({
    */
   clear(type) {
     let db = get(this, 'db');
-    let promise = new Promise((resolve, reject) => db[type].clear().then(resolve, reject), 'indexedDb/clear');
+    let promise = new Promise(
+      (resolve, reject) => db[type].clear().then(resolve, reject),
+      'indexedDb/clear'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Delete one item.
@@ -327,11 +349,14 @@ export default Service.extend({
    */
   delete(type, id) {
     let db = get(this, 'db');
-    let promise = new Promise((resolve, reject) => db[type].delete(id).then(resolve, reject), 'indexedDb/delete');
+    let promise = new Promise(
+      (resolve, reject) => db[type].delete(id).then(resolve, reject),
+      'indexedDb/delete'
+    );
 
     this._addToPromiseQueue(promise);
     return promise;
-  },
+  }
 
   /**
    * Drop the entire database.
@@ -344,15 +369,16 @@ export default Service.extend({
    */
   dropDatabase() {
     return get(this, 'dropDatabaseTask').perform();
-  },
-  dropDatabaseTask: task(function* () {
+  }
+
+  @task(function* () {
     let db = get(this, 'db');
 
     if (!db) {
       return;
     }
 
-    let testWaiter = function() {
+    let testWaiter = function () {
       return false;
     };
     registerWaiter(testWaiter);
@@ -367,7 +393,8 @@ export default Service.extend({
     set(this, 'db', null);
 
     unregisterWaiter(testWaiter);
-  }),
+  })
+  dropDatabaseTask;
 
   /**
    * Export a complete dump of the current database.
@@ -383,15 +410,16 @@ export default Service.extend({
     let promise = get(this, 'exportDatabaseTask').perform();
     this._addToPromiseQueue(promise);
     return promise;
-  },
-  exportDatabaseTask: task(function* () {
+  }
+
+  @task(function* () {
     let db = get(this, 'db');
 
     let config = {
       databaseName: get(this, 'databaseName'),
       version: get(this, 'currentVersion'),
       stores: {},
-      data: {}
+      data: {},
     };
 
     // Now, open database without specifying any version. This will make the database open any existing database and read its schema automatically.
@@ -402,11 +430,15 @@ export default Service.extend({
 
     let promises = array();
 
-    db.tables.forEach(function(table) {
-      let primKeyAndIndexes = [table.schema.primKey].concat(table.schema.indexes);
-      let schemaSyntax = primKeyAndIndexes.map(function(index) {
-        return index.src;
-      }).join(',');
+    db.tables.forEach(function (table) {
+      let primKeyAndIndexes = [table.schema.primKey].concat(
+        table.schema.indexes
+      );
+      let schemaSyntax = primKeyAndIndexes
+        .map(function (index) {
+          return index.src;
+        })
+        .join(',');
 
       set(config.stores, table.name, schemaSyntax);
 
@@ -425,7 +457,8 @@ export default Service.extend({
 
     yield Promise.all(promises);
     return config;
-  }),
+  })
+  exportDatabaseTask;
 
   /**
    * Import a complete database dump as created by this.exportDatabase()
@@ -441,14 +474,10 @@ export default Service.extend({
     let promise = get(this, 'importDatabaseTask').perform(config);
     this._addToPromiseQueue(promise);
     return promise;
-  },
-  importDatabaseTask: task(function* (config) {
-    let {
-      databaseName,
-      version,
-      stores,
-      data
-    } = config;
+  }
+
+  @task(function* (config) {
+    let { databaseName, version, stores, data } = config;
 
     log('====================================');
     log('Importing database dump!');
@@ -474,7 +503,8 @@ export default Service.extend({
     yield closeDb(db);
 
     log('Database import done!');
-  }),
+  })
+  importDatabaseTask;
 
   /**
    * Wait for all queued objects ot be resolved.
@@ -488,12 +518,14 @@ export default Service.extend({
    */
   waitForQueue() {
     return get(this, 'waitForQueueTask').perform();
-  },
-  waitForQueueTask: task(function* () {
+  }
+
+  @task(function* () {
     while (get(this, '_promiseQueue.length') || get(this, '_savePromise')) {
       yield timeout(100);
     }
-  }),
+  })
+  waitForQueueTask;
 
   /**
    * Get the queue and save everything in it in bulk.
@@ -511,7 +543,7 @@ export default Service.extend({
     }
 
     return Promise.all(promises, 'indexedDb/_bulkSave');
-  },
+  }
 
   /**
    * Build a query for Dexie.
@@ -547,9 +579,7 @@ export default Service.extend({
 
     // Only one, then do a simple where
     if (keys.length === 1) {
-      /* eslint-disable ember-suave/prefer-destructuring */
       let key = keys[0];
-      /* eslint-enable ember-suave/prefer-destructuring */
       return db[type].where(key).equals(query[key]);
     }
 
@@ -564,7 +594,11 @@ export default Service.extend({
         let keyPath = get(index, 'keyPath');
 
         // If keyPath is not set, not an array or not the same length as the keys, it's not the correct one
-        if (!keyPath || getTypeOf(keyPath) !== 'array' || keyPath.length !== keys.length) {
+        if (
+          !keyPath ||
+          getTypeOf(keyPath) !== 'array' ||
+          keyPath.length !== keys.length
+        ) {
           return false;
         }
 
@@ -595,16 +629,16 @@ export default Service.extend({
     });
 
     return promise;
-  },
+  }
 
   _mapItem(type, item) {
     let dbConfiguration = get(this, 'indexedDbConfiguration');
     return dbConfiguration.mapItem(type, item);
-  },
+  }
 
   _toString(val) {
     return `${val}`;
-  },
+  }
 
   /**
    * Add a promise to the promise queue.
@@ -624,7 +658,7 @@ export default Service.extend({
     };
     promise.finally(removeObject);
     return promise;
-  },
+  }
 
   /**
    * Register the test waiter.
@@ -639,7 +673,7 @@ export default Service.extend({
     };
     registerWaiter(testWaiter);
     set(this, '_testWaiter', testWaiter);
-  },
+  }
 
   /**
    * This removes the test waiter.
@@ -650,22 +684,24 @@ export default Service.extend({
   _unregisterTestWaiter() {
     let testWaiter = get(this, '_testWaiter');
     unregisterWaiter(testWaiter);
-  },
+  }
 
-  init() {
-    this._super(...arguments);
-    set(this, '_saveQueue', {});
-    set(this, '_promiseQueue', array());
+  constructor() {
+    super(...arguments);
+
+    try {
+      window.IDBKeyRange.only([1]);
+    } catch (e) {
+      this._supportsCompoundIndices = false;
+    }
 
     this._registerTestWaiter();
-  },
+  }
 
   willDestroy() {
     this._unregisterTestWaiter();
-    this._super(...arguments);
   }
-
-});
+}
 
 async function openDb(db) {
   while (!db.isOpen()) {

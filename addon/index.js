@@ -212,5 +212,5 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
 
 export default {
   IndexedDb,
-  IndexedDbConfiguration
+  IndexedDbConfiguration,
 };
