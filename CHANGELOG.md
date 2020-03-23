@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.0
+
+* [INTERNAL] Update to use ES6 classes & Octane paradigms
+* [INTERNAL] Use ember-auto-import to import Dexie
+* [INTERNAL] Updates dependencies to latest
+* [BREAKING] Drop support for Ember versions <3.13
+* [REFACTOR] Replaces the ModelBulkSave mixin with a new ModelBulkSaver utility class:
+
 ## v1.3.0
 
 * [BUGFIX] Ensure `super` is correctly called for `included()` hook
