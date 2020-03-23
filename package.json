@@ -24,7 +24,7 @@
     "test:ember-one": "ember try:one"
   },
   "dependencies": {
-    "broccoli-funnel": "^2.0.1",
+    "broccoli-funnel": "^3.0.2",
     "broccoli-merge-trees": "^3.0.0",
     "dexie": "^2.0.4",
     "ember-cli-babel": "^7.7.3",
