@@ -1,4 +1,3 @@
-/* global Dexie */
 import Service, { inject as service } from '@ember/service';
 import { computed, set, get } from '@ember/object';
 import { Promise } from 'rsvp';
@@ -8,6 +7,7 @@ import { A as array } from '@ember/array';
 import { registerWaiter, unregisterWaiter } from 'ember-indexeddb/utils/test-waiter';
 import { task, timeout } from 'ember-concurrency';
 import { log } from 'ember-indexeddb/utils/log';
+import Dexie from 'dexie';
 
 /**
  * This service allows interacting with an IndexedDB database.
@@ -126,7 +126,7 @@ export default Service.extend({
     };
     registerWaiter(testWaiter);
 
-    let db = new window.Dexie(get(this, 'databaseName'));
+    let db = new Dexie(get(this, 'databaseName'));
 
     let dbConfiguration = get(this, 'indexedDbConfiguration');
     dbConfiguration.setupDatabase(db);
