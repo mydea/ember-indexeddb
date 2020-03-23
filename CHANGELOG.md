@@ -1,3 +1,5 @@
+# [2.0.0](https://github.com/mydea/ember-indexeddb/compare/v1.3.1...v2.0.0) (2020-03-23)
+
 # Changelog
 
 ## v2.0.0
