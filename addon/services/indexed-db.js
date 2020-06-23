@@ -44,6 +44,17 @@ export default class IndexedDbService extends Service {
   databaseName = 'ember-indexeddb';
 
   /**
+   * If set to true, it will output which indecies are used for queries.
+   * This can be used to debug your indecies.
+   *
+   * @property _shouldLogQuery
+   * @type {Boolean}
+   * @default false
+   * @private
+   */
+  _shouldLogQuery = false;
+
+  /**
    * This is an object with an array per model type.
    * It holds all the objects per model type that should be bulk saved.
    * After actually saving, this will be cleared.
@@ -544,6 +555,13 @@ export default class IndexedDbService extends Service {
     return Promise.all(promises, 'indexedDb/_bulkSave');
   }
 
+  _logQuery(str, query) {
+    if (this._shouldLogQuery) {
+      // eslint-disable-next-line
+      console.log(`[QUERY]: ${str}`, query);
+    }
+  }
+
   /**
    * Build a query for Dexie.
    *
@@ -580,6 +598,7 @@ export default class IndexedDbService extends Service {
       });
 
       if (index) {
+        this._logQuery(`Using index "${key}"`, query);
         let value = normalizeValue(query[key]);
         return db[type].where(key).equals(value);
       }
@@ -614,6 +633,7 @@ export default class IndexedDbService extends Service {
           compareValues.push(value);
         });
 
+        this._logQuery(`Using compound index "${keyPath}"`, query);
         return db[type].where(keyName).equals(compareValues);
       }
     }
@@ -633,6 +653,17 @@ export default class IndexedDbService extends Service {
     let collection = whereKey
       ? db[type].where(whereKey).equals(whereKeyValue)
       : db[type];
+
+    if (whereKey) {
+      this._logQuery(
+        `Using index "${whereKey}" and vanilla filtering for ${vanillaFilterKeys.join(
+          ', '
+        )}`,
+        query
+      );
+    } else {
+      this._logQuery(`Using vanilla filtering`, query);
+    }
 
     return collection.filter((item) => {
       return vanillaFilterKeys.every((key) => {
