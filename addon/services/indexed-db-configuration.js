@@ -155,7 +155,7 @@ export default class IndexedDbConfigurationService extends Service {
    * @public
    */
   setupDatabase(db) {
-    let currentVersion = this.currentVersion;
+    let { currentVersion } = this;
 
     assert(
       'You need to override services/indexed-db-configuration.js and provide at least one version.',
@@ -164,7 +164,13 @@ export default class IndexedDbConfigurationService extends Service {
 
     for (let v = 1; v <= currentVersion; v++) {
       let versionName = `version${v}`;
-      let { stores, upgrade } = this[versionName];
+      let versionDefinition = this[versionName];
+
+      if (!versionDefinition) {
+        continue;
+      }
+
+      let { stores, upgrade } = versionDefinition;
 
       if (stores && upgrade) {
         db.version(v).stores(stores).upgrade(upgrade);
