@@ -37,6 +37,7 @@ export function setupIndexedDb(hooks) {
     await wait();
     await run(() => indexedDb.waitForQueueTask.perform());
     await run(() => indexedDb.waitForQueueTask.perform());
+    await indexedDb.dropDatabaseTask.perform();
   });
 }
 
