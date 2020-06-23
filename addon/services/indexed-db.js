@@ -4,13 +4,12 @@ import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
 import { A as array } from '@ember/array';
-import {
-  registerWaiter,
-  unregisterWaiter,
-} from 'ember-indexeddb/utils/test-waiter';
 import { task, timeout } from 'ember-concurrency';
 import { log } from 'ember-indexeddb/utils/log';
 import Dexie from 'dexie';
+import { buildWaiter, waitForPromise } from '@ember/test-waiters';
+
+const testWaiter = buildWaiter('ember-indexeddb');
 
 /**
  * This service allows interacting with an IndexedDB database.
@@ -116,10 +115,7 @@ export default class IndexedDbService extends Service {
       return get(this, 'db');
     }
 
-    let testWaiter = function () {
-      return false;
-    };
-    registerWaiter(testWaiter);
+    let testWaiterToken = testWaiter.beginAsync();
 
     let db = new Dexie(get(this, 'databaseName'));
 
@@ -130,7 +126,7 @@ export default class IndexedDbService extends Service {
 
     yield openDb(db);
 
-    unregisterWaiter(testWaiter);
+    testWaiter.endAsync(testWaiterToken);
 
     return db;
   })
@@ -378,10 +374,7 @@ export default class IndexedDbService extends Service {
       return;
     }
 
-    let testWaiter = function () {
-      return false;
-    };
-    registerWaiter(testWaiter);
+    let testWaiterToken = testWaiter.beginAsync();
 
     // Ensure the db is open
     yield openDb(db);
@@ -392,7 +385,7 @@ export default class IndexedDbService extends Service {
 
     set(this, 'db', null);
 
-    unregisterWaiter(testWaiter);
+    testWaiter.endAsync(testWaiterToken);
   })
   dropDatabaseTask;
 
@@ -650,40 +643,16 @@ export default class IndexedDbService extends Service {
    * @private
    */
   _addToPromiseQueue(promise) {
+    let wrappedPromise = waitForPromise(promise);
+
     let promiseQueue = get(this, '_promiseQueue');
-    promiseQueue.pushObject(promise);
+    promiseQueue.pushObject(wrappedPromise);
 
     let removeObject = () => {
-      promiseQueue.removeObject(promise);
+      promiseQueue.removeObject(wrappedPromise);
     };
-    promise.finally(removeObject);
-    return promise;
-  }
-
-  /**
-   * Register the test waiter.
-   * This waiter checks if there are no promises left in the _promiseQueue.
-   *
-   * @method _registerTestWaiter
-   * @private
-   */
-  _registerTestWaiter() {
-    let testWaiter = () => {
-      return get(this, '_promiseQueue.length') === 0;
-    };
-    registerWaiter(testWaiter);
-    set(this, '_testWaiter', testWaiter);
-  }
-
-  /**
-   * This removes the test waiter.
-   *
-   * @method _unregisterTestWaiter
-   * @private
-   */
-  _unregisterTestWaiter() {
-    let testWaiter = get(this, '_testWaiter');
-    unregisterWaiter(testWaiter);
+    wrappedPromise.finally(removeObject);
+    return wrappedPromise;
   }
 
   constructor() {
@@ -694,12 +663,6 @@ export default class IndexedDbService extends Service {
     } catch (e) {
       this._supportsCompoundIndices = false;
     }
-
-    this._registerTestWaiter();
-  }
-
-  willDestroy() {
-    this._unregisterTestWaiter();
   }
 }
 
