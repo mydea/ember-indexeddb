@@ -3,10 +3,8 @@ import RSVP from 'rsvp';
 import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
-import DS from 'ember-data';
+import { PromiseArray } from '@ember-data/store/-private';
 import IndexedDbConfigurationService from 'dummy/services/indexed-db-configuration';
-
-const { PromiseArray } = DS;
 
 const createMockDb = function () {
   return {
