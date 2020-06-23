@@ -1,4 +1,3 @@
-import { get } from '@ember/object';
 import { A as array } from '@ember/array';
 import RSVP from 'rsvp';
 import { run } from '@ember/runloop';
@@ -64,10 +63,10 @@ module('Unit | Service | indexed-db-configuration', function (hooks) {
       mapTable = {
         item: (payload) => {
           return {
-            id: get(payload, 'id'),
+            id: payload.id,
             json: payload,
             staticProp: 2,
-            idCopy: get(payload, 'id'),
+            idCopy: payload.id,
           };
         },
       };
