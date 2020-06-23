@@ -1,5 +1,4 @@
 import { inject as service } from '@ember/service';
-import { get } from '@ember/object';
 import { Promise } from 'rsvp';
 import { A as array } from '@ember/array';
 import { cloneDeep } from 'ember-indexeddb/utils/clone-deep';
@@ -207,7 +206,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
   deleteRecord(store, type, snapshot) {
     let indexedDB = this.indexedDb;
     let { modelName } = type;
-    let id = get(snapshot, 'id');
+    let { id } = snapshot;
 
     this._logDuration(`deleteRecord ${modelName}/${id}`);
     return new Promise((resolve, reject) => {
@@ -246,7 +245,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
     let indexedDB = this.indexedDb;
     let { modelName } = type;
 
-    this._logDuration(`_save ${modelName}/${get(snapshot, 'id')}`);
+    this._logDuration(`_save ${modelName}/${snapshot.id}`);
     return new Promise((resolve, reject) => {
       let data = {};
       let serializer = store.serializerFor(modelName);
@@ -255,7 +254,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
       let record = cloneDeep(data.data);
 
       indexedDB.save(modelName, record.id, record).then(() => {
-        this._logDuration(`_save ${modelName}/${get(snapshot, 'id')}`, true);
+        this._logDuration(`_save ${modelName}/${snapshot.id}`, true);
 
         resolve(data);
       }, reject);
@@ -299,7 +298,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
     }
 
     return {
-      data: get(record, 'json'),
+      data: record.json,
     };
   }
 

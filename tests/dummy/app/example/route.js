@@ -1,6 +1,6 @@
 import Route from '@ember/routing/route';
 import { inject as service } from '@ember/service';
-import { get, set, action } from '@ember/object';
+import { set, action } from '@ember/object';
 import RSVP from 'rsvp';
 import { task } from 'ember-concurrency';
 
@@ -9,12 +9,12 @@ export default class extends Route {
   @service store;
 
   beforeModel() {
-    let indexedDb = get(this, 'indexedDb');
-    return get(indexedDb, 'setupTask').perform();
+    let { indexedDb } = this;
+    return indexedDb.setupTask.perform();
   }
 
   model() {
-    let store = get(this, 'store');
+    let { store } = this;
     return store.findAll('item');
   }
 
@@ -43,7 +43,8 @@ export default class extends Route {
   // In the real world, this would not be synced with the API yet
   @action
   addItem() {
-    let store = get(this, 'store');
+    let { store } = this;
+
     let item = store.createRecord('item', {
       title: 'Item',
       date: new Date().toISOString().split('.')[0],
@@ -61,15 +62,14 @@ export default class extends Route {
 
   @action
   resetDb() {
-    return get(this, 'resetDbTask').perform();
+    return this.resetDbTask.perform();
   }
 
   @task(function* () {
-    let indexedDb = get(this, 'indexedDb');
-    let store = get(this, 'store');
+    let { indexedDb, store } = this;
 
-    yield get(indexedDb, 'dropDatabaseTask').linked().perform();
-    yield get(indexedDb, 'setupTask').linked().perform();
+    yield indexedDb.dropDatabaseTask.linked().perform();
+    yield indexedDb.setupTask.linked().perform();
     store.unloadAll();
 
     yield this.refresh();
@@ -77,13 +77,13 @@ export default class extends Route {
   resetDbTask;
 
   _trySyncServer() {
-    let store = get(this, 'store');
+    let { store } = this;
 
     store.query('item', { isSynced: false }).then((items) => {
       // These are now all items that are not synced
       // Here, you would actually send them to an API via e.g. ember-ajax
       // This is just mocked here.
-      alert(`${get(items, 'length')} item(s) were synced to the API.`);
+      alert(`${items.length} item(s) were synced to the API.`);
 
       // Theoretically, if the sync failed, we would just leave isSynced=false, and would retry with the next sync
 
@@ -99,7 +99,8 @@ export default class extends Route {
   // In this example, we just create dummy payloads to add
   _fetchFromAPI() {
     // Generate new items
-    let indexedDb = get(this, 'indexedDb');
+    let { indexedDb } = this;
+
     return indexedDb.add('item', [
       this._createItemPayload(),
       this._createItemPayload(),

@@ -114,9 +114,9 @@ module('Unit | Service | indexed-db', function (hooks) {
     ];
     assert.deepEqual(putItems, [response2], 'adding two items works');
 
-    let promiseQueue = get(service, '_promiseQueue');
+    let promiseQueue = service._promiseQueue;
     assert.equal(
-      get(promiseQueue, 'length'),
+      promiseQueue.length,
       2,
       'there are two items in the promise queue'
     );

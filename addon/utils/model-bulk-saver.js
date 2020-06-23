@@ -1,4 +1,3 @@
-import { get } from '@ember/object';
 import { assert } from '@ember/debug';
 
 /**
@@ -65,7 +64,7 @@ export class ModelBulkSaver {
 
     // TODO: Note that this uses internal functions
     let { modelName } = this.model.constructor;
-    let promise = indexedDB.saveBulk(modelName, get(record, 'data'));
+    let promise = indexedDB.saveBulk(modelName, record.data);
     promise.then(
       () => {
         this._markAsSaved();

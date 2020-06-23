@@ -1,5 +1,5 @@
 import Service, { inject as service } from '@ember/service';
-import { set, get } from '@ember/object';
+import { set } from '@ember/object';
 import { Promise } from 'rsvp';
 import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
@@ -111,16 +111,16 @@ export default class IndexedDbService extends Service {
   }
 
   @task(function* () {
-    if (get(this, 'db')) {
-      return get(this, 'db');
+    if (this.db) {
+      return this.db;
     }
 
     let testWaiterToken = testWaiter.beginAsync();
 
-    let db = new Dexie(get(this, 'databaseName'));
+    let db = new Dexie(this.databaseName);
 
-    let dbConfiguration = get(this, 'indexedDbConfiguration');
-    dbConfiguration.setupDatabase(db);
+    let { indexedDbConfiguration } = this;
+    indexedDbConfiguration.setupDatabase(db);
 
     set(this, 'db', db);
 
@@ -188,10 +188,12 @@ export default class IndexedDbService extends Service {
    * @public
    */
   find(type, id) {
-    let db = get(this, 'db');
+    let { db } = this;
+
     if (getTypeOf(id) === 'array') {
       return db[type].where('id').anyOf(id.map(this._toString)).toArray();
     }
+
     let promise = new Promise(
       (resolve, reject) =>
         db[type].get(this._toString(id)).then(resolve, reject),
@@ -211,7 +213,8 @@ export default class IndexedDbService extends Service {
    * @public
    */
   findAll(type) {
-    let db = get(this, 'db');
+    let { db } = this;
+
     let promise = new Promise(
       (resolve, reject) => db[type].toArray().then(resolve, reject),
       'indexedDb/findAll'
@@ -231,7 +234,7 @@ export default class IndexedDbService extends Service {
    * @public
    */
   add(type, items) {
-    let db = get(this, 'db');
+    let { db } = this;
 
     // Single Item?
     if (getTypeOf(items) !== 'array') {
@@ -262,7 +265,7 @@ export default class IndexedDbService extends Service {
    * @public
    */
   save(type, id, item) {
-    let db = get(this, 'db');
+    let { db } = this;
 
     let data = this._mapItem(type, item);
     let promise = new Promise(
@@ -284,8 +287,7 @@ export default class IndexedDbService extends Service {
    * @public
    */
   saveBulk(type, item) {
-    let savePromise = get(this, '_savePromise');
-    let saveQueue = get(this, '_saveQueue');
+    let { _savePromise: savePromise, _saveQueue: saveQueue } = this;
 
     // If no save promise exists, create a new one
     if (!savePromise) {
@@ -305,7 +307,7 @@ export default class IndexedDbService extends Service {
       this._addToPromiseQueue(savePromise);
     }
 
-    let queue = get(saveQueue, type);
+    let queue = saveQueue[type];
     if (!queue) {
       queue = array();
       saveQueue[type] = queue;
@@ -324,7 +326,8 @@ export default class IndexedDbService extends Service {
    * @public
    */
   clear(type) {
-    let db = get(this, 'db');
+    let { db } = this;
+
     let promise = new Promise(
       (resolve, reject) => db[type].clear().then(resolve, reject),
       'indexedDb/clear'
@@ -344,7 +347,8 @@ export default class IndexedDbService extends Service {
    * @public
    */
   delete(type, id) {
-    let db = get(this, 'db');
+    let { db } = this;
+
     let promise = new Promise(
       (resolve, reject) => db[type].delete(id).then(resolve, reject),
       'indexedDb/delete'
@@ -364,11 +368,11 @@ export default class IndexedDbService extends Service {
    * @public
    */
   dropDatabase() {
-    return get(this, 'dropDatabaseTask').perform();
+    return this.dropDatabaseTask.perform();
   }
 
   @task(function* () {
-    let db = get(this, 'db');
+    let { db } = this;
 
     if (!db) {
       return;
@@ -378,7 +382,7 @@ export default class IndexedDbService extends Service {
 
     // Ensure the db is open
     yield openDb(db);
-    yield get(this, 'waitForQueueTask').perform();
+    yield this.waitForQueueTask.perform();
     yield timeout(100);
     yield db.delete();
     yield closeDb(db);
@@ -400,17 +404,17 @@ export default class IndexedDbService extends Service {
    * @public
    */
   exportDatabase() {
-    let promise = get(this, 'exportDatabaseTask').perform();
+    let promise = this.exportDatabaseTask.perform();
     this._addToPromiseQueue(promise);
     return promise;
   }
 
   @task(function* () {
-    let db = get(this, 'db');
+    let { db, databaseName, currentVersion: version } = this;
 
     let config = {
-      databaseName: get(this, 'databaseName'),
-      version: get(this, 'currentVersion'),
+      databaseName,
+      version,
       stores: {},
       data: {},
     };
@@ -436,7 +440,8 @@ export default class IndexedDbService extends Service {
       set(config.stores, table.name, schemaSyntax);
 
       let promise = table.each((object) => {
-        let arr = get(config.data, table.name);
+        let arr = config.data[table.name];
+
         if (!arr) {
           arr = array();
           set(config.data, table.name, arr);
@@ -464,7 +469,7 @@ export default class IndexedDbService extends Service {
    * @public
    */
   importDatabase(config) {
-    let promise = get(this, 'importDatabaseTask').perform(config);
+    let promise = this.importDatabaseTask.perform(config);
     this._addToPromiseQueue(promise);
     return promise;
   }
@@ -476,7 +481,7 @@ export default class IndexedDbService extends Service {
     log('Importing database dump!');
 
     log('Dropping existing database...');
-    yield get(this, 'dropDatabaseTask').perform();
+    yield this.dropDatabaseTask.perform();
 
     log(`Setting up database ${databaseName} in version ${version}...`);
     let db = new Dexie(databaseName);
@@ -510,11 +515,11 @@ export default class IndexedDbService extends Service {
    * @public
    */
   waitForQueue() {
-    return get(this, 'waitForQueueTask').perform();
+    return this.waitForQueueTask.perform();
   }
 
   @task(function* () {
-    while (get(this, '_promiseQueue.length') || get(this, '_savePromise')) {
+    while (this._promiseQueue.length > 0 || this._savePromise) {
       yield timeout(100);
     }
   })
@@ -527,7 +532,7 @@ export default class IndexedDbService extends Service {
    * @private
    */
   _bulkSave() {
-    let saveQueue = get(this, '_saveQueue');
+    let { _saveQueue: saveQueue } = this;
 
     let promises = array();
     for (let i in saveQueue) {
@@ -557,8 +562,7 @@ export default class IndexedDbService extends Service {
    * @private
    */
   _buildQuery(type, query) {
-    let db = get(this, 'db');
-    let _supportsCompoundIndices = get(this, '_supportsCompoundIndices');
+    let { db, _supportsCompoundIndices: supportsCompoundIndices } = this;
 
     let promise = null;
     let keys = Object.keys(query);
@@ -582,9 +586,9 @@ export default class IndexedDbService extends Service {
 
     // try to find a fitting multi index
     // only if the client supports compound indices!
-    if (_supportsCompoundIndices) {
+    if (supportsCompoundIndices) {
       let multiIndex = indexes.find((index) => {
-        let keyPath = get(index, 'keyPath');
+        let { keyPath } = index;
 
         // If keyPath is not set, not an array or not the same length as the keys, it's not the correct one
         if (
@@ -601,13 +605,13 @@ export default class IndexedDbService extends Service {
 
       // If a multi index is found, use it
       if (multiIndex) {
-        let keyPath = get(multiIndex, 'keyPath');
+        let { keyPath, name: keyName } = multiIndex;
         let compareValues = array();
+
         keyPath.forEach((key) => {
           compareValues.push(query[key]);
         });
 
-        let keyName = get(multiIndex, 'name');
         return db[type].where(keyName).equals(compareValues);
       }
     }
@@ -617,7 +621,7 @@ export default class IndexedDbService extends Service {
       if (!promise) {
         promise = db[type].where(i).equals(query[i]);
       } else {
-        promise = promise.and((item) => get(item, i) === query[i]);
+        promise = promise.and((item) => item[i] === query[i]);
       }
     });
 
@@ -625,8 +629,9 @@ export default class IndexedDbService extends Service {
   }
 
   _mapItem(type, item) {
-    let dbConfiguration = get(this, 'indexedDbConfiguration');
-    return dbConfiguration.mapItem(type, item);
+    let { indexedDbConfiguration } = this;
+
+    return indexedDbConfiguration.mapItem(type, item);
   }
 
   _toString(val) {
@@ -643,14 +648,15 @@ export default class IndexedDbService extends Service {
    * @private
    */
   _addToPromiseQueue(promise) {
-    let wrappedPromise = waitForPromise(promise);
+    let { _promiseQueue: promiseQueue } = this;
 
-    let promiseQueue = get(this, '_promiseQueue');
+    let wrappedPromise = waitForPromise(promise);
     promiseQueue.pushObject(wrappedPromise);
 
     let removeObject = () => {
       promiseQueue.removeObject(wrappedPromise);
     };
+
     wrappedPromise.finally(removeObject);
     return wrappedPromise;
   }

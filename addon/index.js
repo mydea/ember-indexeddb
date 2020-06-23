@@ -88,7 +88,7 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
 
  You can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a `versionX` property per version, starting at 1. So if you have a `currentVersion` of 3, you need to have `version1`, `version2` and `version3` properties.
 
- All of these migrations are automatically run when running `this.get('indexedDb').setup();`.
+ All of these migrations are automatically run when running `this.indexedDb.setup();`.
 
  In addition to the store configuration, you also need to define a `mapTable`.
  This is a map of functions which is used to normalize JSONAPI payloads for IndexedDB.
@@ -100,17 +100,17 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
   return {
     'model-one': (item) => {
       return {
-        id: this._toString(get(item, 'id')),
+        id: this._toString(item.id),
         json: this._cleanupObject(item),
-        isNew: this._toZeroOne(get(item, 'isNew'))
+        isNew: this._toZeroOne(item.isNew)
       };
     },
     'model-two': (item) => {
       return {
-        id: this._toString(get(item, 'id')),
+        id: this._toString(item.id),
         json: this._cleanupObject(item),
-        modelOne: this._toString(get(item, 'relationships.modelOne.data.id')),
-        status: get(item, 'attributes.status')
+        modelOne: this._toString(item.relationships.modelOne?.data?.id),
+        status: item.attribtues.status
       };
     }
   };

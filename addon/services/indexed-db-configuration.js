@@ -1,5 +1,4 @@
 import Service from '@ember/service';
-import { get } from '@ember/object';
 import { typeOf as getTypeOf, isNone } from '@ember/utils';
 import { A as array } from '@ember/array';
 import { assert } from '@ember/debug';
@@ -89,10 +88,10 @@ export default class IndexedDbConfigurationService extends Service {
    * return {
    *    task: (item) => {
    *      return {
-   *        id: this._toString(get(item, 'id')),
+   *        id: this._toString(item.id),
    *        json: this._cleanObject(item),
-   *        isRead: this._toZeroOne(get(item, 'attributes.isRead')),
-   *        status: get(item, 'attributes.status')
+   *        isRead: this._toZeroOne(item.attributes.isRead),
+   *        status: item.attributes.status
    *      };
    *    }
    * };
@@ -102,7 +101,7 @@ export default class IndexedDbConfigurationService extends Service {
    *
    * ```js
    * return {
-   *    id: this._toString(get(item, 'id')),
+   *    id: this._toString(item.id),
    *    json: this._cleanObject(item)
    * };
    * ```
@@ -126,7 +125,7 @@ export default class IndexedDbConfigurationService extends Service {
    */
   mapItem(type, item) {
     let tables = this.mapTable;
-    let mapFunc = get(tables, type);
+    let mapFunc = tables[type];
 
     if (!item) {
       return null;
@@ -134,7 +133,7 @@ export default class IndexedDbConfigurationService extends Service {
 
     if (!mapFunc) {
       return {
-        id: this._toString(get(item, 'id')),
+        id: this._toString(item.id),
         json: this._cleanObject(item),
       };
     }
@@ -159,9 +158,8 @@ export default class IndexedDbConfigurationService extends Service {
     );
 
     for (let v = 1; v <= currentVersion; v++) {
-      let version = get(this, `version${v}`);
-      let stores = get(version, 'stores');
-      let upgrade = get(version, 'upgrade');
+      let versionName = `version${v}`;
+      let { stores, upgrade } = this[versionName];
 
       if (stores && upgrade) {
         db.version(v).stores(stores).upgrade(upgrade);
@@ -190,15 +188,14 @@ export default class IndexedDbConfigurationService extends Service {
       return null;
     }
 
+    let { id, type, attributes = {}, relationships = {} } = data;
+
     let obj = {
-      id: get(data, 'id'),
-      type: get(data, 'type'),
+      id,
+      type,
       attributes: {},
       relationships: {},
     };
-
-    let attributes = get(data, 'attributes') || {};
-    let relationships = get(data, 'relationships') || {};
 
     let isArray = (item) => {
       return (
