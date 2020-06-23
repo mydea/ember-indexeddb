@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
-                                  Tag: v2.0.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.0" target="_blank">
+                                  Tag: v3.0.0-beta.0
                                 </a>
                             </h4>
                         </div>
@@ -139,7 +139,6 @@
 <div class="file">
     <pre class="prettyprint linenums">
 import Service from &#x27;@ember/service&#x27;;
-import { get } from &#x27;@ember/object&#x27;;
 import { typeOf as getTypeOf, isNone } from &#x27;@ember/utils&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
 import { assert } from &#x27;@ember/debug&#x27;;
@@ -167,21 +166,26 @@ export default class IndexedDbConfigurationService extends Service {
    *
    * upgrade is a function that gets a transaction as parameter, which can be used to run database migrations.
    * See https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade() for detailed options/examples.
+   * 
+   * Note that in newer versions of Dexie, you do not need to keep old version definitions anymnore, unless they contain upgrade instructions.
+   * Instead, each version has to contain the full, current schema (not just the updates to the last version).
    *
    * An example would be:
    *
    * &#x60;&#x60;&#x60;js
-   * version1: {
+   * // You can delete this safely when adding version2, as it does not contain an upgrade
+   * version1 = {
    *    stores: {
    *      &#x27;task&#x27;: &#x27;&amp;id*,isRead&#x27;,
    *      &#x27;task-item&#x27;: &#x27;&amp;id&#x27;
    *    }
    * },
    *
-   * version2: {
-   *    stores: {
+   * version2 = {
+   *     stores: {
+   *      &#x27;task&#x27;: &#x27;&amp;id*,isRead&#x27;,
    *      &#x27;task-item&#x27;: &#x27;&amp;id,*isNew&#x27;
-   *    },
+   *    }
    *    upgrade: (transaction) =&gt; {
    *     transaction[&#x27;task-item&#x27;].each((taskItem, cursor) =&gt; {
            taskItem.isNew = 0;
@@ -229,10 +233,10 @@ export default class IndexedDbConfigurationService extends Service {
    * return {
    *    task: (item) =&gt; {
    *      return {
-   *        id: this._toString(get(item, &#x27;id&#x27;)),
+   *        id: this._toString(item.id),
    *        json: this._cleanObject(item),
-   *        isRead: this._toZeroOne(get(item, &#x27;attributes.isRead&#x27;)),
-   *        status: get(item, &#x27;attributes.status&#x27;)
+   *        isRead: this._toZeroOne(item.attributes.isRead),
+   *        status: item.attributes.status
    *      };
    *    }
    * };
@@ -242,7 +246,7 @@ export default class IndexedDbConfigurationService extends Service {
    *
    * &#x60;&#x60;&#x60;js
    * return {
-   *    id: this._toString(get(item, &#x27;id&#x27;)),
+   *    id: this._toString(item.id),
    *    json: this._cleanObject(item)
    * };
    * &#x60;&#x60;&#x60;
@@ -266,7 +270,7 @@ export default class IndexedDbConfigurationService extends Service {
    */
   mapItem(type, item) {
     let tables = this.mapTable;
-    let mapFunc = get(tables, type);
+    let mapFunc = tables[type];
 
     if (!item) {
       return null;
@@ -274,7 +278,7 @@ export default class IndexedDbConfigurationService extends Service {
 
     if (!mapFunc) {
       return {
-        id: this._toString(get(item, &#x27;id&#x27;)),
+        id: this._toString(item.id),
         json: this._cleanObject(item),
       };
     }
@@ -291,7 +295,7 @@ export default class IndexedDbConfigurationService extends Service {
    * @public
    */
   setupDatabase(db) {
-    let currentVersion = this.currentVersion;
+    let { currentVersion } = this;
 
     assert(
       &#x27;You need to override services/indexed-db-configuration.js and provide at least one version.&#x27;,
@@ -299,9 +303,14 @@ export default class IndexedDbConfigurationService extends Service {
     );
 
     for (let v = 1; v &lt;= currentVersion; v++) {
-      let version = get(this, &#x60;version${v}&#x60;);
-      let stores = get(version, &#x27;stores&#x27;);
-      let upgrade = get(version, &#x27;upgrade&#x27;);
+      let versionName = &#x60;version${v}&#x60;;
+      let versionDefinition = this[versionName];
+
+      if (!versionDefinition) {
+        continue;
+      }
+
+      let { stores, upgrade } = versionDefinition;
 
       if (stores &amp;&amp; upgrade) {
         db.version(v).stores(stores).upgrade(upgrade);
@@ -330,15 +339,14 @@ export default class IndexedDbConfigurationService extends Service {
       return null;
     }
 
+    let { id, type, attributes = {}, relationships = {} } = data;
+
     let obj = {
-      id: get(data, &#x27;id&#x27;),
-      type: get(data, &#x27;type&#x27;),
+      id,
+      type,
       attributes: {},
       relationships: {},
     };
-
-    let attributes = get(data, &#x27;attributes&#x27;) || {};
-    let relationships = get(data, &#x27;relationships&#x27;) || {};
 
     let isArray = (item) =&gt; {
       return (

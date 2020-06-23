@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
-                                  Tag: v2.0.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.0" target="_blank">
+                                  Tag: v3.0.0-beta.0
                                 </a>
                             </h4>
                         </div>
@@ -136,7 +136,7 @@
 
 <div class="page-header">
     <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> IndexedDbConfiguration Class
-            <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L7" target="_blank">
+            <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L6" target="_blank">
               <i class="fa fa-pencil" aria-hidden="true"></i>
             </a>
     </h1>
@@ -150,7 +150,7 @@
 
 
         <div class="foundat">
-            Defined In: <a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L7">addon/services/indexed-db-configuration.js:7</a>
+            Defined In: <a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L6">addon/services/indexed-db-configuration.js:6</a>
         </div>
 </div>
 
@@ -277,7 +277,7 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
   	<div class="meta">
   				<p>
   				Defined in
-  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L178">addon/services/indexed-db-configuration.js:178</a>
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L187">addon/services/indexed-db-configuration.js:187</a>
   		</p>
   
   
@@ -343,7 +343,7 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
   	<div class="meta">
   				<p>
   				Defined in
-  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L233">addon/services/indexed-db-configuration.js:233</a>
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L241">addon/services/indexed-db-configuration.js:241</a>
   		</p>
   
   
@@ -408,7 +408,7 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
   	<div class="meta">
   				<p>
   				Defined in
-  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L245">addon/services/indexed-db-configuration.js:245</a>
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L253">addon/services/indexed-db-configuration.js:253</a>
   		</p>
   
   
@@ -484,7 +484,7 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
   	<div class="meta">
   				<p>
   				Defined in
-  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L116">addon/services/indexed-db-configuration.js:116</a>
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L120">addon/services/indexed-db-configuration.js:120</a>
   		</p>
   
   
@@ -559,7 +559,7 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
   	<div class="meta">
   				<p>
   				Defined in
-  		<a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L145">addon/services/indexed-db-configuration.js:145</a>
+  		<a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L149">addon/services/indexed-db-configuration.js:149</a>
   		</p>
   
   
@@ -612,7 +612,7 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
       <div class="meta">
                   <p>
                   Defined in
-          <a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L17">addon/services/indexed-db-configuration.js:17</a>
+          <a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L16">addon/services/indexed-db-configuration.js:16</a>
           </p>
   
   
@@ -628,18 +628,22 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
   See <a href="https://github.com/dfahlander/Dexie.js/wiki/Version.stores()">https://github.com/dfahlander/Dexie.js/wiki/Version.stores()</a> for detailed options.</p>
   <p>upgrade is a function that gets a transaction as parameter, which can be used to run database migrations.
   See <a href="https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()">https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()</a> for detailed options/examples.</p>
+  <p>Note that in newer versions of Dexie, you do not need to keep old version definitions anymnore, unless they contain upgrade instructions.
+  Instead, each version has to contain the full, current schema (not just the updates to the last version).</p>
   <p>An example would be:</p>
-  <pre class="code prettyprint"><code class="language-js">version1: {
+  <pre class="code prettyprint"><code class="language-js">// You can delete this safely when adding version2, as it does not contain an upgrade
+  version1 = {
      stores: {
        'task': '&amp;id*,isRead',
        'task-item': '&amp;id'
      }
   },
   
-  version2: {
-     stores: {
+  version2 = {
+      stores: {
+       'task': '&amp;id*,isRead',
        'task-item': '&amp;id,*isNew'
-     },
+     }
      upgrade: (transaction) =&gt; {
       transaction['task-item'].each((taskItem, cursor) =&gt; {
             taskItem.isNew = 0;
@@ -671,7 +675,7 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
       <div class="meta">
                   <p>
                   Defined in
-          <a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/services/indexed-db-configuration.js#L63">addon/services/indexed-db-configuration.js:63</a>
+          <a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/services/indexed-db-configuration.js#L67">addon/services/indexed-db-configuration.js:67</a>
           </p>
   
   
@@ -699,17 +703,17 @@ Overwrite the <code>mapTable</code> property &amp; add <code>versionX</code> pro
   <pre class="code prettyprint"><code class="language-js">return {
      task: (item) =&gt; {
        return {
-         id: this._toString(get(item, 'id')),
+         id: this._toString(item.id),
          json: this._cleanObject(item),
-         isRead: this._toZeroOne(get(item, 'attributes.isRead')),
-         status: get(item, 'attributes.status')
+         isRead: this._toZeroOne(item.attributes.isRead),
+         status: item.attributes.status
        };
      }
   };
   </code></pre>
   <p>Note that if you do not specify anything here, it will default to</p>
   <pre class="code prettyprint"><code class="language-js">return {
-     id: this._toString(get(item, 'id')),
+     id: this._toString(item.id),
      json: this._cleanObject(item)
   };
   </code></pre>

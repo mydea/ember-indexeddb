@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
-                                  Tag: v2.0.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.0" target="_blank">
+                                  Tag: v3.0.0-beta.0
                                 </a>
                             </h4>
                         </div>
@@ -181,15 +181,15 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
  import Route from &#x27;@ember/routing/route&#x27;;
  import { inject as service } from &#x27;@ember/service&#x27;;
 
- export default Ember.Route.extend({
-  indexedDb: service(),
+ export default class ApplicationRoute extends Route {
+  @service indexedDb;
 
   beforeModel() {
     this._super(...arguments);
 
     return this.indexedDb.setupTask.perform();
   }
-});
+}
  &#x60;&#x60;&#x60;
 
  This returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.
@@ -209,8 +209,8 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
  &#x60;&#x60;&#x60;js
  import IndexedDbConfigurationService from &#x27;ember-indexeddb/services/indexed-db-configuration&#x27;;
 
- export default IndexedDbConfigurationService.extend({
-  currentVersion: 1,
+ export default class ExtendedIndexedDbConfigurationService extends IndexedDbConfigurationService {
+  currentVersion = 1;
 
   version1: {
     stores: {
@@ -218,7 +218,7 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
       &#x27;model-two&#x27;: &#x27;&amp;id,*status,*modelOne,[status+modelOne]&#x27;
     }
   }
-});
+}
  &#x60;&#x60;&#x60;
 
  Please consult the Dexie Documentation on [details about configuring your database](https://github.com/dfahlander/Dexie.js/wiki/Version.stores()).
@@ -228,7 +228,9 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
 
  You can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a &#x60;versionX&#x60; property per version, starting at 1. So if you have a &#x60;currentVersion&#x60; of 3, you need to have &#x60;version1&#x60;, &#x60;version2&#x60; and &#x60;version3&#x60; properties.
 
- All of these migrations are automatically run when running &#x60;this.get(&#x27;indexedDb&#x27;).setup();&#x60;.
+ You do not need to keep old versionX configurations unless they contain an upgrade. 
+
+ All of these migrations are automatically run when running &#x60;this.indexedDb.setup();&#x60;.
 
  In addition to the store configuration, you also need to define a &#x60;mapTable&#x60;.
  This is a map of functions which is used to normalize JSONAPI payloads for IndexedDB.
@@ -236,25 +238,23 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
  For the above example, this should look something like this:
 
  &#x60;&#x60;&#x60;js
- mapTable: computed(function() {
-  return {
-    &#x27;model-one&#x27;: (item) =&gt; {
-      return {
-        id: this._toString(get(item, &#x27;id&#x27;)),
-        json: this._cleanupObject(item),
-        isNew: this._toZeroOne(get(item, &#x27;isNew&#x27;))
-      };
-    },
-    &#x27;model-two&#x27;: (item) =&gt; {
-      return {
-        id: this._toString(get(item, &#x27;id&#x27;)),
-        json: this._cleanupObject(item),
-        modelOne: this._toString(get(item, &#x27;relationships.modelOne.data.id&#x27;)),
-        status: get(item, &#x27;attributes.status&#x27;)
-      };
-    }
-  };
-})
+ mapTable: {
+  &#x27;model-one&#x27;: (item) =&gt; {
+    return {
+      id: this._toString(item.id),
+      json: this._cleanupObject(item),
+      isNew: this._toZeroOne(item.isNew)
+    };
+  },
+  &#x27;model-two&#x27;: (item) =&gt; {
+    return {
+      id: this._toString(item.id),
+      json: this._cleanupObject(item),
+      modelOne: this._toString(item.relationships.modelOne?.data?.id),
+      status: item.attribtues.status
+    };
+  }
+}
  &#x60;&#x60;&#x60;
 
  Things to note here:
@@ -313,7 +313,7 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
  &#x60;&#x60;&#x60;js
  import IndexedDbAdapter from &#x27;ember-indexeddb/adapters/indexed-db&#x27;;
 
- export default IndexedDbAdapter.extend();
+ export default class ApplicationAdapter extends IndexedDbAdapter {}
  &#x60;&#x60;&#x60;
 
  The next step is to setup your database for your Ember Data models.
@@ -325,18 +325,16 @@ import IndexedDbConfiguration from &#x27;./services/indexed-db-configuration&#x2
  import IndexedDbConfigurationService from &#x27;ember-indexeddb/services/indexed-db-configuration&#x27;;
  import { computed, get } from &#x27;@ember/object&#x27;;
 
- export default IndexedDbConfigurationService.extend({
-  currentVersion: 1,
+ export default class ExtendedIndexedDbConfigurationService extends IndexedDbConfigurationService {
+  currentVersion = 1;
 
-  version1: computed(function() {
-    return {
-      stores: {
-        &#x27;model-a&#x27;: &#x27;&amp;id&#x27;,
-        &#x27;model-b&#x27;: &#x27;&amp;id&#x27;
-      }
-    };
-  })
-});
+  version1 = {
+    stores: {
+      &#x27;model-a&#x27;: &#x27;&amp;id&#x27;,
+      &#x27;model-b&#x27;: &#x27;&amp;id&#x27;
+    }
+  };
+}
  &#x60;&#x60;&#x60;
 
  Now, you can simply use the normal ember-data store with functions like &#x60;store.query(&#x27;item&#x27;, { isNew: true })&#x60;.

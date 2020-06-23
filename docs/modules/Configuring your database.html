@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
-                                  Tag: v2.0.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.0" target="_blank">
+                                  Tag: v3.0.0-beta.0
                                 </a>
                             </h4>
                         </div>
@@ -136,7 +136,7 @@
 
 <div class="page-header">
     <h1> <i class="fa fa-bookmark-o" aria-hidden="true"></i> Configuring your database Module
-              <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/index.js#L64" target="_blank">
+              <a class="pull-right file-edit" href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/index.js#L64" target="_blank">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               </a>
     </h1>
@@ -146,7 +146,7 @@
 
 
         <div class="foundat">
-            Defined in: <a href="https://github.com/mydea/ember-indexeddb/blob/v2.0.0/addon/index.js#L64">addon/index.js:64</a>
+            Defined in: <a href="https://github.com/mydea/ember-indexeddb/blob/v3.0.0-beta.0/addon/index.js#L64">addon/index.js:64</a>
         </div>
 
 </div>
@@ -157,8 +157,8 @@
 <p>You need to extend the indexed-db-configuration service:</p>
 <pre class="code prettyprint"><code class="language-js">import IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';
 
-export default IndexedDbConfigurationService.extend({
- currentVersion: 1,
+export default class ExtendedIndexedDbConfigurationService extends IndexedDbConfigurationService {
+ currentVersion = 1;
 
  version1: {
    stores: {
@@ -166,35 +166,34 @@ export default IndexedDbConfigurationService.extend({
      'model-two': '&amp;id,*status,*modelOne,[status+modelOne]'
    }
  }
-});
+}
 </code></pre>
 <p>Please consult the Dexie Documentation on <a href="https://github.com/dfahlander/Dexie.js/wiki/Version.stores()">details about configuring your database</a>.
 Basically, you should always have an <code>&amp;id</code> column as a primary index, and add further indices that you want to query by. You can also add multi-indices for more complex querying.</p>
 <p>Each version can also have an upgrade function in addition (or instead of) a stores property. This can be used to do data migrations. See the Dexie Documentation for details about <a href="https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade()">data migrations and upgrades</a>.</p>
 <p>You can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a <code>versionX</code> property per version, starting at 1. So if you have a <code>currentVersion</code> of 3, you need to have <code>version1</code>, <code>version2</code> and <code>version3</code> properties.</p>
-<p>All of these migrations are automatically run when running <code>this.get('indexedDb').setup();</code>.</p>
+<p>You do not need to keep old versionX configurations unless they contain an upgrade.</p>
+<p>All of these migrations are automatically run when running <code>this.indexedDb.setup();</code>.</p>
 <p>In addition to the store configuration, you also need to define a <code>mapTable</code>.
 This is a map of functions which is used to normalize JSONAPI payloads for IndexedDB.</p>
 <p>For the above example, this should look something like this:</p>
-<pre class="code prettyprint"><code class="language-js">mapTable: computed(function() {
- return {
-   'model-one': (item) =&gt; {
-     return {
-       id: this._toString(get(item, 'id')),
-       json: this._cleanupObject(item),
-       isNew: this._toZeroOne(get(item, 'isNew'))
-     };
-   },
-   'model-two': (item) =&gt; {
-     return {
-       id: this._toString(get(item, 'id')),
-       json: this._cleanupObject(item),
-       modelOne: this._toString(get(item, 'relationships.modelOne.data.id')),
-       status: get(item, 'attributes.status')
-     };
-   }
- };
-})
+<pre class="code prettyprint"><code class="language-js">mapTable: {
+ 'model-one': (item) =&gt; {
+   return {
+     id: this._toString(item.id),
+     json: this._cleanupObject(item),
+     isNew: this._toZeroOne(item.isNew)
+   };
+ },
+ 'model-two': (item) =&gt; {
+   return {
+     id: this._toString(item.id),
+     json: this._cleanupObject(item),
+     modelOne: this._toString(item.relationships.modelOne?.data?.id),
+     status: item.attribtues.status
+   };
+ }
+}
 </code></pre>
 <p>Things to note here:</p>
 <ol>

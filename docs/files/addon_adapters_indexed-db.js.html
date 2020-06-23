@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v2.0.0" target="_blank">
-                                  Tag: v2.0.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.0" target="_blank">
+                                  Tag: v3.0.0-beta.0
                                 </a>
                             </h4>
                         </div>
@@ -139,7 +139,6 @@
 <div class="file">
     <pre class="prettyprint linenums">
 import { inject as service } from &#x27;@ember/service&#x27;;
-import { get } from &#x27;@ember/object&#x27;;
 import { Promise } from &#x27;rsvp&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
 import { cloneDeep } from &#x27;ember-indexeddb/utils/clone-deep&#x27;;
@@ -347,7 +346,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
   deleteRecord(store, type, snapshot) {
     let indexedDB = this.indexedDb;
     let { modelName } = type;
-    let id = get(snapshot, &#x27;id&#x27;);
+    let { id } = snapshot;
 
     this._logDuration(&#x60;deleteRecord ${modelName}/${id}&#x60;);
     return new Promise((resolve, reject) =&gt; {
@@ -386,7 +385,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
     let indexedDB = this.indexedDb;
     let { modelName } = type;
 
-    this._logDuration(&#x60;_save ${modelName}/${get(snapshot, &#x27;id&#x27;)}&#x60;);
+    this._logDuration(&#x60;_save ${modelName}/${snapshot.id}&#x60;);
     return new Promise((resolve, reject) =&gt; {
       let data = {};
       let serializer = store.serializerFor(modelName);
@@ -395,7 +394,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
       let record = cloneDeep(data.data);
 
       indexedDB.save(modelName, record.id, record).then(() =&gt; {
-        this._logDuration(&#x60;_save ${modelName}/${get(snapshot, &#x27;id&#x27;)}&#x60;, true);
+        this._logDuration(&#x60;_save ${modelName}/${snapshot.id}&#x60;, true);
 
         resolve(data);
       }, reject);
@@ -439,7 +438,7 @@ export default class IndexedDbAdapter extends JSONAPIAdapter {
     }
 
     return {
-      data: get(record, &#x27;json&#x27;),
+      data: record.json,
     };
   }
 
