@@ -567,13 +567,6 @@ export default class IndexedDbService extends Service {
 
     let keys = Object.keys(query);
 
-    // Convert boolean queries to 1/0
-    for (let i in query) {
-      if (getTypeOf(query[i]) === 'boolean') {
-        query[i] = query[i] ? 1 : 0;
-      }
-    }
-
     // Order of query params is important!
     let { schema } = db[type];
     let { indexes } = schema;
@@ -587,13 +580,14 @@ export default class IndexedDbService extends Service {
       });
 
       if (index) {
-        return db[type].where(key).equals(query[key]);
+        let value = normalizeValue(query[key]);
+        return db[type].where(key).equals(value);
       }
     }
 
     // try to find a fitting multi index
     // only if the client supports compound indices!
-    if (supportsCompoundIndices) {
+    if (keys.length > 1 && supportsCompoundIndices) {
       let multiIndex = indexes.find((index) => {
         let { keyPath } = index;
 
@@ -616,7 +610,8 @@ export default class IndexedDbService extends Service {
         let compareValues = array();
 
         keyPath.forEach((key) => {
-          compareValues.push(query[key]);
+          let value = normalizeValue(query[key]);
+          compareValues.push(value);
         });
 
         return db[type].where(keyName).equals(compareValues);
@@ -624,9 +619,27 @@ export default class IndexedDbService extends Service {
     }
 
     // Else, filter manually
-    return db[type].filter((item) => {
-      return keys.every((key) => {
-        return item.json.attributes[key] === query[key];
+    // Try to find at least a single actual index, if possible...
+    let whereKey = keys.find((key) => {
+      return indexes.some((index) => {
+        let { keyPath } = index;
+        return keyPath === key;
+      });
+    });
+
+    let whereKeyValue = whereKey ? normalizeValue(query[whereKey]) : null;
+    let vanillaFilterKeys = keys.filter((key) => !whereKey || key !== whereKey);
+
+    let collection = whereKey
+      ? db[type].where(whereKey).equals(whereKeyValue)
+      : db[type];
+
+    return collection.filter((item) => {
+      return vanillaFilterKeys.every((key) => {
+        return (
+          normalizeValue(item.json.attributes[key]) ===
+          normalizeValue(query[key])
+        );
       });
     });
   }
@@ -687,4 +700,12 @@ async function closeDb(db) {
     await db.close();
   }
   return db;
+}
+
+function normalizeValue(value) {
+  if (typeof value === 'boolean') {
+    return value ? 1 : 0;
+  }
+
+  return value;
 }
