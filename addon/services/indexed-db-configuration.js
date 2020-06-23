@@ -26,21 +26,26 @@ export default class IndexedDbConfigurationService extends Service {
    *
    * upgrade is a function that gets a transaction as parameter, which can be used to run database migrations.
    * See https://github.com/dfahlander/Dexie.js/wiki/Version.upgrade() for detailed options/examples.
+   * 
+   * Note that in newer versions of Dexie, you do not need to keep old version definitions anymnore, unless they contain upgrade instructions.
+   * Instead, each version has to contain the full, current schema (not just the updates to the last version).
    *
    * An example would be:
    *
    * ```js
-   * version1: {
+   * // You can delete this safely when adding version2, as it does not contain an upgrade
+   * version1 = {
    *    stores: {
    *      'task': '&id*,isRead',
    *      'task-item': '&id'
    *    }
    * },
    *
-   * version2: {
-   *    stores: {
+   * version2 = {
+   *     stores: {
+   *      'task': '&id*,isRead',
    *      'task-item': '&id,*isNew'
-   *    },
+   *    }
    *    upgrade: (transaction) => {
    *     transaction['task-item'].each((taskItem, cursor) => {
            taskItem.isNew = 0;

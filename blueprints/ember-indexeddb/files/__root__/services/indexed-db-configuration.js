@@ -15,38 +15,36 @@ import { computed } from '@ember/object';
  * A full example configuration after some time of use could look like this:
  *
  * ```
- * export default IndexedDbConfigurationService.extend({
-    currentVersion: 2,
-    version1: computed(function() {
-      return {
-        stores: {
-          'project': '&id',
-          'todo': '&id'
-        }
-      };
-    }),
-    version2: computed(function() {
-      return {
-        stores: {
-          'tag': '&id'
-        }
-      };
-    })
-  });
+ * export default class ExtendedIndexedDbConfigurationService extends IndexedDbConfigurationService {
+    currentVersion = 2;
+
+    version1: {
+      stores: {
+        project: '&id',
+        todo: '&id'
+      }
+    },
+
+    version2: {
+      stores: {
+        project: '&id',
+        todo: '&id,title',
+        tag: '&id'
+      }
+    }
+  }
  * ```
  *
  * For more information, please see https://mydea.github.io/ember-indexeddb/docs/modules/Configuring%20your%20database.html
  */
-export default IndexedDbConfigurationService.extend({
-  currentVersion: 1,
+export default class ExtendedIndexedDbConfigurationService extends IndexedDbConfigurationService {
+  currentVersion = 1;
 
-  version1: computed(function () {
-    return {
-      stores: {
-        // Add your tables here, like this: 'item': '&id'
-        // When using the ember data adapter, add one entry per model, where the key is your model name
-        // For example, if you have a model named "my-item", add an entry: `'my-item': '&id'
-      },
-    };
-  }),
-});
+  version1 = {
+    stores: {
+      // Add your tables here, like this: 'item': '&id'
+      // When using the ember data adapter, add one entry per model, where the key is your model name
+      // For example, if you have a model named "my-item", add an entry: `'my-item': '&id'
+    },
+  };
+}
