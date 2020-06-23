@@ -1,3 +1,16 @@
+# [3.0.0-beta.0](https://github.com/mydea/ember-indexeddb/compare/v2.0.0...v3.0.0-beta.0) (2020-06-23)
+
+
+### Bug Fixes
+
+* Ensure it allows to skip old DB versions without upgrade ([09b795a](https://github.com/mydea/ember-indexeddb/commit/09b795a459a7a3f89427c9e5d86162971e74764a))
+* Fix querying for unindexed fields ([a3cddac](https://github.com/mydea/ember-indexeddb/commit/a3cddac1a53b860f280693edbc8d2308a163fb74))
+
+
+### Features
+
+* Allow to output which indecies are used ([c583e60](https://github.com/mydea/ember-indexeddb/commit/c583e60cd4ef21a64a2f87d0d82274f999f5a636))
+
 # [2.0.0](https://github.com/mydea/ember-indexeddb/compare/v1.3.1...v2.0.0) (2020-03-23)
 
 # Changelog
