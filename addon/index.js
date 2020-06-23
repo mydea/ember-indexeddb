@@ -41,15 +41,15 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
  import Route from '@ember/routing/route';
  import { inject as service } from '@ember/service';
 
- export default Ember.Route.extend({
-  indexedDb: service(),
+ export default class ApplicationRoute extends Route {
+  @service indexedDb;
 
   beforeModel() {
     this._super(...arguments);
 
     return this.indexedDb.setupTask.perform();
   }
-});
+}
  ```
 
  This returns a promise that is ready once the database is setup. Note that this will reject if IndexedDB is not available - you need to handle this case accordingly.
@@ -69,8 +69,8 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
  ```js
  import IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';
 
- export default IndexedDbConfigurationService.extend({
-  currentVersion: 1,
+ export default class ExtendedIndexedDbConfigurationService extends IndexedDbConfigurationService {
+  currentVersion = 1;
 
   version1: {
     stores: {
@@ -78,7 +78,7 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
       'model-two': '&id,*status,*modelOne,[status+modelOne]'
     }
   }
-});
+}
  ```
 
  Please consult the Dexie Documentation on [details about configuring your database](https://github.com/dfahlander/Dexie.js/wiki/Version.stores()).
@@ -88,6 +88,8 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
 
  You can add as many version as you want, and Dexie will handle the upgrading for you. Note that you cannot downgrade a version. There needs to be a `versionX` property per version, starting at 1. So if you have a `currentVersion` of 3, you need to have `version1`, `version2` and `version3` properties.
 
+ You do not need to keep old versionX configurations unless they contain an upgrade. 
+
  All of these migrations are automatically run when running `this.indexedDb.setup();`.
 
  In addition to the store configuration, you also need to define a `mapTable`.
@@ -96,25 +98,23 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
  For the above example, this should look something like this:
 
  ```js
- mapTable: computed(function() {
-  return {
-    'model-one': (item) => {
-      return {
-        id: this._toString(item.id),
-        json: this._cleanupObject(item),
-        isNew: this._toZeroOne(item.isNew)
-      };
-    },
-    'model-two': (item) => {
-      return {
-        id: this._toString(item.id),
-        json: this._cleanupObject(item),
-        modelOne: this._toString(item.relationships.modelOne?.data?.id),
-        status: item.attribtues.status
-      };
-    }
-  };
-})
+ mapTable: {
+  'model-one': (item) => {
+    return {
+      id: this._toString(item.id),
+      json: this._cleanupObject(item),
+      isNew: this._toZeroOne(item.isNew)
+    };
+  },
+  'model-two': (item) => {
+    return {
+      id: this._toString(item.id),
+      json: this._cleanupObject(item),
+      modelOne: this._toString(item.relationships.modelOne?.data?.id),
+      status: item.attribtues.status
+    };
+  }
+}
  ```
 
  Things to note here:
@@ -173,7 +173,7 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
  ```js
  import IndexedDbAdapter from 'ember-indexeddb/adapters/indexed-db';
 
- export default IndexedDbAdapter.extend();
+ export default class ApplicationAdapter extends IndexedDbAdapter {}
  ```
 
  The next step is to setup your database for your Ember Data models.
@@ -185,18 +185,16 @@ import IndexedDbConfiguration from './services/indexed-db-configuration';
  import IndexedDbConfigurationService from 'ember-indexeddb/services/indexed-db-configuration';
  import { computed, get } from '@ember/object';
 
- export default IndexedDbConfigurationService.extend({
-  currentVersion: 1,
+ export default class ExtendedIndexedDbConfigurationService extends IndexedDbConfigurationService {
+  currentVersion = 1;
 
-  version1: computed(function() {
-    return {
-      stores: {
-        'model-a': '&id',
-        'model-b': '&id'
-      }
-    };
-  })
-});
+  version1 = {
+    stores: {
+      'model-a': '&id',
+      'model-b': '&id'
+    }
+  };
+}
  ```
 
  Now, you can simply use the normal ember-data store with functions like `store.query('item', { isNew: true })`.

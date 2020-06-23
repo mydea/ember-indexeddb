@@ -44,6 +44,17 @@ export default class IndexedDbService extends Service {
   databaseName = 'ember-indexeddb';
 
   /**
+   * If set to true, it will output which indecies are used for queries.
+   * This can be used to debug your indecies.
+   *
+   * @property _shouldLogQuery
+   * @type {Boolean}
+   * @default false
+   * @private
+   */
+  _shouldLogQuery = false;
+
+  /**
    * This is an object with an array per model type.
    * It holds all the objects per model type that should be bulk saved.
    * After actually saving, this will be cleared.
@@ -167,6 +178,7 @@ export default class IndexedDbService extends Service {
    */
   queryRecord(type, query) {
     let queryPromise = this._buildQuery(type, query);
+
     let promise = new Promise(
       (resolve, reject) => queryPromise.first().then(resolve, reject),
       'indexedDb/queryRecord'
@@ -543,6 +555,13 @@ export default class IndexedDbService extends Service {
     return Promise.all(promises, 'indexedDb/_bulkSave');
   }
 
+  _logQuery(str, query) {
+    if (this._shouldLogQuery) {
+      // eslint-disable-next-line
+      console.log(`[QUERY]: ${str}`, query);
+    }
+  }
+
   /**
    * Build a query for Dexie.
    *
@@ -564,29 +583,30 @@ export default class IndexedDbService extends Service {
   _buildQuery(type, query) {
     let { db, _supportsCompoundIndices: supportsCompoundIndices } = this;
 
-    let promise = null;
     let keys = Object.keys(query);
-
-    // Convert boolean queries to 1/0
-    for (let i in query) {
-      if (getTypeOf(query[i]) === 'boolean') {
-        query[i] = query[i] ? 1 : 0;
-      }
-    }
-
-    // Only one, then do a simple where
-    if (keys.length === 1) {
-      let key = keys[0];
-      return db[type].where(key).equals(query[key]);
-    }
 
     // Order of query params is important!
     let { schema } = db[type];
     let { indexes } = schema;
 
+    // Only one, try to find a simple index
+    if (keys.length === 1) {
+      let key = keys[0];
+      let index = indexes.find((index) => {
+        let { keyPath } = index;
+        return keyPath === key;
+      });
+
+      if (index) {
+        this._logQuery(`Using index "${key}"`, query);
+        let value = normalizeValue(query[key]);
+        return db[type].where(key).equals(value);
+      }
+    }
+
     // try to find a fitting multi index
     // only if the client supports compound indices!
-    if (supportsCompoundIndices) {
+    if (keys.length > 1 && supportsCompoundIndices) {
       let multiIndex = indexes.find((index) => {
         let { keyPath } = index;
 
@@ -609,23 +629,50 @@ export default class IndexedDbService extends Service {
         let compareValues = array();
 
         keyPath.forEach((key) => {
-          compareValues.push(query[key]);
+          let value = normalizeValue(query[key]);
+          compareValues.push(value);
         });
 
+        this._logQuery(`Using compound index "${keyPath}"`, query);
         return db[type].where(keyName).equals(compareValues);
       }
     }
 
     // Else, filter manually
-    Object.keys(query).forEach((i) => {
-      if (!promise) {
-        promise = db[type].where(i).equals(query[i]);
-      } else {
-        promise = promise.and((item) => item[i] === query[i]);
-      }
+    // Try to find at least a single actual index, if possible...
+    let whereKey = keys.find((key) => {
+      return indexes.some((index) => {
+        let { keyPath } = index;
+        return keyPath === key;
+      });
     });
 
-    return promise;
+    let whereKeyValue = whereKey ? normalizeValue(query[whereKey]) : null;
+    let vanillaFilterKeys = keys.filter((key) => !whereKey || key !== whereKey);
+
+    let collection = whereKey
+      ? db[type].where(whereKey).equals(whereKeyValue)
+      : db[type];
+
+    if (whereKey) {
+      this._logQuery(
+        `Using index "${whereKey}" and vanilla filtering for ${vanillaFilterKeys.join(
+          ', '
+        )}`,
+        query
+      );
+    } else {
+      this._logQuery(`Using vanilla filtering`, query);
+    }
+
+    return collection.filter((item) => {
+      return vanillaFilterKeys.every((key) => {
+        return (
+          normalizeValue(item.json.attributes[key]) ===
+          normalizeValue(query[key])
+        );
+      });
+    });
   }
 
   _mapItem(type, item) {
@@ -684,4 +731,12 @@ async function closeDb(db) {
     await db.close();
   }
   return db;
+}
+
+function normalizeValue(value) {
+  if (typeof value === 'boolean') {
+    return value ? 1 : 0;
+  }
+
+  return value;
 }
