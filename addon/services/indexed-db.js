@@ -167,6 +167,7 @@ export default class IndexedDbService extends Service {
    */
   queryRecord(type, query) {
     let queryPromise = this._buildQuery(type, query);
+
     let promise = new Promise(
       (resolve, reject) => queryPromise.first().then(resolve, reject),
       'indexedDb/queryRecord'
@@ -564,7 +565,6 @@ export default class IndexedDbService extends Service {
   _buildQuery(type, query) {
     let { db, _supportsCompoundIndices: supportsCompoundIndices } = this;
 
-    let promise = null;
     let keys = Object.keys(query);
 
     // Convert boolean queries to 1/0
@@ -574,15 +574,22 @@ export default class IndexedDbService extends Service {
       }
     }
 
-    // Only one, then do a simple where
-    if (keys.length === 1) {
-      let key = keys[0];
-      return db[type].where(key).equals(query[key]);
-    }
-
     // Order of query params is important!
     let { schema } = db[type];
     let { indexes } = schema;
+
+    // Only one, try to find a simple index
+    if (keys.length === 1) {
+      let key = keys[0];
+      let index = indexes.find((index) => {
+        let { keyPath } = index;
+        return keyPath === key;
+      });
+
+      if (index) {
+        return db[type].where(key).equals(query[key]);
+      }
+    }
 
     // try to find a fitting multi index
     // only if the client supports compound indices!
@@ -617,15 +624,11 @@ export default class IndexedDbService extends Service {
     }
 
     // Else, filter manually
-    Object.keys(query).forEach((i) => {
-      if (!promise) {
-        promise = db[type].where(i).equals(query[i]);
-      } else {
-        promise = promise.and((item) => item[i] === query[i]);
-      }
+    return db[type].filter((item) => {
+      return keys.every((key) => {
+        return item.json.attributes[key] === query[key];
+      });
     });
-
-    return promise;
   }
 
   _mapItem(type, item) {
