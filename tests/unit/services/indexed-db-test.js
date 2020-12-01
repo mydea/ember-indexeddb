@@ -1,5 +1,4 @@
 import RSVP from 'rsvp';
-import { get } from '@ember/object';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { setupIndexedDb } from 'ember-indexeddb/test-support/helpers/indexed-db';
@@ -134,11 +133,7 @@ module('Unit | Service | indexed-db', function (hooks) {
       });
 
       RSVP.all([promise1, promise2]).then(() => {
-        assert.equal(
-          get(promiseQueue, 'length'),
-          0,
-          'promise queue is cleared'
-        );
+        assert.equal(promiseQueue.length, 0, 'promise queue is cleared');
         done();
       });
     });
