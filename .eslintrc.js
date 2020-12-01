@@ -66,10 +66,7 @@ module.exports = {
         node: true,
       },
       plugins: ['node'],
-      rules: Object.assign(
-        {},
-        require('eslint-plugin-node').configs.recommended.rules
-      ),
+      extends: ['plugin:node/recommended'],
     },
     {
       files: ['tests/**/*.js'],
