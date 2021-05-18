@@ -15,7 +15,7 @@ export default class extends IndexedDbConfigurationService {
         id: this._toString(item.id),
         json: this._cleanObject(item),
         isRead: this._toZeroOne(item.attributes?.['is-read']),
-        isSynced: this._toZeroOne(item.attribtues?.['is-synced'], 1),
+        isSynced: this._toZeroOne(item.attributes?.['is-synced'], 1),
       };
     },
   };
