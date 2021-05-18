@@ -5,9 +5,9 @@ import { later } from '@ember/runloop';
 import { typeOf as getTypeOf } from '@ember/utils';
 import { A as array } from '@ember/array';
 import { task, timeout } from 'ember-concurrency';
-import { log } from 'ember-indexeddb/utils/log';
 import Dexie from 'dexie';
 import { buildWaiter, waitForPromise } from '@ember/test-waiters';
+import { macroCondition, isTesting } from '@embroider/macros';
 
 const testWaiter = buildWaiter('ember-indexeddb');
 
@@ -739,4 +739,11 @@ function normalizeValue(value) {
   }
 
   return value;
+}
+
+function log(str) {
+  if (macroCondition(!isTesting())) {
+    // eslint-disable-next-line no-console
+    console.log(str);
+  }
 }
