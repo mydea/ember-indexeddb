@@ -2,7 +2,7 @@
   Items
 </h1>
 
-<table class="table">
+<table class='table'>
   <thead>
     <tr>
       <th>
@@ -18,8 +18,8 @@
     </tr>
   </thead>
   <tbody>
-    {{#each model as |item|}}
-      <tr class="item" data-test-row>
+    {{#each @model as |item|}}
+      <tr class='item' data-test-row>
         <td>
           {{item.date}}
         </td>
@@ -30,7 +30,10 @@
           {{item.isSynced}}
         </td>
         <td>
-          <button {{action 'markAsRead' item}} data-test-mark-as-read>
+          <button
+            data-test-mark-as-read
+            {{on 'click' (fn this.markAsRead item)}}
+          >
             Mark as read
           </button>
         </td>
@@ -39,18 +42,18 @@
   </tbody>
 </table>
 
-<button id="add-items" {{action 'fetchItems'}}>
+<button id='add-items' {{on 'click' this.fetchItems}}>
   Fetch items from API
 </button>
 
-<button id="add-items" {{action 'addItem'}}>
+<button id='add-items' {{on 'click' this.addItem}}>
   Add item locally
 </button>
 
-<button id="add-items" {{action 'syncItems'}}>
+<button id='add-items' {{on 'click' this.syncItems}}>
   Sync to server
 </button>
 
-<button id="reset-db" {{action 'resetDb'}}>
+<button id='reset-db' {{on 'click' (perform this.resetDbTask)}}>
   Reset DB
 </button>
