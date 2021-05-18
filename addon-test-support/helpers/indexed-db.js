@@ -1,6 +1,6 @@
 import { set } from '@ember/object';
 import { run } from '@ember/runloop';
-import wait from 'ember-test-helpers/wait';
+import { settled } from '@ember/test-helpers';
 
 /**
  * ## Test Helpers
@@ -34,7 +34,7 @@ export function setupIndexedDb(hooks) {
 
   hooks.afterEach(async function () {
     let indexedDb = this.owner.lookup('service:indexed-db');
-    await wait();
+    await settled();
     await run(() => indexedDb.waitForQueueTask.perform());
     await run(() => indexedDb.waitForQueueTask.perform());
     await indexedDb.dropDatabaseTask.perform();

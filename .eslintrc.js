@@ -8,9 +8,7 @@ module.exports = {
       legacyDecorators: true,
     },
   },
-
   plugins: ['ember', 'ember-es6-class'],
-
   extends: [
     'eslint:recommended',
     'plugin:ember/recommended',
@@ -43,6 +41,7 @@ module.exports = {
     {
       files: [
         '.eslintrc.js',
+        '.prettierrc.js',
         '.template-lintrc.js',
         'ember-cli-build.js',
         '.ember-cli.js',
