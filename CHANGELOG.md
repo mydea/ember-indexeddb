@@ -1,3 +1,16 @@
+# [3.0.0-beta.1](https://github.com/mydea/ember-indexeddb/compare/v3.0.0-beta.0...v3.0.0-beta.1) (2021-05-18)
+
+
+### Bug Fixes
+
+* use settled instead of wait (fix [#161](https://github.com/mydea/ember-indexeddb/issues/161)) ([8d4ff7a](https://github.com/mydea/ember-indexeddb/commit/8d4ff7ac62b1c3aac13dcb454745cd705f2ff959))
+
+### Others
+
+* Update all dependencies to latest
+* Update ember-auto-import to 2.x (potentially breaking!)
+* Allow ember-concurrency 1.x and 2.x
+
 # [3.0.0-beta.0](https://github.com/mydea/ember-indexeddb/compare/v2.0.0...v3.0.0-beta.0) (2020-06-23)
 
 
