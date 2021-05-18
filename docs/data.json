@@ -2,7 +2,7 @@
     "project": {
         "name": "ember-indexeddb",
         "description": "A utility for using IndexedDB with ember & ember-data",
-        "version": "v3.0.0-beta.0",
+        "version": "v3.0.0-beta.1",
         "indexModule": "Usage",
         "url": "https://github.com/mydea/ember-indexeddb"
     },

@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.0" target="_blank">
-                                  Tag: v3.0.0-beta.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.1" target="_blank">
+                                  Tag: v3.0.0-beta.1
                                 </a>
                             </h4>
                         </div>
@@ -145,9 +145,9 @@ import { later } from &#x27;@ember/runloop&#x27;;
 import { typeOf as getTypeOf } from &#x27;@ember/utils&#x27;;
 import { A as array } from &#x27;@ember/array&#x27;;
 import { task, timeout } from &#x27;ember-concurrency&#x27;;
-import { log } from &#x27;ember-indexeddb/utils/log&#x27;;
 import Dexie from &#x27;dexie&#x27;;
 import { buildWaiter, waitForPromise } from &#x27;@ember/test-waiters&#x27;;
+import { macroCondition, isTesting } from &#x27;@embroider/macros&#x27;;
 
 const testWaiter = buildWaiter(&#x27;ember-indexeddb&#x27;);
 
@@ -879,6 +879,13 @@ function normalizeValue(value) {
   }
 
   return value;
+}
+
+function log(str) {
+  if (macroCondition(!isTesting())) {
+    // eslint-disable-next-line no-console
+    console.log(str);
+  }
 }
 
     </pre>

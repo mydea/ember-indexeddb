@@ -54,8 +54,8 @@
                     <li class="panel panel-default">
                         <div class="panel-heading" role="tab" id="sidebar-version-heading">
                             <h4 class="panel-title">
-                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.0" target="_blank">
-                                  Tag: v3.0.0-beta.0
+                                <a role="button" href="https://github.com/mydea/ember-indexeddb/commits/v3.0.0-beta.1" target="_blank">
+                                  Tag: v3.0.0-beta.1
                                 </a>
                             </h4>
                         </div>
@@ -140,7 +140,7 @@
     <pre class="prettyprint linenums">
 import { set } from &#x27;@ember/object&#x27;;
 import { run } from &#x27;@ember/runloop&#x27;;
-import wait from &#x27;ember-test-helpers/wait&#x27;;
+import { settled } from &#x27;@ember/test-helpers&#x27;;
 
 /**
  * ## Test Helpers
@@ -174,7 +174,7 @@ export function setupIndexedDb(hooks) {
 
   hooks.afterEach(async function () {
     let indexedDb = this.owner.lookup(&#x27;service:indexed-db&#x27;);
-    await wait();
+    await settled();
     await run(() =&gt; indexedDb.waitForQueueTask.perform());
     await run(() =&gt; indexedDb.waitForQueueTask.perform());
     await indexedDb.dropDatabaseTask.perform();
