@@ -1209,19 +1209,32 @@
     resolve "^1.8.1"
     semver "^7.3.2"
 
-"@embroider/macros@^0.40.0":
-  version "0.40.0"
-  resolved "https://registry.yarnpkg.com/@embroider/macros/-/macros-0.40.0.tgz#f58763b4cfb9b4089679b478a28627595341bc5a"
-  integrity sha512-ygChvFoebSi/N8b+A+XFncd454gLYBYHancrtY0AE/h6Y1HouoqQvji/IfaLisGoeuwUWuI9rCBv97COweu/rA==
+"@embroider/macros@^0.42.3":
+  version "0.42.3"
+  resolved "https://registry.yarnpkg.com/@embroider/macros/-/macros-0.42.3.tgz#eb4dc35c43f1cb1d14298219ba037f8cead06081"
+  integrity sha512-4I+Sde8FU7QMwNQ3gYtj8fdBTqUeoPDn61XuV4Xng7p9LszQksGDXtyEhWrf9KWU3G+NtrZotY5LICd5P+E3tw==
   dependencies:
-    "@embroider/shared-internals" "0.40.0"
-    assert-never "^1.1.0"
-    ember-cli-babel "^7.23.0"
-    lodash "^4.17.10"
-    resolve "^1.8.1"
+    "@embroider/shared-internals" "0.42.3"
+    assert-never "^1.2.1"
+    ember-cli-babel "^7.26.6"
+    lodash "^4.17.21"
+    resolve "^1.20.0"
     semver "^7.3.2"
 
-"@embroider/shared-internals@0.40.0", "@embroider/shared-internals@^0.40.0":
+"@embroider/shared-internals@0.42.3":
+  version "0.42.3"
+  resolved "https://registry.yarnpkg.com/@embroider/shared-internals/-/shared-internals-0.42.3.tgz#65224fe86c55790417078b267add8f54148b59e3"
+  integrity sha512-AIFRumaGxzhzzSswtk97Z0ttu0dyRhXoDuOi6kPYHoprUdtt7biRAksrsbutWWdFapve7vKHFZdYVuiG8IbX0A==
+  dependencies:
+    ember-rfc176-data "^0.3.17"
+    fs-extra "^9.1.0"
+    lodash "^4.17.21"
+    pkg-up "^3.1.0"
+    resolve-package-path "^4.0.1"
+    semver "^7.3.5"
+    typescript-memoize "^1.0.1"
+
+"@embroider/shared-internals@^0.40.0":
   version "0.40.0"
   resolved "https://registry.yarnpkg.com/@embroider/shared-internals/-/shared-internals-0.40.0.tgz#2f768c60f4f35ba5f9228f046f70324851e8bfe2"
   integrity sha512-Ovr/i0Qgn6W6jdGXMvYJKlRoRpyBY9uhYozDSFKlBjeEmRJ0Plp7OST41+O5Td6Pqp+Rv2jVSnGzhA/MpC++NQ==
@@ -2355,7 +2368,7 @@ asn1@~0.2.3:
   dependencies:
     safer-buffer "~2.1.0"
 
-assert-never@^1.1.0:
+assert-never@^1.1.0, assert-never@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/assert-never/-/assert-never-1.2.1.tgz#11f0e363bf146205fb08193b5c7b90f4d1cf44fe"
   integrity sha512-TaTivMB6pYI1kXwrFlEhLeGfOqoDNdTxjCdwRfFFkEA30Eu+k48W34nlok2EYWJfFFzqaEmichdNM7th6M5HNw==
@@ -5537,10 +5550,10 @@ ember-cli-babel@^6.0.0-beta.4:
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.22.1, ember-cli-babel@^7.23.0, ember-cli-babel@^7.23.1, ember-cli-babel@^7.26.2, ember-cli-babel@^7.26.3, ember-cli-babel@^7.26.5, ember-cli-babel@^7.4.0, ember-cli-babel@^7.7.3:
-  version "7.26.5"
-  resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-7.26.5.tgz#59904d1d73b5c816167238024d18b85c8b51debc"
-  integrity sha512-XLMk59yNJneItn/hkJn+kHjnnszdfXWo1sP95C0kouSfPtIsUC3a/f/FW6c59D8koPANJOIHiHP3zUpTpKsnTA==
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.13.0, ember-cli-babel@^7.13.2, ember-cli-babel@^7.22.1, ember-cli-babel@^7.23.0, ember-cli-babel@^7.23.1, ember-cli-babel@^7.26.2, ember-cli-babel@^7.26.3, ember-cli-babel@^7.26.5, ember-cli-babel@^7.26.6, ember-cli-babel@^7.4.0, ember-cli-babel@^7.7.3:
+  version "7.26.6"
+  resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-7.26.6.tgz#322fbbd3baad9dd99e3276ff05bc6faef5e54b39"
+  integrity sha512-040svtfj2RC35j/WMwdWJFusZaXmNoytLAMyBDGLMSlRvznudTxZjGlPV6UupmtTBApy58cEF8Fq4a+COWoEmQ==
   dependencies:
     "@babel/core" "^7.12.0"
     "@babel/helper-compilation-targets" "^7.12.0"
@@ -11599,6 +11612,13 @@ resolve-package-path@^3.1.0:
     path-root "^0.1.1"
     resolve "^1.17.0"
 
+resolve-package-path@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/resolve-package-path/-/resolve-package-path-4.0.1.tgz#0e77271e06c8cc41740d28ef974806a77fdc8880"
+  integrity sha512-2gb/yU2fSfX22pjDYyevzyOKK9q72XKUFqlAsrfPzZArM4JkIH/Qcme4n3EbaZttObWm/fIFLbPxrXIyiL8wdQ==
+  dependencies:
+    path-root "^0.1.1"
+
 resolve-path@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/resolve-path/-/resolve-path-1.4.0.tgz#c4bda9f5efb2fce65247873ab36bb4d834fe16f7"
@@ -13107,7 +13127,7 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript-memoize@^1.0.0-alpha.3:
+typescript-memoize@^1.0.0-alpha.3, typescript-memoize@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/typescript-memoize/-/typescript-memoize-1.0.1.tgz#0a8199aa28f6fe18517f6e9308ef7bfbe9a98d59"
   integrity sha512-oJNge1qUrOK37d5Y6Ly2txKeuelYVsFtNF6U9kXIN7juudcQaHJQg2MxLOy0CqtkW65rVDYuTCOjnSIVPd8z3w==
