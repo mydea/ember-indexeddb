@@ -5027,13 +5027,13 @@ css-loader@^5.2.0:
     schema-utils "^3.0.0"
     semver "^7.3.5"
 
-css-tree@^1.0.0-alpha.39:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-1.1.3.tgz#eb4870fb6fd7707327ec95c2ff2ab09b5e8db91d"
-  integrity sha512-tRpdppF7TRazZrjJ6v3stzv93qxRcSsFmW6cX0Zm2NVKpxE1WV1HblnghVv9TreireHkqI/VDEsfolRF1p6y7Q==
+css-tree@^2.0.4:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/css-tree/-/css-tree-2.1.0.tgz#170e27ccf94e7c5facb183765c25898be843d1d2"
+  integrity sha512-PcysZRzToBbrpoUrZ9qfblRIRf8zbEAkU0AIpQFtgkFK0vSbzOmBCvdSAx2Zg7Xx5wiYJKUKk0NMP7kxevie/A==
   dependencies:
-    mdn-data "2.0.14"
-    source-map "^0.6.1"
+    mdn-data "2.0.27"
+    source-map-js "^1.0.1"
 
 cssesc@^3.0.0:
   version "3.0.0"
@@ -6343,15 +6343,16 @@ eslint-plugin-ember-es6-class@^0.0.1:
   dependencies:
     requireindex "~1.1.0"
 
-eslint-plugin-ember@^10.4.2:
-  version "10.4.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-ember/-/eslint-plugin-ember-10.4.2.tgz#b9d7cd36f4a08b18997c23ad6884d2382a7d2ea5"
-  integrity sha512-rOT6e1puS6uWGxr8kPGYSMPordNVTasckuQiaakcjaEGKUtXNjcHtgS8WjmYESIeDFcTCtZvh2w+fHB8tglu4w==
+eslint-plugin-ember@^11.0.4:
+  version "11.0.4"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-ember/-/eslint-plugin-ember-11.0.4.tgz#7504b661bca9eb7229aad8c15359511b58517e7c"
+  integrity sha512-zW9K9xRgt503TMHjmtGRW2OFtLimUgEEGj3Z2LHn6vVuMh0hglPKjI39Cgx/SkoZvBjxN6PB6N+M0qDBQGIlBw==
   dependencies:
     "@ember-data/rfc395-data" "^0.0.4"
-    css-tree "^1.0.0-alpha.39"
+    css-tree "^2.0.4"
     ember-rfc176-data "^0.3.15"
-    eslint-utils "^2.1.0"
+    eslint-utils "^3.0.0"
+    estraverse "^5.2.0"
     lodash.kebabcase "^4.1.1"
     requireindex "^1.2.0"
     snake-case "^3.0.3"
@@ -6405,6 +6406,13 @@ eslint-utils@^2.0.0, eslint-utils@^2.1.0:
   integrity sha512-w94dQYoauyvlDc43XnGB8lU3Zt713vNChgt4EWwhXAP2XkBvndfxF0AgIqKOOasjPIPzj9JqgwkwbCYD0/V3Zg==
   dependencies:
     eslint-visitor-keys "^1.1.0"
+
+eslint-utils@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/eslint-utils/-/eslint-utils-3.0.0.tgz#8aebaface7345bb33559db0a1f13a1d2d48c3672"
+  integrity sha512-uuQC43IGctw68pJA1RgbQS8/NP7rch6Cwd4j3ZBtgo4/8Flj4eGE7ZYSZRN3iq5pVUv6GPdW5Z1RFleo84uLDA==
+  dependencies:
+    eslint-visitor-keys "^2.0.0"
 
 eslint-visitor-keys@^1.0.0, eslint-visitor-keys@^1.1.0, eslint-visitor-keys@^1.3.0:
   version "1.3.0"
@@ -9547,10 +9555,10 @@ md5.js@^1.3.4:
     inherits "^2.0.1"
     safe-buffer "^5.1.2"
 
-mdn-data@2.0.14:
-  version "2.0.14"
-  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.14.tgz#7113fc4281917d63ce29b43446f701e68c25ba50"
-  integrity sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==
+mdn-data@2.0.27:
+  version "2.0.27"
+  resolved "https://registry.yarnpkg.com/mdn-data/-/mdn-data-2.0.27.tgz#1710baa7b0db8176d3b3d565ccb7915fc69525ab"
+  integrity sha512-kwqO0I0jtWr25KcfLm9pia8vLZ8qoAKhWZuZMbneJq3jjBD3gl5nZs8l8Tu3ZBlBAHVQtDur9rdDGyvtfVraHQ==
 
 mdn-links@^0.1.0:
   version "0.1.0"
@@ -12157,6 +12165,11 @@ source-list-map@^2.0.0, source-list-map@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/source-list-map/-/source-list-map-2.0.1.tgz#3993bd873bfc48479cca9ea3a547835c7c154b34"
   integrity sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==
+
+source-map-js@^1.0.1:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
+  integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
 
 source-map-resolve@^0.5.0:
   version "0.5.3"
